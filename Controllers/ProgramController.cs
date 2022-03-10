@@ -44,7 +44,7 @@ namespace MeFit_BE.Controllers
 
         /// <summary>
         /// Adds a new Program to the database
-        /// NOTE: JUST IGNORE THE ID FIELD FOR NOW
+        /// NOTE: JUST IGNORE THE ID FIELD
         /// </summary>
         /// <param name="program"></param>
         /// <returns>Program</returns>
@@ -99,10 +99,10 @@ namespace MeFit_BE.Controllers
             return Ok($"Deleted Program with Id: {id}");
         }
 
-        private async Task<WorkoutProgram> GetProgramAsync(int ProgramId)
+        private async Task<WorkoutProgram> GetProgramAsync(int programId)
         {
             return await _context.WorkoutPrograms
-                .SingleOrDefaultAsync(p => p.Id == ProgramId);
+                .SingleOrDefaultAsync(p => p.Id == programId);
         }
 
         private bool ProgramExists(int id)
