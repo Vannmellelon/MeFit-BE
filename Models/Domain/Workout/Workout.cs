@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MeFit_BE.Models.Domain.Workout
 {
@@ -20,5 +16,9 @@ namespace MeFit_BE.Models.Domain.Workout
         public int? SetId { get; set; }
 
         public Set Set { get; set; }
+
+        // FK to contributor
+        public int ContributorId { get; set; }
+        public User.User ContributedBy { get; set; }
     }
 }

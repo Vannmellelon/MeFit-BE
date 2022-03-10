@@ -30,7 +30,7 @@ namespace MeFit_BE
 
             services.AddControllers();
             services.AddDbContext<Models.MeFitDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("AzureConnection")));
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "MeFit_BE", Version = "v1" });

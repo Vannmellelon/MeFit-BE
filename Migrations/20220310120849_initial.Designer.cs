@@ -4,14 +4,16 @@ using MeFit_BE.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace MeFit_BE.Migrations
 {
     [DbContext(typeof(MeFitDbContext))]
-    partial class MeFitDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220310120849_initial")]
+    partial class initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -119,12 +121,6 @@ namespace MeFit_BE.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int?>("ContributedById")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ContributorId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
@@ -141,8 +137,6 @@ namespace MeFit_BE.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ContributedById");
 
                     b.ToTable("Exercise");
                 });
@@ -236,12 +230,6 @@ namespace MeFit_BE.Migrations
                     b.Property<bool>("Complete")
                         .HasColumnType("bit");
 
-                    b.Property<int?>("ContributedById")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ContributorId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
@@ -255,8 +243,6 @@ namespace MeFit_BE.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ContributedById");
 
                     b.HasIndex("ProfileId");
 
@@ -275,12 +261,6 @@ namespace MeFit_BE.Migrations
                     b.Property<string>("Category")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("ContributedById")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ContributorId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
@@ -288,8 +268,6 @@ namespace MeFit_BE.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ContributedById");
 
                     b.HasIndex("ProfileId");
 
@@ -303,15 +281,6 @@ namespace MeFit_BE.Migrations
                         .HasForeignKey("AddressId");
 
                     b.Navigation("Address");
-                });
-
-            modelBuilder.Entity("MeFit_BE.Models.Domain.Workout.Exercise", b =>
-                {
-                    b.HasOne("MeFit_BE.Models.Domain.User.User", "ContributedBy")
-                        .WithMany("Exercises")
-                        .HasForeignKey("ContributedById");
-
-                    b.Navigation("ContributedBy");
                 });
 
             modelBuilder.Entity("MeFit_BE.Models.Domain.Workout.Goal", b =>
@@ -351,10 +320,6 @@ namespace MeFit_BE.Migrations
 
             modelBuilder.Entity("MeFit_BE.Models.Domain.Workout.Workout", b =>
                 {
-                    b.HasOne("MeFit_BE.Models.Domain.User.User", "ContributedBy")
-                        .WithMany("Workouts")
-                        .HasForeignKey("ContributedById");
-
                     b.HasOne("MeFit_BE.Models.Domain.User.Profile", null)
                         .WithMany("Workouts")
                         .HasForeignKey("ProfileId");
@@ -363,22 +328,14 @@ namespace MeFit_BE.Migrations
                         .WithMany()
                         .HasForeignKey("SetId");
 
-                    b.Navigation("ContributedBy");
-
                     b.Navigation("Set");
                 });
 
             modelBuilder.Entity("MeFit_BE.Models.Domain.Workout.WorkoutProgram", b =>
                 {
-                    b.HasOne("MeFit_BE.Models.Domain.User.User", "ContributedBy")
-                        .WithMany("Programs")
-                        .HasForeignKey("ContributedById");
-
                     b.HasOne("MeFit_BE.Models.Domain.User.Profile", null)
                         .WithMany("WorkoutPrograms")
                         .HasForeignKey("ProfileId");
-
-                    b.Navigation("ContributedBy");
                 });
 
             modelBuilder.Entity("MeFit_BE.Models.Domain.User.Profile", b =>
@@ -386,15 +343,6 @@ namespace MeFit_BE.Migrations
                     b.Navigation("Goals");
 
                     b.Navigation("WorkoutPrograms");
-
-                    b.Navigation("Workouts");
-                });
-
-            modelBuilder.Entity("MeFit_BE.Models.Domain.User.User", b =>
-                {
-                    b.Navigation("Exercises");
-
-                    b.Navigation("Programs");
 
                     b.Navigation("Workouts");
                 });
