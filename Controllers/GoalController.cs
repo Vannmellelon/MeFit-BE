@@ -103,15 +103,86 @@ namespace MeFit_BE.Controllers
             return Ok($"Deleted Goal with Id: {id}");
         }
 
+        /// <summary>
+        /// Updates WorkoutProgram of a Goal in the database by their id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="programId"></param>
+        /// <returns></returns>
+        [HttpPatch("{id}/workoutprogram")]
+        public async Task<IActionResult> Patch(int id, int programId)
+        {
+            if (!GoalExists(id))
+                return NotFound($"Goal with Id: {id} was not found");
+            try
+            {
+                var goal = await GetGoalAsync(id);
+
+                var program = await _context.WorkoutPrograms.FindAsync(programId);
+                goal.WorkoutProgram = program ?? 
+                    throw new KeyNotFoundException($"Record of Program with id: {programId} does not exist");
+
+                await _context.SaveChangesAsync();
+            }
+            catch (KeyNotFoundException e)
+            {
+                return BadRequest(e.Message);
+            }
+
+            return Ok($"Updated Program [{programId}] for Goal with Id: {id}");
+        }
+
+        /// <summary>
+        /// Updates SubGoals of a Goal in the database by their Id; 
+        /// must pass in an updated list of SubGoal Ids
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="subGoalIds"></param>
+        /// <returns></returns>
+        [HttpPatch("{id}/subgoals")]
+        public async Task<IActionResult> Patch(int id, List<int> subGoalIds)
+        {
+            if (!GoalExists(id))
+                return NotFound($"Goal with Id: {id} was not found");
+            try
+            {
+                var goal = await GetGoalAsync(id);
+
+                goal.SubGoals = await GetSubGoalsAsync(subGoalIds);
+
+                await _context.SaveChangesAsync();
+            }
+            catch (KeyNotFoundException e)
+            {
+                return BadRequest(e.Message);
+            }
+            string subGoals = " ";
+            subGoalIds.ForEach(i => subGoals += $"{i}, ");
+            return Ok($"Updated SubGoal(s) [{subGoals}] for Goal with Id: {id}");
+        }
+        private bool GoalExists(int id)
+        {
+            return _context.Goals.Any(g => g.Id == id);
+        }
+
         private async Task<Goal> GetGoalAsync(int goalId)
         {
             return await _context.Goals
                 .SingleOrDefaultAsync(g => g.Id == goalId);
         }
 
-        private bool GoalExists(int id)
+        private async Task<List<SubGoal>> GetSubGoalsAsync(List<int> subGoalIds)
         {
-            return _context.Goals.Any(g => g.Id == id);
+            var subGoals = new List<SubGoal>();
+            foreach (int id in subGoalIds)
+            {
+                var subGoal = await _context.SubGoals.FindAsync(id);
+                if (subGoal == null)
+                    throw new KeyNotFoundException($"Record of SubGoal with id: {subGoal} does not exist");
+                subGoals.Add(subGoal);
+            }
+            return subGoals;
         }
+
     }
 }
