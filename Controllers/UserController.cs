@@ -2,7 +2,7 @@
 using System.Net.Mime;
 using System.Threading.Tasks;
 using MeFit_BE.Models;
-using MeFit_BE.Models.Domain;
+using MeFit_BE.Models.Domain.User;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
