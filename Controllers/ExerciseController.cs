@@ -4,9 +4,9 @@ using MeFit_BE.Models.Domain.Workout;
 using MeFit_BE.Models.DTO.Exercise;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mime;
 using System.Threading.Tasks;
 
 
@@ -14,6 +14,9 @@ namespace MeFit_BE.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Produces(MediaTypeNames.Application.Json)]
+    [Consumes(MediaTypeNames.Application.Json)]
+    [ApiConventionType(typeof(DefaultApiConventions))]
     public class ExerciseController : ControllerBase
     {
         private readonly MeFitDbContext _context;
@@ -49,7 +52,6 @@ namespace MeFit_BE.Controllers
 
         /// <summary>
         /// Method adds a new excercise to the database.
-        /// NOTE: JUST IGNORE THE ID FIELD
         /// </summary>
         /// <param name="exercise">New exercise</param>
         /// <returns>New exercise</returns>
@@ -57,13 +59,6 @@ namespace MeFit_BE.Controllers
         public async Task<ExerciseReadDTO> Post(ExerciseWriteDTO exerciseDTO)
         {
             Exercise domainExercise = _mapper.Map<Exercise>(exerciseDTO);
-            /*var domainExercise = new Exercise() { 
-                Name = exercise.Name,
-                Description = exercise.Description,
-                TargetMuscleGroup = exercise.TargetMuscleGroup,
-                Image = exercise.Image,
-                Video = exercise.Video
-            };*/
             _context.Exercises.Add(domainExercise);
             await _context.SaveChangesAsync();
             return _mapper.Map<ExerciseReadDTO>(domainExercise);
