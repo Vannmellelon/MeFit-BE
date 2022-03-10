@@ -30,6 +30,7 @@ namespace MeFit_BE
         {
 
             services.AddControllers();
+            services.AddAutoMapper(typeof(Startup));
             services.AddDbContext<Models.MeFitDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("AzureConnection")));
             services.AddSwaggerGen(c =>
