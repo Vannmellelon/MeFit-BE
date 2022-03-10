@@ -30,7 +30,7 @@ namespace MeFit_BE
 
             services.AddControllers();
             services.AddDbContext<Models.MeFitDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+                options.UseSqlServer(Configuration.GetConnectionString("AzureConnection")));
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "MeFit_BE", Version = "v1" });
@@ -43,9 +43,10 @@ namespace MeFit_BE
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "MeFit_BE v1"));
             }
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "MeFit_BE v1"));
 
             app.UseHttpsRedirection();
 
