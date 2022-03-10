@@ -1,5 +1,7 @@
-﻿using MeFit_BE.Models;
+﻿using AutoMapper;
+using MeFit_BE.Models;
 using MeFit_BE.Models.Domain.Workout;
+using MeFit_BE.Models.DTO.Goal;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -15,49 +17,90 @@ namespace MeFit_BE.Controllers
     public class GoalController : ControllerBase
     {
         private readonly MeFitDbContext _context;
+        private readonly IMapper _mapper;
 
-        public GoalController(MeFitDbContext context)
+        public GoalController(MeFitDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         /// <summary>
-        /// Fetches all Goals from the database
+        /// Method fetches all Goals from the database
         /// </summary>
-        /// <returns>List og Goals</returns>
+        /// <returns>Goals</returns>
         [HttpGet]
-        public async Task<IEnumerable<Goal>> Get()
+        public async Task<IEnumerable<GoalReadDTO>> Get()
         {
-            return await _context.Goals.ToListAsync();
+            return _mapper.Map<List<GoalReadDTO>>(await _context.Goals.ToListAsync());
         }
 
         /// <summary>
-        /// Fetches a specific Goal from the database by id 
+        /// Method fetches a specific Goal from the database by id 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>Exercise</returns>
+        [HttpGet("{id}")]
+        public async Task<ActionResult<GoalReadDTO>> Get(int id)
+        {
+            return _mapper.Map<GoalReadDTO>(await GetGoalAsync(id));
+        }
+
+        /// <summary>
+        /// Method adds a new Goal to the database.
+        /// </summary>
+        /// <param name="goalDTO"></param>
+        /// <returns>New Goal</returns>
+        [HttpPost]
+        public async Task<GoalReadDTO> Post(GoalWriteDTO goalDTO)
+        {
+            var domainGoal = _mapper.Map<Goal>(goalDTO);
+            _context.Goals.Add(domainGoal);
+            await _context.SaveChangesAsync();
+
+            return _mapper.Map<GoalReadDTO>(domainGoal);
+        }
+
+        /// <summary>
+        /// Method updates a Goal in the database by id;
+        /// must pass in an updated Goal object
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="goalDTO"></param>
+        /// <returns></returns>
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Put(int id, GoalEditDTO goalDTO)
+        {
+            if (id != goalDTO.Id)
+                return BadRequest("Invalid Goal Id");
+
+            if (!GoalExists(id))
+                return NotFound($"Goal with Id: {id} was not found");
+
+            var domainGoal = _mapper.Map<Goal>(goalDTO);
+            _context.Entry(domainGoal).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            return Ok($"Updated Goal with id: {id}");
+        }
+
+        /// <summary>
+        /// Method deletes an exercise in the database by id.
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Goal>> Get(int id)
-        {
-            return await GetGoalAsync(id);
-        }
-
-        // POST api/<GoalController>
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
-        }
-
-        // PUT api/<GoalController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/<GoalController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public async Task<ActionResult> Delete(int id)
         {
+            if (!GoalExists(id))
+                return NotFound($"Goal with Id: {id} was not found");
+
+            var domainGoal = await GetGoalAsync(id);
+
+            _context.Goals.Remove(domainGoal);
+            await _context.SaveChangesAsync();
+
+            return Ok($"Deleted Goal with Id: {id}");
         }
 
         private async Task<Goal> GetGoalAsync(int goalId)
