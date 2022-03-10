@@ -1,5 +1,7 @@
-﻿using MeFit_BE.Models;
+﻿using AutoMapper;
+using MeFit_BE.Models;
 using MeFit_BE.Models.Domain.Workout;
+using MeFit_BE.Models.DTO.Exercise;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -15,72 +17,76 @@ namespace MeFit_BE.Controllers
     public class ExerciseController : ControllerBase
     {
         private readonly MeFitDbContext _context;
+        private readonly IMapper _mapper;
 
-        public ExerciseController(MeFitDbContext context)
+        public ExerciseController(MeFitDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         // GET: api/<ExerciseController>
         /// <summary>
-        /// Fetches all Exercises from the database
+        /// Method fetches all exercises from the database.
         /// </summary>
         /// <returns>List of Exercises</returns>
         [HttpGet]
-        public async Task<IEnumerable<Exercise>> Get()
+        public async Task<IEnumerable<ExerciseReadDTO>> GetExercises()
         {
-            return await _context.Exercises.ToListAsync();
+            return _mapper.Map<List<ExerciseReadDTO>>(await _context.Exercises.ToListAsync());
         }
 
         /// <summary>
-        /// Fetches a specific Exercise from the database by id 
+        /// Method fetches a specific exercise from the database by id.
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="id">Exercise id</param>
         /// <returns>Exercise</returns>
         [HttpGet("{id}")]
-        public async Task<ActionResult<Exercise>> Get(int id)
+        public async Task<ActionResult<ExerciseReadDTO>> GetExercise(int id)
         {
-            return await GetExerciseAsync(id);
+            return _mapper.Map<ExerciseReadDTO>(await GetExerciseAsync(id));
         }
 
         /// <summary>
-        /// Adds a new Excercise to the database
+        /// Method adds a new excercise to the database.
         /// NOTE: JUST IGNORE THE ID FIELD
         /// </summary>
-        /// <param name="exercise"></param>
-        /// <returns>Exercise</returns>
+        /// <param name="exercise">New exercise</param>
+        /// <returns>New exercise</returns>
         [HttpPost]
-        public async Task<Exercise> Post(Exercise exercise)
+        public async Task<ExerciseReadDTO> Post(ExerciseWriteDTO exerciseDTO)
         {
-            var domainExercise = new Exercise() { 
+            Exercise domainExercise = _mapper.Map<Exercise>(exerciseDTO);
+            /*var domainExercise = new Exercise() { 
                 Name = exercise.Name,
                 Description = exercise.Description,
                 TargetMuscleGroup = exercise.TargetMuscleGroup,
                 Image = exercise.Image,
                 Video = exercise.Video
-            };
+            };*/
             _context.Exercises.Add(domainExercise);
             await _context.SaveChangesAsync();
-            return domainExercise;
+            return _mapper.Map<ExerciseReadDTO>(domainExercise);
         }
 
         // PUT api/<ExerciseController>/5
         /// <summary>
-        /// Updates an Exercise in the database by id;
+        /// Method updates an exercise in the database by id;
         /// must pass in an updated Exercise object
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="exercise"></param>
-        /// <returns>Updated Exercise</returns>
+        /// <param name="id">Exercise id</param>
+        /// <param name="exercise">Exercise with new values</param>
+        /// <returns>Updated exercise</returns>
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, Exercise exercise)
+        public async Task<IActionResult> Put(int id, ExerciseEditDTO exerciseDTO)
         {
-            if (id != exercise.Id)
+            if (id != exerciseDTO.Id)
                 return BadRequest("Invalid Exercise Id");
 
             if (!ExerciseExists(id))
                 return NotFound($"Exercise with Id: {id} was not found");
 
+            Exercise exercise = _mapper.Map<Exercise>(exerciseDTO);
             _context.Entry(exercise).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
@@ -88,12 +94,12 @@ namespace MeFit_BE.Controllers
         }
 
         /// <summary>
-        /// Deletes an Exercise in the database by id
+        /// Method deletes an exercise in the database by id.
         /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
+        /// <param name="id">Exercise id</param>
+        /// <returns>No content</returns>
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Exercise>> Delete(int id)
+        public async Task<ActionResult> Delete(int id)
         {
             if (!ExerciseExists(id))
                 return NotFound($"Exercise with Id: {id} was not found");
@@ -106,12 +112,24 @@ namespace MeFit_BE.Controllers
             return Ok($"Deleted Exercise with Id: {id}");
         }
 
+        /// <summary>
+        /// Method used to fetch the exercise with the given id from
+        /// the database.
+        /// </summary>
+        /// <param name="exerciseId">Exercise id</param>
+        /// <returns>Exercise</returns>
         private async Task<Exercise> GetExerciseAsync(int exerciseId) 
         {
             return await _context.Exercises
                 .SingleOrDefaultAsync(e => e.Id == exerciseId);
         }
 
+        /// <summary>
+        /// Method checks if there is an exercise with the given
+        /// id in the database.
+        /// </summary>
+        /// <param name="id">Exercise id</param>
+        /// <returns>Boolean</returns>
         private bool ExerciseExists(int id)
         {
             return _context.Exercises.Any(e => e.Id == id); 
