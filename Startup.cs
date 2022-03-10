@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -29,6 +30,7 @@ namespace MeFit_BE
         {
 
             services.AddControllers();
+            services.AddAutoMapper(typeof(Startup));
             services.AddDbContext<Models.MeFitDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("AzureConnection")));
             services.AddSwaggerGen(c =>
