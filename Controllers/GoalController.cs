@@ -123,7 +123,8 @@ namespace MeFit_BE.Controllers
                 var program = await _context.WorkoutPrograms.FindAsync(programId);
                 goal.WorkoutProgram = program ?? 
                     throw new KeyNotFoundException($"Record of Program with id: {programId} does not exist");
-                _context.Goals.Update(goal);
+                goal.ProgramId = programId;
+                //_context.Goals.Update(goal);
                 await _context.SaveChangesAsync();
             }
             catch (KeyNotFoundException e)
@@ -151,7 +152,7 @@ namespace MeFit_BE.Controllers
             try
             {
                 goal.SubGoals = await GetSubGoalsAsync(subGoalIds);
-                _context.Goals.Update(goal);
+                //_context.Goals.Update(goal);
                 await _context.SaveChangesAsync();
             }
             catch (KeyNotFoundException e)
