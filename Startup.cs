@@ -32,11 +32,12 @@ namespace MeFit_BE
             services.AddControllers();
             services.AddAutoMapper(typeof(Startup));
             services.AddDbContext<Models.MeFitDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("AzureConnection")));
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "MeFit_BE", Version = "v1" });
             });
+            services.AddAutoMapper(typeof(Startup));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
-
+﻿using System.ComponentModel.DataAnnotations.Schema;
 namespace MeFit_BE.Models.Domain.Workout
 {
     [Table("Program")]
@@ -13,6 +8,10 @@ namespace MeFit_BE.Models.Domain.Workout
 
         public string Name { get; set; }
 
-        public string Category { get; set; } 
+        public string Category { get; set; }
+
+        // FK to contributor
+        public int ContributorId { get; set; }
+        public User.User ContributedBy { get; set; }
     }
 }
