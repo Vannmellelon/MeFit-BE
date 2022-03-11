@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MeFit_BE.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/user")]
     [ApiController]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]

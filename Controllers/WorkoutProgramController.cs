@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace MeFit_BE.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/workout-program")]
     [ApiController]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]

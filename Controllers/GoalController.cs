@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace MeFit_BE.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/goal")]
     [ApiController]
     public class GoalController : ControllerBase
     {
