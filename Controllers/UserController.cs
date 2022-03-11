@@ -66,22 +66,24 @@ namespace MeFit_BE.Controllers
             return CreatedAtAction("GetUser", new { Id = user.Id }, _mapper.Map<UserReadDTO>(user));
         }
 
-        // PUT api/<UserController>/5
+        // PATCH api/<UserController>/5
         /// <summary>
         /// Method updates a user in the database.
         /// </summary>
         /// <param name="id">User id</param>
         /// <param name="userDTO">User with updated values</param>
         /// <returns>Updated user</returns>
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, [FromBody] UserEditDTO userDTO)
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> Patch(int id, [FromBody] UserEditDTO userDTO)
         {
-            //Error checking.
-            if (id != userDTO.Id) return BadRequest();
-            if (!(await _context.Users.AnyAsync(x => x.Id == id))) return NotFound();
+            //Get user.
+            User user = await _context.Users.FindAsync(id);
+            if (user == null) return NotFound();
 
             //Update user.
-            User user = _mapper.Map<User>(userDTO);
+            if (userDTO.Username != null) user.Username = userDTO.Username;
+            if (userDTO.FirstName != null) user.FirstName = userDTO.FirstName;
+            if (userDTO.LastName != null) user.LastName = userDTO.LastName;
             _context.Entry(user).State = EntityState.Modified;
             await _context.SaveChangesAsync();
             return Ok(_mapper.Map<UserReadDTO>(user));
