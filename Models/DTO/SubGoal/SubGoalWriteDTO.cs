@@ -8,7 +8,5 @@ namespace MeFit_BE.Models.DTO.SubGoal
     public class SubGoalWriteDTO
     {
         public bool Achieved { get; set; }
-
-        public int Workout { get; set; }
     }
 }
