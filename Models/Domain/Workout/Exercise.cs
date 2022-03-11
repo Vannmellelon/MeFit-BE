@@ -21,5 +21,9 @@ namespace MeFit_BE.Models.Domain.Workout
         // FK to contributor
         public int ContributorId { get; set; }
         public User ContributedBy { get; set; }
+
+        public Set Set { get; set; }
+
+        public int SetId { get; set; }
     }
 }
