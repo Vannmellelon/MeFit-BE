@@ -13,6 +13,8 @@ namespace MeFit_BE.Models.Domain.Workout
 
         public bool Complete { get; set; }
 
+        // TODO
+        // More than one exercise(?) change to list of exercises/sets
         public int? SetId { get; set; }
 
         public Set Set { get; set; }
