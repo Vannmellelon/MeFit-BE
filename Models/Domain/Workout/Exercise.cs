@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using MeFit_BE.Models.Domain.UserDomain;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MeFit_BE.Models.Domain.Workout
 {
@@ -19,6 +20,6 @@ namespace MeFit_BE.Models.Domain.Workout
 
         // FK to contributor
         public int ContributorId { get; set; }
-        public User.User ContributedBy { get; set; }
+        public User ContributedBy { get; set; }
     }
 }

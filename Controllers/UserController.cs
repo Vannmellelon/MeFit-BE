@@ -3,7 +3,7 @@ using System.Net.Mime;
 using System.Threading.Tasks;
 using AutoMapper;
 using MeFit_BE.Models;
-using MeFit_BE.Models.Domain.User;
+using MeFit_BE.Models.Domain.UserDomain;
 using MeFit_BE.Models.DTO;
 using MeFit_BE.Models.DTO.User;
 using Microsoft.AspNetCore.Mvc;
@@ -81,7 +81,7 @@ namespace MeFit_BE.Controllers
             if (user == null) return NotFound();
 
             //Update user.
-            if (userDTO.Username != null) user.Username = userDTO.Username;
+            if (userDTO.Email != null) user.Email = userDTO.Email;
             if (userDTO.FirstName != null) user.FirstName = userDTO.FirstName;
             if (userDTO.LastName != null) user.LastName = userDTO.LastName;
             _context.Entry(user).State = EntityState.Modified;

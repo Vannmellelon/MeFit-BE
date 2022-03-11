@@ -12,11 +12,7 @@ namespace MeFit_BE.Profiles
     {
         public SubGoalProfile()
         {
-            CreateMap<SubGoal, SubGoalReadDTO>()
-                // turning related program into int (id)
-                .ForMember(sgdto => sgdto.Workout, opt => opt
-                .MapFrom(sg => sg.WorkoutId));
-            //.ReverseMap();
+            CreateMap<SubGoal, SubGoalReadDTO>().ReverseMap();
             CreateMap<SubGoalWriteDTO, SubGoal>().ReverseMap();
             CreateMap<SubGoalEditDTO, SubGoal>().ReverseMap();
         }

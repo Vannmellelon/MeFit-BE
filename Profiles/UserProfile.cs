@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using MeFit_BE.Models.Domain.User;
+using MeFit_BE.Models.Domain.UserDomain;
 using MeFit_BE.Models.DTO;
 using MeFit_BE.Models.DTO.User;
 

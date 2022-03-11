@@ -103,6 +103,7 @@ namespace MeFit_BE.Controllers
             return Ok();
         }
 
+        /*
         /// <summary>
         /// 
         /// </summary>
@@ -129,7 +130,7 @@ namespace MeFit_BE.Controllers
                 return BadRequest();
             }
             return Ok(subGoal);
-        }
+        }*/
 
         /// <summary>
         /// Method used to fetch the SubGoal with the given id from the database.

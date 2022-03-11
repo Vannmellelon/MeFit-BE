@@ -105,6 +105,7 @@ namespace MeFit_BE.Controllers
             return Ok($"Deleted Goal with Id: {id}");
         }
 
+        /*
         /// <summary>
         /// Updates WorkoutProgram of a Goal in the database by their id
         /// </summary>
@@ -134,8 +135,9 @@ namespace MeFit_BE.Controllers
             }
 
             return Ok(goal);
-        }
+        }*/
 
+        /*
         /// <summary>
         /// Updates SubGoals of a Goal in the database by their Id; 
         /// must pass in an updated list of SubGoal Ids
@@ -161,7 +163,8 @@ namespace MeFit_BE.Controllers
                 return BadRequest(e.Message);
             }
             return Ok(goal);
-        }
+        } */
+
         private bool GoalExists(int id)
         {
             return _context.Goals.Any(g => g.Id == id);
