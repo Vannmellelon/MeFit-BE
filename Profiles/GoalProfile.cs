@@ -10,14 +10,7 @@ namespace MeFit_BE.Profiles
     {
         public GoalProfile()
         {
-            CreateMap<Goal, GoalReadDTO>()
-                // turning related program into int (id)
-                .ForMember(gdto => gdto.Program, opt => opt
-                .MapFrom(g => g.ProgramId))
-                // turning related subgoals into int array
-                .ForMember(gdto => gdto.SubGoals, opt => opt
-                .MapFrom(g => g.SubGoals.Select(sg => sg.Id).ToArray()));
-                //.ReverseMap();
+            CreateMap<Goal, GoalReadDTO>().ReverseMap();
             CreateMap<GoalWriteDTO, Goal>().ReverseMap();
             CreateMap<GoalEditDTO, Goal>().ReverseMap();
         }

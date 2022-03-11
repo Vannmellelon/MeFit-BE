@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace MeFit_BE.Models.Domain.Workout
 {
@@ -15,10 +13,13 @@ namespace MeFit_BE.Models.Domain.Workout
 
         public string Type { get; set; }
 
+        [DefaultValue(false)]
         public bool Complete { get; set; }
 
-        public int? SetId { get; set; }
+        public SubGoal SubGoal { get; set; }
 
-        public Set Set { get; set; }
+        public int SubGoalId { get; set; }
+
+        public ICollection<Set> Sets { get; set; }
     }
 }

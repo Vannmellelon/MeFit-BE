@@ -1,18 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
+using MeFit_BE.Models.Domain.UserDomain;
 
 namespace MeFit_BE.Models.Domain.Workout
 {
-    [Table("Program")]
+    [Table("WorkoutProgram")]
     public class WorkoutProgram
     {
         public int Id { get; set; }
 
         public string Name { get; set; }
 
-        public string Category { get; set; } 
+        public string Category { get; set; }
+
+        public Goal Goal { get; set; }
+
+        public int GoalId { get; set; }
+
+        public ICollection<SubGoal> SubGoals { get; set; }
     }
 }

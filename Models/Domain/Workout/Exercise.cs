@@ -20,5 +20,9 @@ namespace MeFit_BE.Models.Domain.Workout
         public string Image { get; set; }
 
         public string Video { get; set; } 
+
+        public Set Set { get; set; }
+
+        public int SetId { get; set; }
     }
 }

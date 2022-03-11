@@ -105,6 +105,7 @@ namespace MeFit_BE.Controllers
             return Ok($"Deleted Goal with Id: {id}");
         }
 
+        /*
         /// <summary>
         /// Updates WorkoutProgram of a Goal in the database by their id
         /// </summary>
@@ -132,34 +133,8 @@ namespace MeFit_BE.Controllers
             }
 
             return Ok(goal);
-        }
+        }*/
 
-        /// <summary>
-        /// Updates SubGoals of a Goal in the database by their Id; 
-        /// must pass in an updated list of SubGoal Ids
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="subGoalIds"></param>
-        /// <returns></returns>
-        [HttpPatch("{id}/subgoals")]
-        public async Task<IActionResult> Patch(int id, List<int> subGoalIds)
-        {
-            if (!GoalExists(id))
-                return NotFound($"Goal with Id: {id} was not found");
-
-            var goal = await GetGoalAsync(id);
-            try
-            {
-                goal.SubGoals = await GetSubGoalsAsync(subGoalIds);
-                _context.Goals.Update(goal);
-                await _context.SaveChangesAsync();
-            }
-            catch (KeyNotFoundException e)
-            {
-                return BadRequest(e.Message);
-            }
-            return Ok(goal);
-        }
         private bool GoalExists(int id)
         {
             return _context.Goals.Any(g => g.Id == id);

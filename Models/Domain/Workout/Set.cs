@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
-using MeFit_BE.Models.Domain.Workout;
 
 namespace MeFit_BE.Models.Domain.Workout
 {
@@ -10,9 +9,8 @@ namespace MeFit_BE.Models.Domain.Workout
 
         public string ExerciseRepetitions { get; set; }
 
-        public int? ExcersiseId { get; set; }
+        public Workout Workout { get; set; }
 
-        public Exercise Exercise { get; set; } 
-
+        public int WorkoutId { get; set; }
     }
 }

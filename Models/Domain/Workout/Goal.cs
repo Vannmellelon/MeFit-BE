@@ -1,8 +1,8 @@
-﻿using System;
+﻿using MeFit_BE.Models.Domain.UserDomain;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace MeFit_BE.Models.Domain.Workout
 {
@@ -13,13 +13,13 @@ namespace MeFit_BE.Models.Domain.Workout
 
         public DateTime EndData { get; set; }
 
+        [DefaultValue(false)]
         public bool Achieved { get; set; }
 
-        public int? ProgramId { get; set; }
+        public User User { get; set; }
 
-        public WorkoutProgram WorkoutProgram { get; set; }  
+        public int UserId { get; set; }
 
-        public ICollection<SubGoal> SubGoals { get; set; }
-
+        public ICollection<WorkoutProgram> WorkoutProgram { get; set; }
     }
 }
