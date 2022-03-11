@@ -53,7 +53,7 @@ namespace MeFit_BE.Controllers
         /// <summary>
         /// Method adds a new excercise to the database.
         /// </summary>
-        /// <param name="exercise">New exercise</param>
+        /// <param name="exerciseDTO">New exercise</param>
         /// <returns>New exercise</returns>
         [HttpPost]
         public async Task<ExerciseReadDTO> Post(ExerciseWriteDTO exerciseDTO)
@@ -64,28 +64,30 @@ namespace MeFit_BE.Controllers
             return _mapper.Map<ExerciseReadDTO>(domainExercise);
         }
 
-        // PUT api/<ExerciseController>/5
         /// <summary>
-        /// Method updates an exercise in the database by id;
-        /// must pass in an updated Exercise object
+        /// Method updates an exercise in the database by id
         /// </summary>
         /// <param name="id">Exercise id</param>
-        /// <param name="exercise">Exercise with new values</param>
+        /// <param name="exerciseDTO">Exercise with new values</param>
         /// <returns>Updated exercise</returns>
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, ExerciseEditDTO exerciseDTO)
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> Put(int id, [FromBody] ExerciseEditDTO exerciseDTO)
         {
-            if (id != exerciseDTO.Id)
-                return BadRequest("Invalid Exercise Id");
+            // Get Excerise
+            var exercise = await GetExerciseAsync(id);
+            if (exercise == null) return NotFound();
 
-            if (!ExerciseExists(id))
-                return NotFound($"Exercise with Id: {id} was not found");
+            // Update Exercise
+            if (exerciseDTO.Name != null) exercise.Name = exerciseDTO.Name;
+            if (exerciseDTO.Description != null) exercise.Description = exerciseDTO.Description;
+            if (exerciseDTO.TargetMuscleGroup != null) exercise.TargetMuscleGroup = exerciseDTO.TargetMuscleGroup;
+            if (exerciseDTO.Image != null) exercise.Image = exerciseDTO.Image;
+            if (exerciseDTO.Name != null) exercise.Video = exerciseDTO.Video;
 
-            Exercise exercise = _mapper.Map<Exercise>(exerciseDTO);
-            _context.Entry(exercise).State = EntityState.Modified;
+            _context.Exercises.Update(exercise);
             await _context.SaveChangesAsync();
 
-            return Ok($"Updated Exercise with id: {id}");
+            return Ok(exercise);
         }
 
         /// <summary>
@@ -99,7 +101,7 @@ namespace MeFit_BE.Controllers
             if (!ExerciseExists(id))
                 return NotFound($"Exercise with Id: {id} was not found");
 
-            var exercise = await _context.Exercises.FindAsync(id);
+            var exercise = await GetExerciseAsync(id);
 
             _context.Exercises.Remove(exercise);
             await _context.SaveChangesAsync();
