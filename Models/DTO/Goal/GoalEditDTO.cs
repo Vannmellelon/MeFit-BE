@@ -7,7 +7,7 @@ namespace MeFit_BE.Models.DTO.Goal
 {
     public class GoalEditDTO
     {
-        public int Id { get; set; }
+        //public int Id { get; set; }
 
         public DateTime EndData { get; set; }
 

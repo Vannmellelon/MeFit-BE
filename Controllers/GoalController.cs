@@ -68,20 +68,22 @@ namespace MeFit_BE.Controllers
         /// <param name="id"></param>
         /// <param name="goalDTO"></param>
         /// <returns></returns>
-        [HttpPut("{id}")]
+        [HttpPatch("{id}")]
         public async Task<IActionResult> Put(int id, GoalEditDTO goalDTO)
         {
-            if (id != goalDTO.Id)
-                return BadRequest("Invalid Goal Id");
+            // Get Excerise
+            var goal = await GetGoalAsync(id);
+            if (goal == null) return NotFound();
 
-            if (!GoalExists(id))
-                return NotFound($"Goal with Id: {id} was not found");
+            // Update Exercise
+            //if (goalDTO.EndData != null)
+            goal.EndData = goalDTO.EndData;
+            goal.Achieved = goalDTO.Achieved;
 
-            var domainGoal = _mapper.Map<Goal>(goalDTO);
-            _context.Entry(domainGoal).State = EntityState.Modified;
+            _context.Goals.Update(goal);
             await _context.SaveChangesAsync();
 
-            return Ok($"Updated Goal with id: {id}");
+            return Ok(goal);
         }
 
         /// <summary>
@@ -114,14 +116,14 @@ namespace MeFit_BE.Controllers
         {
             if (!GoalExists(id))
                 return NotFound($"Goal with Id: {id} was not found");
+
+            var goal = await GetGoalAsync(id);
             try
             {
-                var goal = await GetGoalAsync(id);
-
                 var program = await _context.WorkoutPrograms.FindAsync(programId);
                 goal.WorkoutProgram = program ?? 
                     throw new KeyNotFoundException($"Record of Program with id: {programId} does not exist");
-
+                _context.Goals.Update(goal);
                 await _context.SaveChangesAsync();
             }
             catch (KeyNotFoundException e)
@@ -129,7 +131,7 @@ namespace MeFit_BE.Controllers
                 return BadRequest(e.Message);
             }
 
-            return Ok($"Updated Program [{programId}] for Goal with Id: {id}");
+            return Ok(goal);
         }
 
         /// <summary>
@@ -144,21 +146,19 @@ namespace MeFit_BE.Controllers
         {
             if (!GoalExists(id))
                 return NotFound($"Goal with Id: {id} was not found");
+
+            var goal = await GetGoalAsync(id);
             try
             {
-                var goal = await GetGoalAsync(id);
-
                 goal.SubGoals = await GetSubGoalsAsync(subGoalIds);
-
+                _context.Goals.Update(goal);
                 await _context.SaveChangesAsync();
             }
             catch (KeyNotFoundException e)
             {
                 return BadRequest(e.Message);
             }
-            string subGoals = " ";
-            subGoalIds.ForEach(i => subGoals += $"{i}, ");
-            return Ok($"Updated SubGoal(s) [{subGoals}] for Goal with Id: {id}");
+            return Ok(goal);
         }
         private bool GoalExists(int id)
         {
