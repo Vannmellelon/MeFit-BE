@@ -70,21 +70,21 @@ namespace MeFit_BE.Controllers
         /// <param name="id">Workout program id</param>
         /// <param name="program">Workout program with new values</param>
         /// <returns>Updated workout program</returns>
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, WorkoutProgramEditDTO programDTO)
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> Put(int id, [FromBody] WorkoutProgramEditDTO programDTO)
         {
-            if (id != programDTO.Id) 
-                return BadRequest("Invalid Program Id");
+            // Get WorkoutProgram
+            var program = await GetProgramAsync(id);
+            if (program == null) return NotFound();
 
-            if (!ProgramExists(id)) 
-                return NotFound($"Program with Id: {id} was not found");
+            // Update WorkoutProgram
+            if (programDTO.Name != null) program.Name = programDTO.Name;
+            if (programDTO.Category != null) program.Category = programDTO.Category;
 
-            WorkoutProgram domainProgram = _mapper.Map<WorkoutProgram>(programDTO);
-
-            _context.Entry(domainProgram).State = EntityState.Modified;
+            _context.WorkoutPrograms.Update(program);
             await _context.SaveChangesAsync();
 
-            return Ok($"Updated Program with id: {id}");
+            return Ok(program);
         }
 
         /// <summary>
