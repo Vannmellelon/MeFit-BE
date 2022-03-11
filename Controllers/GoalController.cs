@@ -129,7 +129,8 @@ namespace MeFit_BE.Controllers
             }
             catch (KeyNotFoundException e)
             {
-                return BadRequest(e.Message);
+                Console.WriteLine(e.Message);
+                return BadRequest();
             }
 
             return Ok(goal);
