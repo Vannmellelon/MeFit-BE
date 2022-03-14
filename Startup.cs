@@ -8,6 +8,7 @@ using Auth0.AspNetCore.Authentication;
 using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -31,6 +32,15 @@ namespace MeFit_BE
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // Cookie configuration for HTTP to support cookies with SameSite=None
+            // services.ConfigureSameSiteNoneCookies();
+
+            // Cookie configuration for HTTPS
+            services.Configure<CookiePolicyOptions>(options =>
+            {
+                options.MinimumSameSitePolicy = SameSiteMode.None;
+            });
+
             services
                 .AddAuth0WebAppAuthentication(options => {
                     options.Domain = Configuration["Auth0:Domain"];
