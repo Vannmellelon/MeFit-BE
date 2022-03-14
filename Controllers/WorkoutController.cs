@@ -4,7 +4,7 @@ using System.Net.Mime;
 using System.Threading.Tasks;
 using AutoMapper;
 using MeFit_BE.Models;
-using MeFit_BE.Models.Domain.Workout;
+using MeFit_BE.Models.Domain.WorkoutDomain;
 using MeFit_BE.Models.DTO.Workout;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

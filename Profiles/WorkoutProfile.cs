@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using MeFit_BE.Models.Domain.Workout;
+using MeFit_BE.Models.Domain.WorkoutDomain;
 using MeFit_BE.Models.DTO.Workout;
 
 namespace MeFit_BE.Profiles
