@@ -70,20 +70,17 @@ namespace MeFit_BE.Migrations
                         });
                 });
 
-            modelBuilder.Entity("MeFit_BE.Models.Domain.UserDomain.User", b =>
+            modelBuilder.Entity("MeFit_BE.Models.Domain.UserDomain.Profile", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("AddressId")
+                    b.Property<int?>("AddressId")
                         .HasColumnType("int");
 
                     b.Property<string>("Disabilities")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FirstName")
@@ -92,17 +89,14 @@ namespace MeFit_BE.Migrations
                     b.Property<int>("Height")
                         .HasColumnType("int");
 
-                    b.Property<bool>("IsAdmin")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsContributer")
-                        .HasColumnType("bit");
-
                     b.Property<string>("LastName")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("MedicalConditions")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
 
                     b.Property<int>("Weight")
                         .HasColumnType("int");
@@ -111,31 +105,29 @@ namespace MeFit_BE.Migrations
 
                     b.HasIndex("AddressId");
 
-                    b.ToTable("User");
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Profiles");
 
                     b.HasData(
                         new
                         {
                             Id = 1,
                             AddressId = 1,
-                            Email = "kari.nordmann@gmail.com",
                             FirstName = "Kari",
                             Height = 170,
-                            IsAdmin = true,
-                            IsContributer = true,
                             LastName = "Nordmann",
+                            UserId = 1,
                             Weight = 89
                         },
                         new
                         {
                             Id = 2,
                             AddressId = 2,
-                            Email = "ola.hansen@gmail.com",
                             FirstName = "Ola",
                             Height = 145,
-                            IsAdmin = false,
-                            IsContributer = true,
                             LastName = "Hansen",
+                            UserId = 2,
                             Weight = 150
                         },
                         new
@@ -143,13 +135,55 @@ namespace MeFit_BE.Migrations
                             Id = 3,
                             AddressId = 3,
                             Disabilities = "Wheelchair-bound",
-                            Email = "else.berg@gmail.com",
                             FirstName = "Else",
                             Height = 164,
-                            IsAdmin = false,
-                            IsContributer = false,
                             LastName = "Berg",
+                            UserId = 3,
                             Weight = 78
+                        });
+                });
+
+            modelBuilder.Entity("MeFit_BE.Models.Domain.UserDomain.User", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Email")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsAdmin")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsContributor")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("User");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Email = "kari.nordmann@gmail.com",
+                            IsAdmin = true,
+                            IsContributor = true
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Email = "ola.hansen@gmail.com",
+                            IsAdmin = false,
+                            IsContributor = true
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Email = "else.berg@gmail.com",
+                            IsAdmin = false,
+                            IsContributor = false
                         });
                 });
 
@@ -284,8 +318,8 @@ namespace MeFit_BE.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("ExerciseRepetitions")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("ExerciseRepetitions")
+                        .HasColumnType("int");
 
                     b.Property<int>("WorkoutId")
                         .HasColumnType("int");
@@ -300,25 +334,25 @@ namespace MeFit_BE.Migrations
                         new
                         {
                             Id = 1,
-                            ExerciseRepetitions = "20",
+                            ExerciseRepetitions = 20,
                             WorkoutId = 1
                         },
                         new
                         {
                             Id = 2,
-                            ExerciseRepetitions = "10",
+                            ExerciseRepetitions = 10,
                             WorkoutId = 2
                         },
                         new
                         {
                             Id = 3,
-                            ExerciseRepetitions = "1",
+                            ExerciseRepetitions = 1,
                             WorkoutId = 3
                         },
                         new
                         {
                             Id = 4,
-                            ExerciseRepetitions = "30",
+                            ExerciseRepetitions = 30,
                             WorkoutId = 2
                         });
                 });
@@ -483,15 +517,21 @@ namespace MeFit_BE.Migrations
                         });
                 });
 
-            modelBuilder.Entity("MeFit_BE.Models.Domain.UserDomain.User", b =>
+            modelBuilder.Entity("MeFit_BE.Models.Domain.UserDomain.Profile", b =>
                 {
                     b.HasOne("MeFit_BE.Models.Domain.UserDomain.Address", "Address")
                         .WithMany()
-                        .HasForeignKey("AddressId")
+                        .HasForeignKey("AddressId");
+
+                    b.HasOne("MeFit_BE.Models.Domain.UserDomain.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Address");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("MeFit_BE.Models.Domain.WorkoutDomain.Exercise", b =>

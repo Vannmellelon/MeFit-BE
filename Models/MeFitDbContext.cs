@@ -8,6 +8,7 @@ namespace MeFit_BE.Models
     public class MeFitDbContext : DbContext
     {
         public DbSet<User> Users { get; set; }
+        public DbSet<Profile> Profiles { get; set; }
         public DbSet<Address> Addresses { get; set; }
         public DbSet<Exercise> Exercises { get; set; }
         public DbSet<Goal> Goals { get; set; }
@@ -15,7 +16,6 @@ namespace MeFit_BE.Models
         public DbSet<Set> Sets { get; set; } 
         public DbSet<SubGoal> SubGoals { get; set; }
         public DbSet<Workout> Workouts { get; set; }
-
 
 
         public MeFitDbContext([NotNullAttribute] DbContextOptions options) : base(options) { }
@@ -53,39 +53,55 @@ namespace MeFit_BE.Models
             {
                 Id = 1,
                 Email = "kari.nordmann@gmail.com",
-                FirstName = "Kari",
-                LastName = "Nordmann",
                 IsAdmin = true,
-                IsContributer = true,
-                Weight = 89,
-                Height = 170,
-                MedicalConditions = null,
-                Disabilities = null,
-                AddressId = address1.Id,
+                IsContributor = true
             };
             User user2 = new User()
             {
                 Id = 2,
                 Email = "ola.hansen@gmail.com",
-                FirstName = "Ola",
-                LastName = "Hansen",
-                IsContributer = true,
-                Weight = 150,
-                Height = 145,
-                MedicalConditions = null,
-                Disabilities = null,
-                AddressId = address2.Id
+                IsContributor = true
             };
             User user3 = new User()
             {
                 Id = 3,
-                Email = "else.berg@gmail.com",
+                Email = "else.berg@gmail.com"
+            };
+
+            Profile profile1 = new Profile()
+            {
+                Id = 1,
+                FirstName = "Kari",
+                LastName = "Nordmann",
+                Weight = 89,
+                Height = 170,
+                MedicalConditions = null,
+                Disabilities = null,
+                UserId = user1.Id,
+                AddressId = address1.Id,
+            };
+            Profile profile2 = new Profile()
+            {
+                Id = 2,
+                FirstName = "Ola",
+                LastName = "Hansen",
+                Weight = 150,
+                Height = 145,
+                MedicalConditions = null,
+                Disabilities = null,
+                UserId = user2.Id,
+                AddressId = address2.Id
+            };
+            Profile profile3 = new Profile()
+            {
+                Id = 3,
                 FirstName = "Else",
                 LastName = "Berg",
                 Weight = 78,
                 Height = 164,
                 MedicalConditions = null,
                 Disabilities = "Wheelchair-bound",
+                UserId = user3.Id,
                 AddressId = address3.Id
             };
 
@@ -180,25 +196,25 @@ namespace MeFit_BE.Models
             Set set1 = new Set()
             {
                 Id = 1,
-                ExerciseRepetitions = "20",
+                ExerciseRepetitions = 20,
                 WorkoutId = workout1.Id
             };
             Set set2 = new Set()
             {
                 Id = 2,
-                ExerciseRepetitions = "10",
+                ExerciseRepetitions = 10,
                 WorkoutId = workout2.Id
             };
             Set set3 = new Set()
             {
                 Id = 3,
-                ExerciseRepetitions = "1",
+                ExerciseRepetitions = 1,
                 WorkoutId = workout3.Id
             };
             Set set4 = new Set()
             {
                 Id = 4,
-                ExerciseRepetitions = "30",
+                ExerciseRepetitions = 30,
                 WorkoutId = workout2.Id
             };
 
@@ -248,6 +264,11 @@ namespace MeFit_BE.Models
             modelBuilder.Entity<Address>().HasData(address1);
             modelBuilder.Entity<Address>().HasData(address2);
             modelBuilder.Entity<Address>().HasData(address3);
+
+            //Save profiles
+            modelBuilder.Entity<Profile>().HasData(profile1);
+            modelBuilder.Entity<Profile>().HasData(profile2);
+            modelBuilder.Entity<Profile>().HasData(profile3);
 
             //Save users
             modelBuilder.Entity<User>().HasData(user1);
