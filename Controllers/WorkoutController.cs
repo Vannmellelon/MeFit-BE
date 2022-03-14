@@ -95,7 +95,7 @@ namespace MeFit_BE.Controllers
         /// Can only be updated by contributor.
         /// </summary>
         /// <param name="id">Id of workout to update</param>
-        /// <param name="workoutToPatch">Workout object with partial updates.</param>
+        /// <param name="updatedWorkout">Workout object with partial updates.</param>
         /// <returns></returns>
         [HttpPatch("{id}")]
         public async Task<ActionResult<WorkoutReadDTO>> PatchWorkout(int id, WorkoutEditDTO updatedWorkout)

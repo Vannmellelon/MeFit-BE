@@ -52,7 +52,7 @@ namespace MeFit_BE.Controllers
         /// <summary>
         /// Method adds a new program to the database.
         /// </summary>
-        /// <param name="program">New program values</param>
+        /// <param name="programDTO">New program values</param>
         /// <returns>New program</returns>
         [HttpPost]
         public async Task<ActionResult<WorkoutProgramReadDTO>> Post(WorkoutProgramWriteDTO programDTO)  
@@ -68,7 +68,7 @@ namespace MeFit_BE.Controllers
         /// must pass in an updated workout program object
         /// </summary>
         /// <param name="id">Workout program id</param>
-        /// <param name="program">Workout program with new values</param>
+        /// <param name="programDTO">Workout program with new values</param>
         /// <returns>Updated workout program</returns>
         [HttpPatch("{id}")]
         public async Task<IActionResult> Put(int id, [FromBody] WorkoutProgramEditDTO programDTO)
