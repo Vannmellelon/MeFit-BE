@@ -7,7 +7,7 @@ namespace MeFit_BE.Models.Domain.WorkoutDomain
     {
         public int Id { get; set; }
 
-        public string ExerciseRepetitions { get; set; }
+        public int ExerciseRepetitions { get; set; }
 
         public Workout Workout { get; set; }
 
