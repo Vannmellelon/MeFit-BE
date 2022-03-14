@@ -20,14 +20,6 @@ namespace MeFit_BE.Models
 
         public MeFitDbContext([NotNullAttribute] DbContextOptions options) : base(options) { }
 
-        /*
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseSqlServer(
-                "Data source=ND-5CG92747KF\\SQLEXPRESS; Initial Catalog=MeFitDB; Integrated Security=True;"); // localserver Anne, change
-        }
-        */
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             //Addresses

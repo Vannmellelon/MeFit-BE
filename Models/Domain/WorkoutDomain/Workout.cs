@@ -21,7 +21,7 @@ namespace MeFit_BE.Models.Domain.WorkoutDomain
 
         public int SubGoalId { get; set; }
 
-        public Set Set { get; set; }
+        public ICollection<Set> Sets { get; set; }
 
         // FK to contributor
         public int ContributorId { get; set; }
