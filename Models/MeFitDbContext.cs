@@ -83,14 +83,14 @@ namespace MeFit_BE.Models
             Profile profile2 = new Profile()
             {
                 Id = 2,
-                FirstName = "Else",
-                LastName = "Berg",
-                Weight = 78,
-                Height = 164,
+                FirstName = "Ola",
+                LastName = "Hansen",
+                Weight = 150,
+                Height = 145,
                 MedicalConditions = null,
-                Disabilities = "Wheelchair-bound",
+                Disabilities = null,
                 UserId = user2.Id,
-                AddressId = address3.Id
+                AddressId = address2.Id
             };
             Profile profile3 = new Profile()
             {
@@ -264,6 +264,11 @@ namespace MeFit_BE.Models
             modelBuilder.Entity<Address>().HasData(address1);
             modelBuilder.Entity<Address>().HasData(address2);
             modelBuilder.Entity<Address>().HasData(address3);
+
+            //Save profiles
+            modelBuilder.Entity<Profile>().HasData(profile1);
+            modelBuilder.Entity<Profile>().HasData(profile2);
+            modelBuilder.Entity<Profile>().HasData(profile3);
 
             //Save users
             modelBuilder.Entity<User>().HasData(user1);

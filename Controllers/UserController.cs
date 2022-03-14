@@ -82,8 +82,6 @@ namespace MeFit_BE.Controllers
 
             //Update user.
             if (userDTO.Email != null) user.Email = userDTO.Email;
-            //if (userDTO.FirstName != null) user.FirstName = userDTO.FirstName;
-            //if (userDTO.LastName != null) user.LastName = userDTO.LastName;
             _context.Entry(user).State = EntityState.Modified;
             await _context.SaveChangesAsync();
             return Ok(_mapper.Map<UserReadDTO>(user));
