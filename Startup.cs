@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Auth0.AspNetCore.Authentication;
 using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -16,6 +17,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 namespace MeFit_BE
@@ -45,6 +47,21 @@ namespace MeFit_BE
                 .AddAuth0WebAppAuthentication(options => {
                     options.Domain = Configuration["Auth0:Domain"];
                     options.ClientId = Configuration["Auth0:ClientId"];
+                    options.ClientSecret = Configuration["Auth0:ClientSecret"];
+                });
+
+            // Validate Access Tokens
+            services
+                .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.Authority = $"https://{Configuration["Auth0:Domain"]}/";
+                    options.Audience = Configuration["Auth0:Audience"];
+                    // If the access token does not have a `sub` claim, `User.Identity.Name` will be `null`. Map it to a different claim by setting the NameClaimType below.
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        // NameClaimType = ClaimTypes.NameIdentifier
+                    };
                 });
 
             services.AddControllers();
