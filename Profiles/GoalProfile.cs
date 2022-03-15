@@ -10,7 +10,11 @@ namespace MeFit_BE.Profiles
     {
         public GoalProfile()
         {
-            CreateMap<Goal, GoalReadDTO>().ReverseMap();
+            CreateMap<Goal, GoalReadDTO>()
+                .ForMember(dto => dto.WorkoutPrograms, opt => opt
+                           .MapFrom(goal => goal.WorkoutPrograms
+                                            .Select(wp => wp.Id).ToList()))
+                .ReverseMap();
             CreateMap<GoalWriteDTO, Goal>().ReverseMap();
             CreateMap<GoalEditDTO, Goal>().ReverseMap();
         }

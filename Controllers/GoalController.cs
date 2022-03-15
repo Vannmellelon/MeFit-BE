@@ -4,11 +4,9 @@ using MeFit_BE.Models.Domain.WorkoutDomain;
 using MeFit_BE.Models.DTO.Goal;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
 
 namespace MeFit_BE.Controllers
 {
@@ -26,30 +24,30 @@ namespace MeFit_BE.Controllers
         }
 
         /// <summary>
-        /// Method fetches all Goals from the database
+        /// Method fetches all goals from the database.
         /// </summary>
-        /// <returns>Goals</returns>
+        /// <returns>All goals</returns>
         [HttpGet]
-        public async Task<IEnumerable<GoalReadDTO>> Get()
+        public async Task<IEnumerable<GoalReadDTO>> GetGoals()
         {
             return _mapper.Map<List<GoalReadDTO>>(await _context.Goals.ToListAsync());
         }
 
         /// <summary>
-        /// Method fetches a specific Goal from the database by id 
+        /// Method fetches a specific goal from the database by id.
         /// </summary>
-        /// <param name="id"></param>
-        /// <returns>Exercise</returns>
+        /// <param name="id">Goal id</param>
+        /// <returns>Goal</returns>
         [HttpGet("{id}")]
-        public async Task<ActionResult<GoalReadDTO>> Get(int id)
+        public async Task<ActionResult<GoalReadDTO>> GetGoal(int id)
         {
             return _mapper.Map<GoalReadDTO>(await GetGoalAsync(id));
         }
 
         /// <summary>
-        /// Method adds a new Goal to the database.
+        /// Method adds a new goal to the database.
         /// </summary>
-        /// <param name="goalDTO"></param>
+        /// <param name="goalDTO">New goal</param>
         /// <returns>New Goal</returns>
         [HttpPost]
         public async Task<GoalReadDTO> Post(GoalWriteDTO goalDTO)
@@ -57,26 +55,24 @@ namespace MeFit_BE.Controllers
             var domainGoal = _mapper.Map<Goal>(goalDTO);
             _context.Goals.Add(domainGoal);
             await _context.SaveChangesAsync();
-
             return _mapper.Map<GoalReadDTO>(domainGoal);
         }
 
         /// <summary>
-        /// Method updates a Goal in the database by id;
-        /// must pass in an updated Goal object
+        /// Method updates a goal in the database by id;
+        /// must pass in an updated goal object
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="goalDTO"></param>
-        /// <returns></returns>
+        /// <param name="id">Goal id</param>
+        /// <param name="goalDTO">New goal properties</param>
+        /// <returns>Updated goal</returns>
         [HttpPatch("{id}")]
-        public async Task<IActionResult> Put(int id, GoalEditDTO goalDTO)
+        public async Task<IActionResult> Patch(int id, GoalEditDTO goalDTO)
         {
-            // Get Excerise
-            var goal = await GetGoalAsync(id);
+            // Find goal in database.
+            Goal goal = await GetGoalAsync(id);
             if (goal == null) return NotFound();
 
-            // Update Exercise
-            //if (goalDTO.EndData != null)
+            // Update goal
             goal.EndData = goalDTO.EndData;
             goal.Achieved = goalDTO.Achieved;
 
@@ -87,107 +83,62 @@ namespace MeFit_BE.Controllers
         }
 
         /// <summary>
-        /// Method deletes an exercise in the database by id.
+        /// Method deletes a goal in the database by id.
         /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
+        /// <param name="id">Goal id</param>
+        /// <returns>No content</returns>
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(int id)
         {
             if (!GoalExists(id))
                 return NotFound($"Goal with Id: {id} was not found");
 
-            var domainGoal = await GetGoalAsync(id);
+            Goal domainGoal = await GetGoalAsync(id);
 
             _context.Goals.Remove(domainGoal);
             await _context.SaveChangesAsync();
 
-            return Ok($"Deleted Goal with Id: {id}");
+            return NoContent();
         }
 
-        /*
         /// <summary>
-        /// Updates WorkoutProgram of a Goal in the database by their id
+        /// Method adds the workoutProgram with the given id to the goal with the given id.
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="programId"></param>
-        /// <returns></returns>
-        [HttpPatch("{id}/workoutprogram")]
-        public async Task<IActionResult> Patch(int id, int programId)
+        /// <param name="goalId">Goal id</param>
+        /// <param name="workoutProgramId">WorkoutProgram id</param>
+        /// <returns>Goal</returns>
+        [HttpPatch("{goalId}/workoutprograms/{workoutProgramId}")]
+        public async Task<ActionResult> AddWorkoutProgramToGoal(int goalId, int workoutProgramId)
         {
-            if (!GoalExists(id))
-                return NotFound($"Goal with Id: {id} was not found");
+            Goal domainGoal = await _context.Goals.Include(g => g.WorkoutPrograms).FirstAsync(g => g.Id == goalId);
+            if (domainGoal == null) return NotFound();
+            WorkoutProgram workoutProgram = await _context.WorkoutPrograms.FindAsync(workoutProgramId);
+            if (workoutProgram == null) return NotFound();
 
-            var goal = await GetGoalAsync(id);
-            try
-            {
-                var program = await _context.WorkoutPrograms.FindAsync(programId);
-                goal.WorkoutProgram = program ?? 
-                    throw new KeyNotFoundException($"Record of Program with id: {programId} does not exist");
-                goal.ProgramId = programId;
-                //_context.Goals.Update(goal);
-                await _context.SaveChangesAsync();
-            }
-            catch (KeyNotFoundException e)
-            {
-                Console.WriteLine(e.Message);
-                return BadRequest();
-            }
+            domainGoal.WorkoutPrograms.Add(workoutProgram);
+            await _context.SaveChangesAsync();
+            return Ok(domainGoal.WorkoutPrograms);
+        }
 
-            return Ok(goal);
-        }*/
-
-        /*
         /// <summary>
-        /// Updates SubGoals of a Goal in the database by their Id; 
-        /// must pass in an updated list of SubGoal Ids
+        /// Method checks if a goal with the given id exists in the database.
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="subGoalIds"></param>
-        /// <returns></returns>
-        [HttpPatch("{id}/subgoals")]
-        public async Task<IActionResult> Patch(int id, List<int> subGoalIds)
-        {
-            if (!GoalExists(id))
-                return NotFound($"Goal with Id: {id} was not found");
-
-            var goal = await GetGoalAsync(id);
-            try
-            {
-                goal.SubGoals = await GetSubGoalsAsync(subGoalIds);
-                //_context.Goals.Update(goal);
-                await _context.SaveChangesAsync();
-            }
-            catch (KeyNotFoundException e)
-            {
-                return BadRequest(e.Message);
-            }
-            return Ok(goal);
-        } */
-
+        /// <param name="id">Goal id</param>
+        /// <returns>Boolean</returns>
         private bool GoalExists(int id)
         {
             return _context.Goals.Any(g => g.Id == id);
         }
 
+        /// <summary>
+        /// Method gets the goal with the given id from the database.
+        /// </summary>
+        /// <param name="goalId">Goal id</param>
+        /// <returns>Goal</returns>
         private async Task<Goal> GetGoalAsync(int goalId)
         {
             return await _context.Goals
                 .SingleOrDefaultAsync(g => g.Id == goalId);
         }
-
-        private async Task<List<SubGoal>> GetSubGoalsAsync(List<int> subGoalIds)
-        {
-            var subGoals = new List<SubGoal>();
-            foreach (int id in subGoalIds)
-            {
-                var subGoal = await _context.SubGoals.FindAsync(id);
-                if (subGoal == null)
-                    throw new KeyNotFoundException($"Record of SubGoal with id: {subGoal} does not exist");
-                subGoals.Add(subGoal);
-            }
-            return subGoals;
-        }
-
     }
 }
