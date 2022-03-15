@@ -73,18 +73,40 @@ namespace MeFit_BE.Models
                 Id = 1,
                 FirstName = "Kari",
                 LastName = "Nordmann",
-                Weight = 89,
-                Height = 170,
-                MedicalConditions = null,
-                Disabilities = null,
-                UserId = user1.Id,
-                AddressId = address1.Id,
+                IsAdmin = true,
+                IsContributer = true,
             };
             Profile profile2 = new Profile()
             {
                 Id = 2,
                 FirstName = "Ola",
                 LastName = "Hansen",
+                IsContributer = true,
+                
+            };
+            User user3 = new User()
+            {
+                Id = 3,
+                Email = "else.berg@gmail.com",
+                FirstName = "Else",
+                LastName = "Berg",
+                
+            };
+
+            //Profiles
+            Profile profile1 = new Profile()
+            {
+                Id = 1,
+                Weight = 89,
+                Height = 170,
+                MedicalConditions = null,
+                Disabilities = null,
+                UserId = user1.Id,
+                AddressId = address1.Id
+            };
+            Profile profile2 = new Profile()
+            {
+                Id = 2,
                 Weight = 150,
                 Height = 145,
                 MedicalConditions = null,
@@ -95,8 +117,6 @@ namespace MeFit_BE.Models
             Profile profile3 = new Profile()
             {
                 Id = 3,
-                FirstName = "Else",
-                LastName = "Berg",
                 Weight = 78,
                 Height = 164,
                 MedicalConditions = null,
@@ -274,6 +294,11 @@ namespace MeFit_BE.Models
             modelBuilder.Entity<User>().HasData(user1);
             modelBuilder.Entity<User>().HasData(user2);
             modelBuilder.Entity<User>().HasData(user3);
+
+            //Save profiles
+            modelBuilder.Entity<Profile>().HasData(profile1);
+            modelBuilder.Entity<Profile>().HasData(profile2);
+            modelBuilder.Entity<Profile>().HasData(profile3);
 
             //Save goals
             modelBuilder.Entity<Goal>().HasData(goal1);

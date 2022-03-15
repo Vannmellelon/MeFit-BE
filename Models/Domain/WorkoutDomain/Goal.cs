@@ -20,6 +20,6 @@ namespace MeFit_BE.Models.Domain.WorkoutDomain
 
         public int UserId { get; set; }
 
-        public ICollection<WorkoutProgram> WorkoutProgram { get; set; }
+        public ICollection<WorkoutProgram> WorkoutPrograms { get; set; }
     }
 }
