@@ -53,6 +53,8 @@ namespace MeFit_BE.Models
             {
                 Id = 1,
                 Email = "kari.nordmann@gmail.com",
+                FirstName = "Kari",
+                LastName = "Nordmann",
                 IsAdmin = true,
                 IsContributor = true
             };
@@ -60,29 +62,9 @@ namespace MeFit_BE.Models
             {
                 Id = 2,
                 Email = "ola.hansen@gmail.com",
-                IsContributor = true
-            };
-            User user3 = new User()
-            {
-                Id = 3,
-                Email = "else.berg@gmail.com"
-            };
-
-            Profile profile1 = new Profile()
-            {
-                Id = 1,
-                FirstName = "Kari",
-                LastName = "Nordmann",
-                IsAdmin = true,
-                IsContributer = true,
-            };
-            Profile profile2 = new Profile()
-            {
-                Id = 2,
                 FirstName = "Ola",
                 LastName = "Hansen",
-                IsContributer = true,
-                
+                IsContributor = true
             };
             User user3 = new User()
             {
@@ -90,7 +72,6 @@ namespace MeFit_BE.Models
                 Email = "else.berg@gmail.com",
                 FirstName = "Else",
                 LastName = "Berg",
-                
             };
 
             //Profiles
