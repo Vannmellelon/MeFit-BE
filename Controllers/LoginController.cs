@@ -15,8 +15,9 @@ namespace MeFit_BE.Controllers
     [ApiController]
     public class LoginController : ControllerBase
     {
+        /*
         [HttpGet("private")]
-        [Authorize()]
+        //[Authorize()]
         public IActionResult Private()
         {
             return Ok(new
@@ -24,6 +25,7 @@ namespace MeFit_BE.Controllers
                 Message = "Hello from a private endpoint! You need to be authenticated to see this."
             });
         }
+        */
         /*
         public async Task Login(string returnUrl = "/")
         {

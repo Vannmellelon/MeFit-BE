@@ -276,11 +276,6 @@ namespace MeFit_BE.Models
             modelBuilder.Entity<User>().HasData(user2);
             modelBuilder.Entity<User>().HasData(user3);
 
-            //Save profiles
-            modelBuilder.Entity<Profile>().HasData(profile1);
-            modelBuilder.Entity<Profile>().HasData(profile2);
-            modelBuilder.Entity<Profile>().HasData(profile3);
-
             //Save goals
             modelBuilder.Entity<Goal>().HasData(goal1);
             modelBuilder.Entity<Goal>().HasData(goal2);
