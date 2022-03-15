@@ -2,6 +2,7 @@
 using MeFit_BE.Models;
 using MeFit_BE.Models.Domain.WorkoutDomain;
 using MeFit_BE.Models.DTO.Goal;
+using MeFit_BE.Models.DTO.WorkoutProgram;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -99,25 +100,6 @@ namespace MeFit_BE.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
-        }
-
-        /// <summary>
-        /// Method adds the workoutProgram with the given id to the goal with the given id.
-        /// </summary>
-        /// <param name="goalId">Goal id</param>
-        /// <param name="workoutProgramId">WorkoutProgram id</param>
-        /// <returns>Goal</returns>
-        [HttpPatch("{goalId}/workoutprograms/{workoutProgramId}")]
-        public async Task<ActionResult> AddWorkoutProgramToGoal(int goalId, int workoutProgramId)
-        {
-            Goal domainGoal = await _context.Goals.Include(g => g.WorkoutPrograms).FirstAsync(g => g.Id == goalId);
-            if (domainGoal == null) return NotFound();
-            WorkoutProgram workoutProgram = await _context.WorkoutPrograms.FindAsync(workoutProgramId);
-            if (workoutProgram == null) return NotFound();
-
-            domainGoal.WorkoutPrograms.Add(workoutProgram);
-            await _context.SaveChangesAsync();
-            return Ok(domainGoal.WorkoutPrograms);
         }
 
         /// <summary>

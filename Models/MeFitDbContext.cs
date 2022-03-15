@@ -8,6 +8,7 @@ namespace MeFit_BE.Models
     public class MeFitDbContext : DbContext
     {
         public DbSet<User> Users { get; set; }
+        public DbSet<Profile> Profiles { get; set; }
         public DbSet<Address> Addresses { get; set; }
         public DbSet<Exercise> Exercises { get; set; }
         public DbSet<Goal> Goals { get; set; }
@@ -57,11 +58,6 @@ namespace MeFit_BE.Models
                 LastName = "Nordmann",
                 IsAdmin = true,
                 IsContributer = true,
-                Weight = 89,
-                Height = 170,
-                MedicalConditions = null,
-                Disabilities = null,
-                AddressId = address1.Id,
             };
             User user2 = new User()
             {
@@ -70,11 +66,7 @@ namespace MeFit_BE.Models
                 FirstName = "Ola",
                 LastName = "Hansen",
                 IsContributer = true,
-                Weight = 150,
-                Height = 145,
-                MedicalConditions = null,
-                Disabilities = null,
-                AddressId = address2.Id
+                
             };
             User user3 = new User()
             {
@@ -82,10 +74,38 @@ namespace MeFit_BE.Models
                 Email = "else.berg@gmail.com",
                 FirstName = "Else",
                 LastName = "Berg",
+                
+            };
+
+            //Profiles
+            Profile profile1 = new Profile()
+            {
+                Id = 1,
+                Weight = 89,
+                Height = 170,
+                MedicalConditions = null,
+                Disabilities = null,
+                UserId = user1.Id,
+                AddressId = address1.Id
+            };
+            Profile profile2 = new Profile()
+            {
+                Id = 2,
+                Weight = 150,
+                Height = 145,
+                MedicalConditions = null,
+                Disabilities = null,
+                UserId = user2.Id,
+                AddressId = address2.Id
+            };
+            Profile profile3 = new Profile()
+            {
+                Id = 3,
                 Weight = 78,
                 Height = 164,
                 MedicalConditions = null,
                 Disabilities = "Wheelchair-bound",
+                UserId = user3.Id,
                 AddressId = address3.Id
             };
 
@@ -253,6 +273,11 @@ namespace MeFit_BE.Models
             modelBuilder.Entity<User>().HasData(user1);
             modelBuilder.Entity<User>().HasData(user2);
             modelBuilder.Entity<User>().HasData(user3);
+
+            //Save profiles
+            modelBuilder.Entity<Profile>().HasData(profile1);
+            modelBuilder.Entity<Profile>().HasData(profile2);
+            modelBuilder.Entity<Profile>().HasData(profile3);
 
             //Save goals
             modelBuilder.Entity<Goal>().HasData(goal1);

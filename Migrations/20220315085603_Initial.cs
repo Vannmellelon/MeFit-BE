@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace MeFit_BE.Migrations
 {
-    public partial class INIT : Migration
+    public partial class Initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -33,22 +33,11 @@ namespace MeFit_BE.Migrations
                     FirstName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     LastName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     IsContributer = table.Column<bool>(type: "bit", nullable: false),
-                    IsAdmin = table.Column<bool>(type: "bit", nullable: false),
-                    Weight = table.Column<int>(type: "int", nullable: false),
-                    Height = table.Column<int>(type: "int", nullable: false),
-                    MedicalConditions = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Disabilities = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    AddressId = table.Column<int>(type: "int", nullable: false)
+                    IsAdmin = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_User", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_User_Address_AddressId",
-                        column: x => x.AddressId,
-                        principalTable: "Address",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -66,6 +55,36 @@ namespace MeFit_BE.Migrations
                     table.PrimaryKey("PK_Goal", x => x.Id);
                     table.ForeignKey(
                         name: "FK_Goal_User_UserId",
+                        column: x => x.UserId,
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Profile",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Weight = table.Column<int>(type: "int", nullable: false),
+                    Height = table.Column<int>(type: "int", nullable: false),
+                    MedicalConditions = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Disabilities = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    AddressId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Profile", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Profile_Address_AddressId",
+                        column: x => x.AddressId,
+                        principalTable: "Address",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Profile_User_UserId",
                         column: x => x.UserId,
                         principalTable: "User",
                         principalColumn: "Id",
@@ -206,47 +225,42 @@ namespace MeFit_BE.Migrations
             migrationBuilder.InsertData(
                 table: "Address",
                 columns: new[] { "Id", "Country", "PostalCode", "PostalPlace", "Street" },
-                values: new object[] { 1, "Norway", 2849, "Oslo", "Karl Johans gate" });
-
-            migrationBuilder.InsertData(
-                table: "Address",
-                columns: new[] { "Id", "Country", "PostalCode", "PostalPlace", "Street" },
-                values: new object[] { 2, "Norway", 9376, "Bergen", "Lilleveien" });
-
-            migrationBuilder.InsertData(
-                table: "Address",
-                columns: new[] { "Id", "Country", "PostalCode", "PostalPlace", "Street" },
-                values: new object[] { 3, "Norway", 3689, "Kautokeino", "Storeveien" });
+                values: new object[,]
+                {
+                    { 1, "Norway", 2849, "Oslo", "Karl Johans gate" },
+                    { 2, "Norway", 9376, "Bergen", "Lilleveien" },
+                    { 3, "Norway", 3689, "Kautokeino", "Storeveien" }
+                });
 
             migrationBuilder.InsertData(
                 table: "User",
-                columns: new[] { "Id", "AddressId", "Disabilities", "Email", "FirstName", "Height", "IsAdmin", "IsContributer", "LastName", "MedicalConditions", "Weight" },
-                values: new object[] { 1, 1, null, "kari.nordmann@gmail.com", "Kari", 170, true, true, "Nordmann", null, 89 });
-
-            migrationBuilder.InsertData(
-                table: "User",
-                columns: new[] { "Id", "AddressId", "Disabilities", "Email", "FirstName", "Height", "IsAdmin", "IsContributer", "LastName", "MedicalConditions", "Weight" },
-                values: new object[] { 2, 2, null, "ola.hansen@gmail.com", "Ola", 145, false, true, "Hansen", null, 150 });
-
-            migrationBuilder.InsertData(
-                table: "User",
-                columns: new[] { "Id", "AddressId", "Disabilities", "Email", "FirstName", "Height", "IsAdmin", "IsContributer", "LastName", "MedicalConditions", "Weight" },
-                values: new object[] { 3, 3, "Wheelchair-bound", "else.berg@gmail.com", "Else", 164, false, false, "Berg", null, 78 });
+                columns: new[] { "Id", "Email", "FirstName", "IsAdmin", "IsContributer", "LastName" },
+                values: new object[,]
+                {
+                    { 1, "kari.nordmann@gmail.com", "Kari", true, true, "Nordmann" },
+                    { 2, "ola.hansen@gmail.com", "Ola", false, true, "Hansen" },
+                    { 3, "else.berg@gmail.com", "Else", false, false, "Berg" }
+                });
 
             migrationBuilder.InsertData(
                 table: "Goal",
                 columns: new[] { "Id", "Achieved", "EndData", "UserId" },
-                values: new object[] { 1, false, new DateTime(2022, 9, 12, 0, 0, 0, 0, DateTimeKind.Unspecified), 1 });
+                values: new object[,]
+                {
+                    { 1, false, new DateTime(2022, 9, 12, 0, 0, 0, 0, DateTimeKind.Unspecified), 1 },
+                    { 2, true, new DateTime(2022, 12, 24, 0, 0, 0, 0, DateTimeKind.Unspecified), 2 },
+                    { 3, true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 3 }
+                });
 
             migrationBuilder.InsertData(
-                table: "Goal",
-                columns: new[] { "Id", "Achieved", "EndData", "UserId" },
-                values: new object[] { 2, true, new DateTime(2022, 12, 24, 0, 0, 0, 0, DateTimeKind.Unspecified), 2 });
-
-            migrationBuilder.InsertData(
-                table: "Goal",
-                columns: new[] { "Id", "Achieved", "EndData", "UserId" },
-                values: new object[] { 3, true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 3 });
+                table: "Profile",
+                columns: new[] { "Id", "AddressId", "Disabilities", "Height", "MedicalConditions", "UserId", "Weight" },
+                values: new object[,]
+                {
+                    { 1, 1, null, 170, null, 1, 89 },
+                    { 2, 2, null, 145, null, 2, 150 },
+                    { 3, 3, "Wheelchair-bound", 164, null, 3, 78 }
+                });
 
             migrationBuilder.InsertData(
                 table: "WorkoutProgram",
@@ -331,6 +345,16 @@ namespace MeFit_BE.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Profile_AddressId",
+                table: "Profile",
+                column: "AddressId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Profile_UserId",
+                table: "Profile",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Set_WorkoutId",
                 table: "Set",
                 column: "WorkoutId");
@@ -339,11 +363,6 @@ namespace MeFit_BE.Migrations
                 name: "IX_SubGoal_WorkoutProgramId",
                 table: "SubGoal",
                 column: "WorkoutProgramId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_User_AddressId",
-                table: "User",
-                column: "AddressId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Workout_ContributedById",
@@ -372,7 +391,13 @@ namespace MeFit_BE.Migrations
                 name: "Exercise");
 
             migrationBuilder.DropTable(
+                name: "Profile");
+
+            migrationBuilder.DropTable(
                 name: "Set");
+
+            migrationBuilder.DropTable(
+                name: "Address");
 
             migrationBuilder.DropTable(
                 name: "Workout");
@@ -388,9 +413,6 @@ namespace MeFit_BE.Migrations
 
             migrationBuilder.DropTable(
                 name: "User");
-
-            migrationBuilder.DropTable(
-                name: "Address");
         }
     }
 }

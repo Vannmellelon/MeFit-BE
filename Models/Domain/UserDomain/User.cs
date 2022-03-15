@@ -22,18 +22,6 @@ namespace MeFit_BE.Models.Domain.UserDomain
         [DefaultValue(false)]
         public bool IsAdmin { get; set; }
 
-        public int Weight { get; set; }
-
-        public int Height { get; set; }
-
-        public string MedicalConditions { get; set; }
-
-        public string Disabilities { get; set; }
-
-        public int AddressId { get; set; }
-
-        public Address Address { get; set; }
-
         public ICollection<Goal> Goals { get; set; }
     }
 }
