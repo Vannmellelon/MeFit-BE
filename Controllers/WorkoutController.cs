@@ -23,11 +23,13 @@ namespace MeFit_BE.Controllers
         private readonly MeFitDbContext _context;
         private readonly IMapper _mapper;
 
+
         public WorkoutController(MeFitDbContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
         }
+
 
         /// <summary>
         /// Returns a list of all workouts in the database.
@@ -36,8 +38,9 @@ namespace MeFit_BE.Controllers
         [HttpGet]
         public async Task<ActionResult<List<WorkoutReadDTO>>> GetAllWorkouts() 
         {
-            return _mapper.Map <List<WorkoutReadDTO>> (await _context.Workouts.ToListAsync());
+            return _mapper.Map <List<WorkoutReadDTO>> (await _context.Workouts.Include(w => w.Sets).ToListAsync());
         } 
+
 
         /// <summary>
         /// Returns the workout with the specified id.
@@ -57,6 +60,7 @@ namespace MeFit_BE.Controllers
                 return _mapper.Map<WorkoutReadDTO>(_domainWorkout);
             }
         }
+
 
         /// <summary>
         /// Add a new workout to the database
@@ -102,7 +106,6 @@ namespace MeFit_BE.Controllers
 
             if (updatedWorkout.Name != null) { _domainWorkout.Name = updatedWorkout.Name; }
             if (updatedWorkout.Type != null) { _domainWorkout.Type = updatedWorkout.Type; }
-            if (updatedWorkout.Complete != null) { _domainWorkout.Complete = updatedWorkout.Complete; } // gah
             //if (updatedWorkout.SetId != null) { _domainWorkout.SetId = updatedWorkout.SetId; }
             
             _context.Entry(_domainWorkout).State = EntityState.Modified;
@@ -111,9 +114,7 @@ namespace MeFit_BE.Controllers
         }
 
 
-
-        // DELETE: Delete existing workout.
-        // Can only be deleted by contributor.
+        // Can only be deleted by contributor/owner
         /// <summary>
         /// Delete a workout. Requires the id of the workout.
         /// </summary>
@@ -136,7 +137,10 @@ namespace MeFit_BE.Controllers
             return Ok($"Successfully deleted workout with id: {id}.");
         }
 
+
         // TODO private method for checking contributor access.
+        // TODO add endpoints for updating sets and subgoals, or do it via PATCH
+
 
         // Check if a workout with the given id exists.
         private bool workoutExists(int id)

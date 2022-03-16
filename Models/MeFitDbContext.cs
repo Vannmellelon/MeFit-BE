@@ -175,22 +175,18 @@ namespace MeFit_BE.Models
                 Id = 1,
                 Name = "Strengthify",
                 Type = "Strength",
-                SubGoalId = subGoal1.Id
             };
             Workout workout2 = new Workout()
             {
                 Id = 2,
                 Name = "Stamina Builder",
                 Type = "Stamina",
-                SubGoalId = subGoal2.Id
             };
             Workout workout3 = new Workout()
             {
                 Id = 3,
                 Name = "Fitness",
                 Type = "Fitness",
-                Complete = true,
-                SubGoalId = subGoal3.Id
             };
 
             //Sets

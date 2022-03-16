@@ -1,4 +1,6 @@
-﻿namespace MeFit_BE.Models.DTO.Workout
+﻿using System.Collections.Generic;
+
+namespace MeFit_BE.Models.DTO.Workout
 {
     public class WorkoutWriteDTO
     {
@@ -6,10 +8,8 @@
 
         public string Type { get; set; }
 
-        public bool Complete { get; set; }
+        public int ContributorId { get; set; }
 
-        //public int? SetId { get; set; }
-
-        //public int ContributorId { get; set; }
+        //public List<int> SetIds { get; set; }
     }
 }

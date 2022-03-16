@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using MeFit_BE.Models.Domain.WorkoutDomain;
 using MeFit_BE.Models.DTO.Workout;
+using System.Linq;
 
 namespace MeFit_BE.Profiles
 {
@@ -8,9 +9,16 @@ namespace MeFit_BE.Profiles
     {
         public WorkoutProfile() 
         {
-            CreateMap<WorkoutEditDTO, Workout>().ReverseMap();
-            CreateMap<WorkoutReadDTO, Workout>().ReverseMap();
-            CreateMap<WorkoutWriteDTO, Workout>().ReverseMap();
+            CreateMap<Workout, WorkoutEditDTO>().ReverseMap();
+
+            CreateMap<Workout, WorkoutReadDTO>()
+                .ForMember(wdto => wdto.SetIds, opt => opt
+                    .MapFrom(w => w.Sets
+                        .Select(s => s.Id)
+                            .ToList()))
+                .ReverseMap();
+
+            CreateMap<Workout, WorkoutWriteDTO>().ReverseMap();
         }
     }
 }
