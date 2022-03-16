@@ -37,7 +37,7 @@ namespace MeFit_BE.Controllers
         [HttpGet]
         public async Task<IEnumerable<GoalReadDTO>> GetGoals()
         {
-            return _mapper.Map<List<GoalReadDTO>>(await _context.Goals.ToListAsync());
+            return _mapper.Map<List<GoalReadDTO>>(await _context.Goals.Include(g => g.SubGoals).ToListAsync());
         }
 
         /// <summary>
@@ -48,7 +48,9 @@ namespace MeFit_BE.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<GoalReadDTO>> GetGoal(int id)
         {
-            return _mapper.Map<GoalReadDTO>(await GetGoalAsync(id));
+            Goal goal = await _context.Goals.Include(g => g.SubGoals).FirstOrDefaultAsync(g => g.Id == id);
+            if (goal == null) return NotFound();
+            return _mapper.Map<GoalReadDTO>(goal);
         }
 
         /// <summary>

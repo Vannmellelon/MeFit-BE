@@ -36,7 +36,7 @@ namespace MeFit_BE.Controllers
         /// <summary>
         /// Returns a list of all workouts in the database.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Workout</returns>
         [HttpGet]
         public async Task<ActionResult<List<WorkoutReadDTO>>> GetAllWorkouts() 
         {
@@ -47,29 +47,29 @@ namespace MeFit_BE.Controllers
         /// <summary>
         /// Returns the workout with the specified id.
         /// </summary>
-        /// <param name="id">Id of workout.</param>
-        /// <returns></returns>
+        /// <param name="id">Id of workout</param>
+        /// <returns>Workout</returns>
         [HttpGet("{id}")]
         public async Task<ActionResult<WorkoutReadDTO>> GetWorkout(int id)
         {
-            if (!workoutExists(id))
+            if (!WorkoutExists(id))
             {
                 return NotFound($"Can not find workout with id: {id}");
             }
             else
             {
-                Workout _domainWorkout = await _context.Workouts.FindAsync(id);
+                Workout _domainWorkout = await _context.Workouts.Include(w => w.Sets).FirstOrDefaultAsync(w => w.Id == id);
                 return _mapper.Map<WorkoutReadDTO>(_domainWorkout);
             }
         }
 
 
         /// <summary>
-        /// Add a new workout to the database
+        /// Add a new workout to the database.
         /// Workout must be in application/JSON format.
         /// </summary>
         /// <param name="newWorkout">New workout object</param>
-        /// <returns></returns>
+        /// <returns>New workout</returns>
         [HttpPost]
         public async Task<ActionResult<WorkoutReadDTO>> PostWorkout(WorkoutWriteDTO newWorkout)
         {
@@ -91,24 +91,23 @@ namespace MeFit_BE.Controllers
         /// </summary>
         /// <param name="id">Id of workout to update</param>
         /// <param name="updatedWorkout">Workout object with partial updates.</param>
-        /// <returns></returns>
+        /// <returns>Updated workout</returns>
         [HttpPatch("{id}")]
         public async Task<ActionResult<WorkoutReadDTO>> PatchWorkout(int id, WorkoutEditDTO updatedWorkout)
         {
             // Check if current user is contributor
             // Check if current user is owner/can change stuff
 
-            if (!workoutExists(id))
+            if (!WorkoutExists(id))
             {
                 return NotFound($"Can not find workout with id: {id}");
             }
 
             Workout _domainWorkout = await _context.Workouts.FindAsync(id);
-            if (_domainWorkout == null) { return NotFound(); } // redundant?
+            if (_domainWorkout == null) { return NotFound(); } 
 
             if (updatedWorkout.Name != null) { _domainWorkout.Name = updatedWorkout.Name; }
             if (updatedWorkout.Type != null) { _domainWorkout.Type = updatedWorkout.Type; }
-            //if (updatedWorkout.SetId != null) { _domainWorkout.SetId = updatedWorkout.SetId; }
             
             _context.Entry(_domainWorkout).State = EntityState.Modified;
             await _context.SaveChangesAsync();
@@ -120,15 +119,15 @@ namespace MeFit_BE.Controllers
         /// <summary>
         /// Delete a workout. Requires the id of the workout.
         /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
+        /// <param name="id">Workout id</param>
+        /// <returns>No content</returns>
         [HttpDelete]
         public async Task<ActionResult> DeleteWorkout(int id) 
         {
             // Check if current user is contributor
             // Check if current user is owner/can change stuff
 
-            if (!workoutExists(id))
+            if (!WorkoutExists(id))
             {
                 return NotFound($"Can not find workout with id: {id}");
             }
@@ -145,7 +144,7 @@ namespace MeFit_BE.Controllers
 
 
         // Check if a workout with the given id exists.
-        private bool workoutExists(int id)
+        private bool WorkoutExists(int id)
         {
             return _context.Workouts.Any(w => w.Id == id);
         }

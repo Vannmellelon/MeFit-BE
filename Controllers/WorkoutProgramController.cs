@@ -15,7 +15,7 @@ namespace MeFit_BE.Controllers
 {
     [Route("api/workout-program")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
     [ApiConventionType(typeof(DefaultApiConventions))]
@@ -37,25 +37,27 @@ namespace MeFit_BE.Controllers
         [HttpGet]
         public async Task<IEnumerable<WorkoutProgramReadDTO>> Get()
         {
-            return _mapper.Map<List<WorkoutProgramReadDTO>>(await _context.WorkoutPrograms.ToListAsync());
+            return _mapper.Map<List<WorkoutProgramReadDTO>>(await _context.WorkoutPrograms.Include(wp => wp.Workouts).ToListAsync());
         }
 
         /// <summary>
-        /// Method fetches a specific program from the database by id.
+        /// Method fetches a specific workout program from the database by id.
         /// </summary>
-        /// <param name="id">Program id</param>
-        /// <returns>Program</returns>
+        /// <param name="id">Workout program id</param>
+        /// <returns>WorkoutProgram</returns>
         [HttpGet("{id}")]
         public async Task<ActionResult<WorkoutProgramReadDTO>> Get(int id)
         {
-            return _mapper.Map<WorkoutProgramReadDTO>(await GetProgramAsync(id));
+            WorkoutProgram workoutProgram = await _context.WorkoutPrograms.Include(wp => wp.Workouts).FirstOrDefaultAsync(wp => wp.Id == id);
+            if (workoutProgram == null) return NotFound();
+            return _mapper.Map<WorkoutProgramReadDTO>(workoutProgram);
         }
 
         /// <summary>
-        /// Method adds a new program to the database.
+        /// Method adds a new workout program to the database.
         /// </summary>
-        /// <param name="programDTO">New program values</param>
-        /// <returns>New program</returns>
+        /// <param name="programDTO">New workout program values</param>
+        /// <returns>New workout program</returns>
         [HttpPost]
         public async Task<ActionResult<WorkoutProgramReadDTO>> Post(WorkoutProgramWriteDTO programDTO)  
         {

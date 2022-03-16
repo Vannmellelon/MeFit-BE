@@ -12,7 +12,7 @@ namespace MeFit_BE.Profiles
             CreateMap<Workout, WorkoutEditDTO>().ReverseMap();
 
             CreateMap<Workout, WorkoutReadDTO>()
-                .ForMember(wdto => wdto.SetIds, opt => opt
+                .ForMember(w => w.Sets, opt => opt
                     .MapFrom(w => w.Sets
                         .Select(s => s.Id)
                             .ToList()))

@@ -1,4 +1,6 @@
-﻿namespace MeFit_BE.Models.DTO.WorkoutProgram
+﻿using System.Collections.Generic;
+
+namespace MeFit_BE.Models.DTO.WorkoutProgram
 {
     public class WorkoutProgramReadDTO
     {
@@ -7,5 +9,7 @@
         public string Name { get; set; }
 
         public string Category { get; set; }
+
+        public List<int> Workouts { get; set; }
     }
 }
