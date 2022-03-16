@@ -17,14 +17,12 @@ namespace MeFit_BE.Models.Domain.WorkoutDomain
         [DefaultValue(false)]
         public bool Complete { get; set; }
 
-        public SubGoal SubGoal { get; set; }
+        public int ContributorId { get; set; }
 
-        public int SubGoalId { get; set; }
+        public User ContributedBy { get; set; }
+
+        public ICollection<WorkoutProgram> WorkoutPrograms { get; set; }
 
         public ICollection<Set> Sets { get; set; }
-
-        // FK to contributor
-        public int ContributorId { get; set; }
-        public User ContributedBy { get; set; }
     }
 }

@@ -11,16 +11,13 @@ namespace MeFit_BE.Models.Domain.WorkoutDomain
         public int Id { get; set; }
 
         public string Name { get; set; }
+
         public string Category { get; set; }
 
-        // FK to contributor
         public int ContributorId { get; set; }
+
         public User ContributedBy { get; set; }
 
-        public Goal Goal { get; set; }
-
-        public int GoalId { get; set; }
-
-        public ICollection<SubGoal> SubGoals { get; set; }
+        public ICollection<Workout> Workouts { get; set; }
     }
 }

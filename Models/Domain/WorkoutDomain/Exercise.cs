@@ -1,4 +1,5 @@
 ﻿using MeFit_BE.Models.Domain.UserDomain;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MeFit_BE.Models.Domain.WorkoutDomain
@@ -18,12 +19,10 @@ namespace MeFit_BE.Models.Domain.WorkoutDomain
 
         public string Video { get; set; }
 
-        // FK to contributor
         public int ContributorId { get; set; }
+
         public User ContributedBy { get; set; }
 
-        public Set Set { get; set; }
-
-        public int SetId { get; set; }
+        public ICollection<Set> Sets { get; set; }
     }
 }
