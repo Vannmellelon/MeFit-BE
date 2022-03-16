@@ -3,16 +3,22 @@ using MeFit_BE.Models;
 using MeFit_BE.Models.Domain.GoalDomain;
 using MeFit_BE.Models.DTO.Goal;
 using MeFit_BE.Models.DTO.WorkoutProgram;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mime;
 using System.Threading.Tasks;
 
 namespace MeFit_BE.Controllers
 {
     [Route("api/goal")]
     [ApiController]
+    [Authorize]
+    [Produces(MediaTypeNames.Application.Json)]
+    [Consumes(MediaTypeNames.Application.Json)]
+    [ApiConventionType(typeof(DefaultApiConventions))]
     public class GoalController : ControllerBase
     {
         private readonly MeFitDbContext _context;

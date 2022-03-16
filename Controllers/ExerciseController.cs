@@ -2,6 +2,7 @@
 using MeFit_BE.Models;
 using MeFit_BE.Models.Domain.WorkoutDomain;
 using MeFit_BE.Models.DTO.Exercise;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -14,6 +15,7 @@ namespace MeFit_BE.Controllers
 {
     [Route("api/exercise")]
     [ApiController]
+    [Authorize]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
     [ApiConventionType(typeof(DefaultApiConventions))]
@@ -45,6 +47,7 @@ namespace MeFit_BE.Controllers
         /// <param name="id">Exercise id</param>
         /// <returns>Exercise</returns>
         [HttpGet("{id}")]
+        [Authorize(Roles = "User")]
         public async Task<ActionResult<ExerciseReadDTO>> GetExercise(int id)
         {
             return _mapper.Map<ExerciseReadDTO>(await GetExerciseAsync(id));
@@ -56,6 +59,7 @@ namespace MeFit_BE.Controllers
         /// <param name="exerciseDTO">New exercise</param>
         /// <returns>New exercise</returns>
         [HttpPost]
+        [Authorize(Roles = "Contributor")]
         public async Task<ExerciseReadDTO> Post(ExerciseWriteDTO exerciseDTO)
         {
             Exercise domainExercise = _mapper.Map<Exercise>(exerciseDTO);
@@ -96,6 +100,7 @@ namespace MeFit_BE.Controllers
         /// <param name="id">Exercise id</param>
         /// <returns>No content</returns>
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult> Delete(int id)
         {
             if (!ExerciseExists(id))
