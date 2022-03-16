@@ -185,7 +185,6 @@ namespace MeFit_BE.Models
                 Id = 3,
                 Name = "Fitness",
                 Type = "Fitness",
-                Complete = true,
             };
             
             //Exercises
