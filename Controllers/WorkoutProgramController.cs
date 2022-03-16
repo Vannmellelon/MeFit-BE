@@ -2,6 +2,7 @@
 using MeFit_BE.Models;
 using MeFit_BE.Models.Domain.WorkoutDomain;
 using MeFit_BE.Models.DTO.WorkoutProgram;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -14,6 +15,7 @@ namespace MeFit_BE.Controllers
 {
     [Route("api/workout-program")]
     [ApiController]
+    [Authorize]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
     [ApiConventionType(typeof(DefaultApiConventions))]
