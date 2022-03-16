@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace MeFit_BE.Models.Domain.GoalDomain
 {
@@ -14,5 +10,9 @@ namespace MeFit_BE.Models.Domain.GoalDomain
 
         [DefaultValue(false)]
         public bool Achieved { get; set; }
+
+        public Goal Goal { get; set; }
+
+        public int GoalId { get; set; }
     }
 }

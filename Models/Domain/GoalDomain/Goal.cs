@@ -19,5 +19,7 @@ namespace MeFit_BE.Models.Domain.GoalDomain
         public User User { get; set; }
 
         public int UserId { get; set; }
+
+        public ICollection<SubGoal> SubGoals { get; set; }
     }
 }

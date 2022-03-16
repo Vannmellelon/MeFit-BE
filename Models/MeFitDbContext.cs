@@ -148,24 +148,30 @@ namespace MeFit_BE.Models
                 Name = "The Runner",
                 Category = "Stamina",
             };
-            /*
+            
             //SubGoals
             SubGoal subGoal1 = new SubGoal()
             {
                 Id = 1,
-                WorkoutProgramId = workoutProgram1.Id
+                GoalId = goal1.Id,
+                Achieved = true
             };
             SubGoal subGoal2 = new SubGoal()
             {
                 Id = 2,
-                WorkoutProgramId = workoutProgram2.Id
+                GoalId = goal2.Id
             };
             SubGoal subGoal3 = new SubGoal()
             {
                 Id = 3,
                 Achieved = true,
-                WorkoutProgramId = workoutProgram3.Id
-            };*/
+                GoalId = goal3.Id
+            };
+            SubGoal subGoal4 = new SubGoal()
+            {
+                Id = 4,
+                GoalId = goal2.Id
+            };
 
             //Workouts
             Workout workout1 = new Workout()
@@ -256,6 +262,7 @@ namespace MeFit_BE.Models
                 ExerciseId = exercise4.Id
             };
 
+            // Save user domain tables
             //Save addresses
             modelBuilder.Entity<Address>().HasData(address1);
             modelBuilder.Entity<Address>().HasData(address2);
@@ -271,6 +278,7 @@ namespace MeFit_BE.Models
             modelBuilder.Entity<User>().HasData(user2);
             modelBuilder.Entity<User>().HasData(user3);
             
+            // Save workout domain tables
 
             //Save WorkoutPrograms
             modelBuilder.Entity<WorkoutProgram>().HasData(workoutProgram1);
@@ -294,17 +302,18 @@ namespace MeFit_BE.Models
             modelBuilder.Entity<Set>().HasData(set3);
             modelBuilder.Entity<Set>().HasData(set4);
 
-            /*
-            //Save SubGoals
-            modelBuilder.Entity<SubGoal>().HasData(subGoal1);
-            modelBuilder.Entity<SubGoal>().HasData(subGoal2);
-            modelBuilder.Entity<SubGoal>().HasData(subGoal3);*/
+            // Save goal domain tables
 
-            /*
             //Save goals
             modelBuilder.Entity<Goal>().HasData(goal1);
             modelBuilder.Entity<Goal>().HasData(goal2);
-            modelBuilder.Entity<Goal>().HasData(goal3);*/
+            modelBuilder.Entity<Goal>().HasData(goal3);
+
+            //Save SubGoals
+            modelBuilder.Entity<SubGoal>().HasData(subGoal1);
+            modelBuilder.Entity<SubGoal>().HasData(subGoal2);
+            modelBuilder.Entity<SubGoal>().HasData(subGoal3);
+            modelBuilder.Entity<SubGoal>().HasData(subGoal4);
         }
 
     }
