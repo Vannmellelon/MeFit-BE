@@ -2,11 +2,13 @@
 using MeFit_BE.Models;
 using MeFit_BE.Models.Domain.GoalDomain;
 using MeFit_BE.Models.DTO.SubGoal;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mime;
 using System.Threading.Tasks;
 
 
@@ -14,6 +16,10 @@ namespace MeFit_BE.Controllers
 {
     [Route("api/sub-goal")]
     [ApiController]
+    [Authorize]
+    [Produces(MediaTypeNames.Application.Json)]
+    [Consumes(MediaTypeNames.Application.Json)]
+    [ApiConventionType(typeof(DefaultApiConventions))]
     public class SubGoalController : ControllerBase
     {
         private readonly MeFitDbContext _context;
