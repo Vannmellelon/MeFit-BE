@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace MeFit_BE.Models.Domain.WorkoutDomain
+namespace MeFit_BE.Models.Domain.GoalDomain
 {
     [Table("SubGoal")]
     public class SubGoal
@@ -14,9 +14,5 @@ namespace MeFit_BE.Models.Domain.WorkoutDomain
 
         [DefaultValue(false)]
         public bool Achieved { get; set; }
-
-        public WorkoutProgram WorkoutProgram { get; set; }
-
-        public int WorkoutProgramId { get; set; }
     }
 }

@@ -5,6 +5,7 @@ using AutoMapper;
 using MeFit_BE.Models;
 using MeFit_BE.Models.Domain.UserDomain;
 using MeFit_BE.Models.DTO;
+using MeFit_BE.Models.DTO.Profile;
 using MeFit_BE.Models.DTO.User;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -36,7 +37,7 @@ namespace MeFit_BE.Controllers
         [HttpGet]
         public async Task<ActionResult<List<UserReadDTO>>> GetUsers()
         {
-            return _mapper.Map<List<UserReadDTO>>(await _context.Users.ToListAsync());
+            return _mapper.Map<List<UserReadDTO>>(await _context.Users.Include(u => u.Goals).ToListAsync());
         }
 
         // GET api/<UserController>/5
@@ -48,7 +49,9 @@ namespace MeFit_BE.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<UserReadDTO>> GetUser(int id)
         {
-            return _mapper.Map<UserReadDTO>(await _context.Users.FindAsync(id));
+            User user = await _context.Users.Include(u => u.Goals).FirstOrDefaultAsync(u => u.Id == id);
+            if (user == null) return NotFound();
+            return _mapper.Map<UserReadDTO>(user);
         }
 
         // POST api/<UserController>/
@@ -82,6 +85,8 @@ namespace MeFit_BE.Controllers
 
             //Update user.
             if (userDTO.Email != null) user.Email = userDTO.Email;
+            if (userDTO.FirstName != null) user.FirstName = userDTO.FirstName;
+            if (userDTO.LastName != null) user.LastName = userDTO.LastName;
             _context.Entry(user).State = EntityState.Modified;
             await _context.SaveChangesAsync();
             return Ok(_mapper.Map<UserReadDTO>(user));
@@ -96,11 +101,25 @@ namespace MeFit_BE.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var user = await _context.Users.FindAsync(id);
+            User user = await _context.Users.FindAsync(id);
             if (user == null) return NotFound();
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();
             return NoContent();
+        }
+
+        /// <summary>
+        /// Method returns the profile belonging to the user with the given id.
+        /// If the user does not have a profile, the method will returns not found.
+        /// </summary>
+        /// <param name="id">User id</param>
+        /// <returns>Profile</returns>
+        [HttpGet("{id}/profile")]
+        public async Task<ActionResult<ProfileReadDTO>> GetUserProfile(int id)
+        {
+            Models.Domain.UserDomain.Profile profile = await _context.Profiles.FirstOrDefaultAsync(p => p.UserId == id);
+            if (profile == null) return NotFound();
+            return Ok(_mapper.Map<ProfileReadDTO>(profile));
         }
     }
 }

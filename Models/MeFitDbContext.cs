@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using MeFit_BE.Models.Domain.UserDomain;
 using MeFit_BE.Models.Domain.WorkoutDomain;
+using MeFit_BE.Models.Domain.GoalDomain;
 using Microsoft.EntityFrameworkCore;
 
 namespace MeFit_BE.Models
@@ -134,23 +135,20 @@ namespace MeFit_BE.Models
                 Id = 1,
                 Name = "Hot and Heavy",
                 Category = "Upper-body Strength",
-                GoalId = goal1.Id,
             };
             WorkoutProgram workoutProgram2 = new WorkoutProgram()
             {
                 Id = 2,
                 Name = "The Wellness Yourney",
                 Category = "Fitness",
-                GoalId = goal2.Id,
             };
             WorkoutProgram workoutProgram3 = new WorkoutProgram()
             {
                 Id = 3,
                 Name = "The Runner",
                 Category = "Stamina",
-                GoalId = goal3.Id,
             };
-
+            /*
             //SubGoals
             SubGoal subGoal1 = new SubGoal()
             {
@@ -167,7 +165,7 @@ namespace MeFit_BE.Models
                 Id = 3,
                 Achieved = true,
                 WorkoutProgramId = workoutProgram3.Id
-            };
+            };*/
 
             //Workouts
             Workout workout1 = new Workout()
@@ -188,33 +186,7 @@ namespace MeFit_BE.Models
                 Name = "Fitness",
                 Type = "Fitness",
             };
-
-            //Sets
-            Set set1 = new Set()
-            {
-                Id = 1,
-                ExerciseRepetitions = 20,
-                WorkoutId = workout1.Id
-            };
-            Set set2 = new Set()
-            {
-                Id = 2,
-                ExerciseRepetitions = 10,
-                WorkoutId = workout2.Id
-            };
-            Set set3 = new Set()
-            {
-                Id = 3,
-                ExerciseRepetitions = 1,
-                WorkoutId = workout3.Id
-            };
-            Set set4 = new Set()
-            {
-                Id = 4,
-                ExerciseRepetitions = 30,
-                WorkoutId = workout2.Id
-            };
-
+            
             //Exercises
             Exercise exercise1 = new Exercise()
             {
@@ -223,8 +195,7 @@ namespace MeFit_BE.Models
                 Description = "Lay on your back with your hands behind your head, and move your upper body up and down.",
                 TargetMuscleGroup = "Stomach",
                 Image = null,
-                Video = null,
-                SetId = set1.Id
+                Video = null
             };
             Exercise exercise2 = new Exercise()
             {
@@ -233,8 +204,7 @@ namespace MeFit_BE.Models
                 Description = "Hands on the floor. Straighten out your body and lift yourself down to the floor and back up by bending you arms.",
                 TargetMuscleGroup = "Arms",
                 Image = null,
-                Video = null,
-                SetId = set2.Id
+                Video = null
             };
             Exercise exercise3 = new Exercise()
             {
@@ -243,8 +213,7 @@ namespace MeFit_BE.Models
                 Description = "Lay down on the floor. Then lift and hold yourself up on your elbows and toes. Hold and breath.",
                 TargetMuscleGroup = "All",
                 Image = null,
-                Video = null,
-                SetId = set3.Id
+                Video = null
             };
             Exercise exercise4 = new Exercise()
             {
@@ -253,8 +222,37 @@ namespace MeFit_BE.Models
                 Description = "Jump up and down while opening and closing your legs and lifting your arms over your head.",
                 TargetMuscleGroup = "Stamina",
                 Image = null,
-                Video = null,
-                SetId = set4.Id
+                Video = null
+            };
+
+            //Sets
+            Set set1 = new Set()
+            {
+                Id = 1,
+                ExerciseRepetitions = 20,
+                WorkoutId = workout1.Id,
+                ExerciseId = exercise1.Id,
+            };
+            Set set2 = new Set()
+            {
+                Id = 2,
+                ExerciseRepetitions = 10,
+                WorkoutId = workout2.Id,
+                ExerciseId = exercise2.Id
+            };
+            Set set3 = new Set()
+            {
+                Id = 3,
+                ExerciseRepetitions = 1,
+                WorkoutId = workout3.Id,
+                ExerciseId = exercise3.Id
+            };
+            Set set4 = new Set()
+            {
+                Id = 4,
+                ExerciseRepetitions = 30,
+                WorkoutId = workout2.Id,
+                ExerciseId = exercise4.Id
             };
 
             //Save addresses
@@ -271,26 +269,23 @@ namespace MeFit_BE.Models
             modelBuilder.Entity<User>().HasData(user1);
             modelBuilder.Entity<User>().HasData(user2);
             modelBuilder.Entity<User>().HasData(user3);
-
-            //Save goals
-            modelBuilder.Entity<Goal>().HasData(goal1);
-            modelBuilder.Entity<Goal>().HasData(goal2);
-            modelBuilder.Entity<Goal>().HasData(goal3);
+            
 
             //Save WorkoutPrograms
             modelBuilder.Entity<WorkoutProgram>().HasData(workoutProgram1);
             modelBuilder.Entity<WorkoutProgram>().HasData(workoutProgram2);
             modelBuilder.Entity<WorkoutProgram>().HasData(workoutProgram3);
 
-            //Save SubGoals
-            modelBuilder.Entity<SubGoal>().HasData(subGoal1);
-            modelBuilder.Entity<SubGoal>().HasData(subGoal2);
-            modelBuilder.Entity<SubGoal>().HasData(subGoal3);
-
             //Save Workouts
             modelBuilder.Entity<Workout>().HasData(workout1);
             modelBuilder.Entity<Workout>().HasData(workout2);
             modelBuilder.Entity<Workout>().HasData(workout3);
+            
+            //Save exercises
+            modelBuilder.Entity<Exercise>().HasData(exercise1);
+            modelBuilder.Entity<Exercise>().HasData(exercise2);
+            modelBuilder.Entity<Exercise>().HasData(exercise3);
+            modelBuilder.Entity<Exercise>().HasData(exercise4);
 
             //Save sets
             modelBuilder.Entity<Set>().HasData(set1);
@@ -298,11 +293,17 @@ namespace MeFit_BE.Models
             modelBuilder.Entity<Set>().HasData(set3);
             modelBuilder.Entity<Set>().HasData(set4);
 
-            //Save exercises
-            modelBuilder.Entity<Exercise>().HasData(exercise1);
-            modelBuilder.Entity<Exercise>().HasData(exercise2);
-            modelBuilder.Entity<Exercise>().HasData(exercise3);
-            modelBuilder.Entity<Exercise>().HasData(exercise4);   
+            /*
+            //Save SubGoals
+            modelBuilder.Entity<SubGoal>().HasData(subGoal1);
+            modelBuilder.Entity<SubGoal>().HasData(subGoal2);
+            modelBuilder.Entity<SubGoal>().HasData(subGoal3);*/
+
+            /*
+            //Save goals
+            modelBuilder.Entity<Goal>().HasData(goal1);
+            modelBuilder.Entity<Goal>().HasData(goal2);
+            modelBuilder.Entity<Goal>().HasData(goal3);*/
         }
 
     }

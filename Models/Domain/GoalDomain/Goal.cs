@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace MeFit_BE.Models.Domain.WorkoutDomain
+namespace MeFit_BE.Models.Domain.GoalDomain
 {
     [Table("Goal")]
     public class Goal
@@ -19,7 +19,5 @@ namespace MeFit_BE.Models.Domain.WorkoutDomain
         public User User { get; set; }
 
         public int UserId { get; set; }
-
-        public ICollection<WorkoutProgram> WorkoutPrograms { get; set; }
     }
 }

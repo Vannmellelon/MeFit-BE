@@ -2,6 +2,7 @@
 using MeFit_BE.Models.Domain.UserDomain;
 using MeFit_BE.Models.DTO;
 using MeFit_BE.Models.DTO.User;
+using System.Linq;
 
 namespace MeFit_BE.Profiles
 {
@@ -9,9 +10,13 @@ namespace MeFit_BE.Profiles
     {
         public UserProfile()
         {
-            CreateMap<UserReadDTO, User>().ReverseMap();
-            CreateMap<UserWriteDTO, User>().ReverseMap();
-            CreateMap<UserEditDTO, User>().ReverseMap();
+            CreateMap<User, UserReadDTO>()
+                .ForMember(dto => dto.Goals, opt => opt
+                           .MapFrom(user => user.Goals
+                                    .Select(g => g.Id).ToList())) 
+                .ReverseMap();
+            CreateMap<User, UserWriteDTO>().ReverseMap();
+            CreateMap<User, UserEditDTO>().ReverseMap();
         }
     }
 }

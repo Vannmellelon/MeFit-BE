@@ -6,6 +6,7 @@ using AutoMapper;
 using MeFit_BE.Models;
 using MeFit_BE.Models.Domain.WorkoutDomain;
 using MeFit_BE.Models.DTO.Workout;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,7 @@ namespace MeFit_BE.Controllers
 {
     [Route("api/workout")]
     [ApiController]
+    [Authorize]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
     [ApiConventionType(typeof(DefaultApiConventions))]

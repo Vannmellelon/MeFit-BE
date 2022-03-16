@@ -14,10 +14,10 @@ namespace MeFit_BE.Models.Domain.WorkoutDomain
 
         public string Type { get; set; }
 
-        public ICollection<SubGoal> SubGoals { get; set; }
+        public ICollection<WorkoutProgram> WorkoutPrograms { get; set; }
 
         public ICollection<Set> Sets { get; set; }
-
+      
         // FK to contributor
         public int ContributorId { get; set; }
 

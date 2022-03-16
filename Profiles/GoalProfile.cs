@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using MeFit_BE.Models.Domain.GoalDomain;
 using MeFit_BE.Models.Domain.WorkoutDomain;
 using MeFit_BE.Models.DTO.Goal;
 using System;
@@ -10,11 +11,7 @@ namespace MeFit_BE.Profiles
     {
         public GoalProfile()
         {
-            CreateMap<Goal, GoalReadDTO>()
-                .ForMember(dto => dto.WorkoutPrograms, opt => opt
-                           .MapFrom(goal => goal.WorkoutPrograms
-                                            .Select(wp => wp.Id).ToList()))
-                .ReverseMap();
+            CreateMap<Goal, GoalReadDTO>().ReverseMap();
             CreateMap<GoalWriteDTO, Goal>().ReverseMap();
             CreateMap<GoalEditDTO, Goal>().ReverseMap();
         }
