@@ -67,7 +67,7 @@ namespace MeFit_BE
             services.AddControllers();
             services.AddAutoMapper(typeof(Startup));
             services.AddDbContext<Models.MeFitDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("AzureConnection"))); // Use AzureConnection when building docker image
+                options.UseSqlServer(Configuration.GetConnectionString("AnneConnection"))); // Use AzureConnection when building docker image
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo 
