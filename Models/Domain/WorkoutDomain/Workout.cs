@@ -1,4 +1,5 @@
-﻿using MeFit_BE.Models.Domain.UserDomain;
+﻿using MeFit_BE.Models.Domain.GoalDomain;
+using MeFit_BE.Models.Domain.UserDomain;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;

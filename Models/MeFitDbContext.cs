@@ -107,28 +107,6 @@ namespace MeFit_BE.Models
                 AddressId = address3.Id
             };
 
-            //Goals
-            Goal goal1 = new Goal()
-            {
-                Id = 1,
-                EndData = new System.DateTime(2022, 9, 12),
-                UserId = user1.Id
-            };
-            Goal goal2 = new Goal()
-            {
-                Id = 2,
-                EndData = new System.DateTime(2022, 12, 24),
-                Achieved = true,
-                UserId = user2.Id
-            };
-            Goal goal3 = new Goal()
-            {
-                Id = 3,
-                EndData = new System.DateTime(2025, 1, 1),
-                UserId = user3.Id,
-                Achieved = true
-            };
-
             //WorkoutPrograms
             WorkoutProgram workoutProgram1 = new WorkoutProgram()
             {
@@ -148,29 +126,30 @@ namespace MeFit_BE.Models
                 Name = "The Runner",
                 Category = "Stamina",
             };
-            
-            //SubGoals
-            SubGoal subGoal1 = new SubGoal()
+
+            //Goals
+            Goal goal1 = new Goal()
             {
                 Id = 1,
-                GoalId = goal1.Id,
-                Achieved = true
+                EndData = new System.DateTime(2022, 9, 12),
+                UserId = user1.Id,
+                WorkoutProgramId = workoutProgram1.Id
             };
-            SubGoal subGoal2 = new SubGoal()
+            Goal goal2 = new Goal()
             {
                 Id = 2,
-                GoalId = goal2.Id
+                EndData = new System.DateTime(2022, 12, 24),
+                Achieved = true,
+                UserId = user2.Id,
+                WorkoutProgramId = workoutProgram2.Id
             };
-            SubGoal subGoal3 = new SubGoal()
+            Goal goal3 = new Goal()
             {
                 Id = 3,
+                EndData = new System.DateTime(2025, 1, 1),
+                UserId = user3.Id,
                 Achieved = true,
-                GoalId = goal3.Id
-            };
-            SubGoal subGoal4 = new SubGoal()
-            {
-                Id = 4,
-                GoalId = goal2.Id
+                WorkoutProgramId = workoutProgram3.Id
             };
 
             //Workouts
@@ -192,7 +171,35 @@ namespace MeFit_BE.Models
                 Name = "Fitness",
                 Type = "Fitness",
             };
-            
+
+            //SubGoals
+            SubGoal subGoal1 = new SubGoal()
+            {
+                Id = 1,
+                GoalId = goal1.Id,
+                Achieved = true,
+                WorkoutId = workout1.Id
+            };
+            SubGoal subGoal2 = new SubGoal()
+            {
+                Id = 2,
+                GoalId = goal2.Id,
+                WorkoutId = workout2.Id
+            };
+            SubGoal subGoal3 = new SubGoal()
+            {
+                Id = 3,
+                Achieved = true,
+                GoalId = goal3.Id,
+                WorkoutId = workout3.Id
+            };
+            SubGoal subGoal4 = new SubGoal()
+            {
+                Id = 4,
+                GoalId = goal2.Id,
+                WorkoutId = workout1.Id
+            };
+
             //Exercises
             Exercise exercise1 = new Exercise()
             {

@@ -1,4 +1,5 @@
 ﻿using MeFit_BE.Models.Domain.UserDomain;
+using MeFit_BE.Models.Domain.WorkoutDomain;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -21,5 +22,9 @@ namespace MeFit_BE.Models.Domain.GoalDomain
         public int UserId { get; set; }
 
         public ICollection<SubGoal> SubGoals { get; set; }
+
+        public WorkoutProgram WorkoutProgram { get; set; }
+
+        public int WorkoutProgramId { get; set; }
     }
 }
