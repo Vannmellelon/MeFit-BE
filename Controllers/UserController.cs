@@ -36,7 +36,7 @@ namespace MeFit_BE.Controllers
         [HttpGet]
         public async Task<ActionResult<List<UserReadDTO>>> GetUsers()
         {
-            return _mapper.Map<List<UserReadDTO>>(await _context.Users.ToListAsync());
+            return _mapper.Map<List<UserReadDTO>>(await _context.Users.Include(u => u.Goals).ToListAsync());
         }
 
         // GET api/<UserController>/5
@@ -48,7 +48,9 @@ namespace MeFit_BE.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<UserReadDTO>> GetUser(int id)
         {
-            return _mapper.Map<UserReadDTO>(await _context.Users.FindAsync(id));
+            User user = await _context.Users.Include(u => u.Goals).FirstOrDefaultAsync(u => u.Id == id);
+            if (user == null) return NotFound();
+            return _mapper.Map<UserReadDTO>(user);
         }
 
         // POST api/<UserController>/
