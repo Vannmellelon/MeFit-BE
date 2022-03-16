@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Auth0.AspNetCore.Authentication;
 using AutoMapper;
@@ -50,7 +51,7 @@ namespace MeFit_BE
                     options.ClientSecret = Configuration["Auth0:ClientSecret"];
                 });
 
-            // Add Authentication Services
+            // Add Authentication Services and validate Access Tokens
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -59,21 +60,12 @@ namespace MeFit_BE
             {
                 options.Authority = $"https://{Configuration["Auth0:Domain"]}/";
                 options.Audience = Configuration["Auth0:Audience"];
+                // If the access token does not have a `sub` claim, `User.Identity.Name` will be `null`. Map it to a different claim by setting the NameClaimType below.
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    NameClaimType = ClaimTypes.NameIdentifier
+                };
             });
-
-            // Validate Access Tokens
-            //services
-            //    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            //    .AddJwtBearer(options =>
-            //    {
-            //        options.Authority = $"https://{Configuration["Auth0:Domain"]}/";
-            //        options.Audience = Configuration["Auth0:Audience"];
-            //        // If the access token does not have a `sub` claim, `User.Identity.Name` will be `null`. Map it to a different claim by setting the NameClaimType below.
-            //        options.TokenValidationParameters = new TokenValidationParameters
-            //        {
-            //            // NameClaimType = ClaimTypes.NameIdentifier
-            //        };
-            //    });
 
             services.AddControllers();
             services.AddAutoMapper(typeof(Startup));
