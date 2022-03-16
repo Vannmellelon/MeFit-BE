@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using MeFit_BE.Models;
-using MeFit_BE.Models.Domain.WorkoutDomain;
+using MeFit_BE.Models.Domain.GoalDomain;
 using MeFit_BE.Models.DTO.SubGoal;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

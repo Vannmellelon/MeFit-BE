@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using MeFit_BE.Models.Domain.UserDomain;
 using MeFit_BE.Models.Domain.WorkoutDomain;
+using MeFit_BE.Models.Domain.GoalDomain;
 using Microsoft.EntityFrameworkCore;
 
 namespace MeFit_BE.Models
