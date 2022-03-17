@@ -3,6 +3,11 @@ using MeFit_BE.Models.Domain.UserDomain;
 using MeFit_BE.Models.Domain.WorkoutDomain;
 using MeFit_BE.Models.Domain.GoalDomain;
 using Microsoft.EntityFrameworkCore;
+using System;
+using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
+using System.Linq;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Protocols;
 
 namespace MeFit_BE.Models
 {
@@ -20,6 +25,8 @@ namespace MeFit_BE.Models
 
 
         public MeFitDbContext([NotNullAttribute] DbContextOptions options) : base(options) { }
+
+        public MeFitDbContext() { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -322,5 +329,11 @@ namespace MeFit_BE.Models
             modelBuilder.Entity<SubGoal>().HasData(subGoal4);
         }
 
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseSqlServer(
+                "Data Source= ND-5CG9030MCG\\SQLEXPRESS; Initial Catalog= MeFitDB; Integrated Security=True;"
+                );
+        }
     }
 }
