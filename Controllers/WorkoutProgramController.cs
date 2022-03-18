@@ -61,7 +61,14 @@ namespace MeFit_BE.Controllers
         [HttpPost]
         public async Task<ActionResult<WorkoutProgramReadDTO>> Post(WorkoutProgramWriteDTO programDTO)  
         {
+            if (!Helper.IsContributor(HttpContext)) return Forbid();
+
+            //User user = await _context.Users.FirstOrDefaultAsync(u => u.AuthId == GetExternalUserProviderId());
+            //if (user == null) return NotFound();
+
             WorkoutProgram domainProgram = _mapper.Map<WorkoutProgram>(programDTO);
+            //domainProgram.ContributorId = user.Id;
+
             _context.WorkoutPrograms.Add(domainProgram);
             await _context.SaveChangesAsync();
             return CreatedAtAction("Get", new {Id = domainProgram.Id}, _mapper.Map<WorkoutProgramReadDTO>(domainProgram));
@@ -77,9 +84,16 @@ namespace MeFit_BE.Controllers
         [HttpPatch("{id}")]
         public async Task<IActionResult> Put(int id, [FromBody] WorkoutProgramEditDTO programDTO)
         {
+            if (!Helper.IsContributor(HttpContext)) return Forbid();
+
             // Get WorkoutProgram
-            var program = await GetProgramAsync(id);
+            WorkoutProgram program = await GetProgramAsync(id);
             if (program == null) return NotFound();
+
+            //Ensure current contributor owns the workout program.
+            //User user = await _context.Users.FirstOrDefaultAsync(u => u.AuthId == GetExternalUserProviderId());
+            //if (user == null) return NotFound();
+            //if (program.ContributorId != user.Id) return Forbid();
 
             // Update WorkoutProgram
             if (programDTO.Name != null) program.Name = programDTO.Name;
@@ -98,10 +112,17 @@ namespace MeFit_BE.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult<WorkoutProgram>> Delete(int id)
         {
+            if (Helper.IsContributor(HttpContext)) return Forbid();
+
             if (!ProgramExists(id))
                 return NotFound($"Program with Id: {id} was not found");
 
-            var program = await _context.WorkoutPrograms.FindAsync(id);
+            WorkoutProgram program = await _context.WorkoutPrograms.FindAsync(id);
+
+            //Ensure current contributor owns the workout program.
+            //User user = await _context.Users.FirstOrDefaultAsync(u => u.AuthId == GetExternalUserProviderId());
+            //if (user == null) return NotFound();
+            //if (program.Id != user.Id) return Forbid();
 
             _context.WorkoutPrograms.Remove(program);
             await _context.SaveChangesAsync();
