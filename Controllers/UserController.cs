@@ -64,6 +64,7 @@ namespace MeFit_BE.Controllers
         public async Task<ActionResult<UserReadDTO>> PostAsync([FromBody] UserWriteDTO userDTO)
         {
             User user = _mapper.Map<User>(userDTO);
+            user.AuthId = Helper.GetExternalUserProviderId(HttpContext);
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
             return CreatedAtAction("GetUser", new { Id = user.Id }, _mapper.Map<UserReadDTO>(user));
@@ -71,22 +72,30 @@ namespace MeFit_BE.Controllers
 
         // PATCH api/<UserController>/5
         /// <summary>
-        /// Method updates a user in the database.
+        /// Method updates a user in the database. 
+        /// A user can only de altered by themselves.
         /// </summary>
         /// <param name="id">User id</param>
         /// <param name="userDTO">User with updated values</param>
         /// <returns>Updated user</returns>
         [HttpPatch("{id}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(403)]
+        [ProducesResponseType(404)]
         public async Task<IActionResult> Patch(int id, [FromBody] UserEditDTO userDTO)
         {
-            //Get user.
-            User user = await _context.Users.FindAsync(id);
+            //Get user from database.
+            User user = await Helper.GetCurrentUser(HttpContext, _context);
             if (user == null) return NotFound();
+
+            //Ensure current user is the user being changed.
+            if (user.Id != id) return Forbid();
 
             //Update user.
             if (userDTO.Email != null) user.Email = userDTO.Email;
             if (userDTO.FirstName != null) user.FirstName = userDTO.FirstName;
             if (userDTO.LastName != null) user.LastName = userDTO.LastName;
+
             _context.Entry(user).State = EntityState.Modified;
             await _context.SaveChangesAsync();
             return Ok(_mapper.Map<UserReadDTO>(user));
@@ -95,14 +104,25 @@ namespace MeFit_BE.Controllers
         // GET: UserController/Delete/5
         /// <summary>
         /// Method deletes the user with the given id.
+        /// A user can only be deleted by themselves or an administrator.
         /// </summary>
         /// <param name="id">User id</param>
         /// <returns>No content</returns>
         [HttpDelete("{id}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(403)]
+        [ProducesResponseType(404)]
         public async Task<IActionResult> Delete(int id)
         {
-            User user = await _context.Users.FindAsync(id);
+            //Get user from database.
+            User user = await Helper.GetCurrentUser(HttpContext, _context);
             if (user == null) return NotFound();
+
+            //Ensure current user is the one being deleted.
+            if (user.Id != id) return Forbid();
+
+            // TODO: Admin can also delete user.
+
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();
             return NoContent();
@@ -110,7 +130,7 @@ namespace MeFit_BE.Controllers
 
         /// <summary>
         /// Method returns the profile belonging to the user with the given id.
-        /// If the user does not have a profile, the method will returns not found.
+        /// If the user does not have a profile, the method will return not found.
         /// </summary>
         /// <param name="id">User id</param>
         /// <returns>Profile</returns>

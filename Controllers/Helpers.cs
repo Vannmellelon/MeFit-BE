@@ -1,7 +1,9 @@
 using MeFit_BE.Models;
 using MeFit_BE.Models.Domain.UserDomain;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace MeFit_BE.Controllers
 {
@@ -29,11 +31,9 @@ namespace MeFit_BE.Controllers
         /// Method used to get the current user based on the token user id.
         /// </summary>
         /// <returns>User</returns>
-        public static User GetCurrentUser(HttpContext httpContext, MeFitDbContext context)
+        public static async Task<User> GetCurrentUser(HttpContext httpContext, MeFitDbContext context)
         {
-            // TODO: Må legge in AuthId i database slik at denne kan brukes.
-            //return context.Users.FirstOrDefault(u => u.AuthId == Helper.GetExternalUserProviderId(httpContext));
-            return context.Users.FirstOrDefault(u => u.Id == 1);
+            return await context.Users.FirstOrDefaultAsync(u => u.AuthId == Helper.GetExternalUserProviderId(httpContext));
         }
     }
 }

@@ -78,7 +78,7 @@ namespace MeFit_BE.Controllers
             if (!Helper.IsContributor(HttpContext)) return Forbid();
 
             // Get user id of current user.
-            User user = Helper.GetCurrentUser(HttpContext, _context);
+            User user = await Helper.GetCurrentUser(HttpContext, _context);
             if (user == null) return NotFound();
 
             //Add contributor to workout.
@@ -112,7 +112,7 @@ namespace MeFit_BE.Controllers
                 return NotFound($"Can not find workout with id: {id}");
             }
             Workout _domainWorkout = await _context.Workouts.FindAsync(id);
-            User user = Helper.GetCurrentUser(HttpContext, _context);
+            User user = await Helper.GetCurrentUser(HttpContext, _context);
             if (user == null) { return NotFound(); }
 
             //Ensure that current user is the contributor of the workout.
@@ -147,7 +147,7 @@ namespace MeFit_BE.Controllers
                 return NotFound($"Can not find workout with id: {id}");
             }
             Workout _domainWorkout = await _context.Workouts.FindAsync(id);
-            User user = Helper.GetCurrentUser(HttpContext, _context);
+            User user = await Helper.GetCurrentUser(HttpContext, _context);
             if (user == null) return NotFound();
 
             //Ensure current contributor owns the workout.
