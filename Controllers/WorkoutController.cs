@@ -131,7 +131,7 @@ namespace MeFit_BE.Controllers
 
         // Can only be deleted by contributor/owner
         /// <summary>
-        /// Delete a workout. Requires the id of the workout.
+        /// Deletes a workout. Requires the id of the workout.
         /// </summary>
         /// <param name="id">Workout id</param>
         /// <returns>No content</returns>
@@ -156,7 +156,7 @@ namespace MeFit_BE.Controllers
 
 
         /// <summary>
-        /// Method returns true if the current user is a contributor.
+        /// Returns true if the current user is a contributor.
         /// </summary>
         /// <returns>Boolean</returns>
         private bool IsContributor()
@@ -165,7 +165,7 @@ namespace MeFit_BE.Controllers
         }
 
         /// <summary>
-        /// Method returns true if there is a workout with the given id in the database.
+        /// Returns true if there is a workout with the given id in the database.
         /// </summary>
         /// <param name="id">Workout id</param>
         /// <returns>Boolean</returns>
@@ -175,7 +175,7 @@ namespace MeFit_BE.Controllers
         }
 
         /// <summary>
-        /// Method returns the token id of the current user.
+        /// Returns the token id of the current user.
         /// </summary>
         /// <returns>String</returns>
         private string GetExternalUserProviderId()
@@ -184,7 +184,7 @@ namespace MeFit_BE.Controllers
         }
         /*
         /// <summary>
-        /// Method used to get the current user based on the token user id.
+        /// Gets the current user based on the token user id.
         /// </summary>
         /// <returns>User</returns>
         private User GetCurrentUser()

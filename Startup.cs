@@ -63,6 +63,7 @@ namespace MeFit_BE
                 // If the access token does not have a `sub` claim, `User.Identity.Name` will be `null`. Map it to a different claim by setting the NameClaimType below.
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
+                    // Lets dotnet(?) find the role and identity in the access token
                     NameClaimType = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier",
                     RoleClaimType = "https://schemas.dev-o072w2hj.com/roles"
                 };
