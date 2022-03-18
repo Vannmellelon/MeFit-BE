@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace MeFit_BE.Migrations
 {
-    public partial class WorkoutProgramRelationships : Migration
+    public partial class WorkoutProgramRelationship : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

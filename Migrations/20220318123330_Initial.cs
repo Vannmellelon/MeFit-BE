@@ -32,6 +32,7 @@ namespace MeFit_BE.Migrations
                     FirstName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     LastName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    AuthId = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     IsContributor = table.Column<bool>(type: "bit", nullable: false),
                     IsAdmin = table.Column<bool>(type: "bit", nullable: false)
                 },
@@ -268,12 +269,12 @@ namespace MeFit_BE.Migrations
 
             migrationBuilder.InsertData(
                 table: "User",
-                columns: new[] { "Id", "Email", "FirstName", "IsAdmin", "IsContributor", "LastName" },
+                columns: new[] { "Id", "AuthId", "Email", "FirstName", "IsAdmin", "IsContributor", "LastName" },
                 values: new object[,]
                 {
-                    { 1, "kari.nordmann@gmail.com", "Kari", true, true, "Nordmann" },
-                    { 2, "ola.hansen@gmail.com", "Ola", false, true, "Hansen" },
-                    { 3, "else.berg@gmail.com", "Else", false, false, "Berg" }
+                    { 1, null, "kari.nordmann@gmail.com", "Kari", true, true, "Nordmann" },
+                    { 2, null, "ola.hansen@gmail.com", "Ola", false, true, "Hansen" },
+                    { 3, null, "else.berg@gmail.com", "Else", false, false, "Berg" }
                 });
 
             migrationBuilder.InsertData(

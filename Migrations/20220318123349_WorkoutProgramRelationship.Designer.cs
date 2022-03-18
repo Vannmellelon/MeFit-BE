@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MeFit_BE.Migrations
 {
     [DbContext(typeof(MeFitDbContext))]
-    [Migration("20220317095305_Initial")]
-    partial class Initial
+    [Migration("20220318123349_WorkoutProgramRelationship")]
+    partial class WorkoutProgramRelationship
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -248,6 +248,9 @@ namespace MeFit_BE.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("AuthId")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)");
