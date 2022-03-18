@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Auth0.AspNetCore.Authentication;
 using AutoMapper;
@@ -50,7 +51,7 @@ namespace MeFit_BE
                     options.ClientSecret = Configuration["Auth0:ClientSecret"];
                 });
 
-            // Add Authentication Services
+            // Add Authentication Services and validate Access Tokens
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -59,26 +60,20 @@ namespace MeFit_BE
             {
                 options.Authority = $"https://{Configuration["Auth0:Domain"]}/";
                 options.Audience = Configuration["Auth0:Audience"];
+                // If the access token does not have a `sub` claim, `User.Identity.Name` will be `null`. Map it to a different claim by setting the NameClaimType below.
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    // Lets dotnet(?) find the role and identity in the access token
+                    NameClaimType = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier",
+                    RoleClaimType = "https://schemas.dev-o072w2hj.com/roles"
+                };
+                
             });
-
-            // Validate Access Tokens
-            //services
-            //    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            //    .AddJwtBearer(options =>
-            //    {
-            //        options.Authority = $"https://{Configuration["Auth0:Domain"]}/";
-            //        options.Audience = Configuration["Auth0:Audience"];
-            //        // If the access token does not have a `sub` claim, `User.Identity.Name` will be `null`. Map it to a different claim by setting the NameClaimType below.
-            //        options.TokenValidationParameters = new TokenValidationParameters
-            //        {
-            //            // NameClaimType = ClaimTypes.NameIdentifier
-            //        };
-            //    });
 
             services.AddControllers();
             services.AddAutoMapper(typeof(Startup));
             services.AddDbContext<Models.MeFitDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("AzureConnection"))); // Use AzureConnection when building docker image
+                options.UseSqlServer(Configuration.GetConnectionString("MiriamConnection"))); // Use AzureConnection when building docker image
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo 

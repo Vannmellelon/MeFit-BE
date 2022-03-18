@@ -2,6 +2,7 @@
 using MeFit_BE.Models;
 using MeFit_BE.Models.Domain.WorkoutDomain;
 using MeFit_BE.Models.DTO.Exercise;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -14,6 +15,7 @@ namespace MeFit_BE.Controllers
 {
     [Route("api/exercise")]
     [ApiController]
+    [Authorize]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
     [ApiConventionType(typeof(DefaultApiConventions))]
@@ -34,6 +36,9 @@ namespace MeFit_BE.Controllers
         /// </summary>
         /// <returns>List of Exercises</returns>
         [HttpGet]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(401)]
         public async Task<IEnumerable<ExerciseReadDTO>> GetExercises()
         {
             return _mapper.Map<List<ExerciseReadDTO>>(await _context.Exercises.ToListAsync());
@@ -45,6 +50,10 @@ namespace MeFit_BE.Controllers
         /// <param name="id">Exercise id</param>
         /// <returns>Exercise</returns>
         [HttpGet("{id}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(401)]
+        [ProducesResponseType(404)]
         public async Task<ActionResult<ExerciseReadDTO>> GetExercise(int id)
         {
             return _mapper.Map<ExerciseReadDTO>(await GetExerciseAsync(id));
@@ -56,8 +65,19 @@ namespace MeFit_BE.Controllers
         /// <param name="exerciseDTO">New exercise</param>
         /// <returns>New exercise</returns>
         [HttpPost]
-        public async Task<ExerciseReadDTO> Post(ExerciseWriteDTO exerciseDTO)
+        [ProducesResponseType(201)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(401)]
+        [ProducesResponseType(403)]
+        //[Authorize(Roles = "Contributor")]
+        public async Task<ActionResult<ExerciseReadDTO>> PostExercise(ExerciseWriteDTO exerciseDTO)
         {
+            if (!Helper.IsContributor(HttpContext)) { return Forbid(); }
+
+            // TODO:
+            // Get id of current user via helper method for extracting authID from token, match to userId in db
+            // Add UserId to new exercise
+
             Exercise domainExercise = _mapper.Map<Exercise>(exerciseDTO);
             _context.Exercises.Add(domainExercise);
             await _context.SaveChangesAsync();
@@ -71,11 +91,18 @@ namespace MeFit_BE.Controllers
         /// <param name="exerciseDTO">Exercise with new values</param>
         /// <returns>Updated exercise</returns>
         [HttpPatch("{id}")]
-        public async Task<IActionResult> Put(int id, [FromBody] ExerciseEditDTO exerciseDTO)
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(403)]
+        [ProducesResponseType(404)]
+        //[Authorize(Roles = "Contributor")]
+        public async Task<IActionResult> PatchExercise(int id, [FromBody] ExerciseEditDTO exerciseDTO)
         {
+            if (!Helper.IsContributor(HttpContext)) { return Forbid(); }
+
             // Get Excerise
             var exercise = await GetExerciseAsync(id);
-            if (exercise == null) return NotFound();
+            if (exercise == null) return NotFound($"Exercise with Id: {id} was not found");
 
             // Update Exercise
             if (exerciseDTO.Name != null) exercise.Name = exerciseDTO.Name;
@@ -96,8 +123,15 @@ namespace MeFit_BE.Controllers
         /// <param name="id">Exercise id</param>
         /// <returns>No content</returns>
         [HttpDelete("{id}")]
-        public async Task<ActionResult> Delete(int id)
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(403)]
+        [ProducesResponseType(404)]
+        //[Authorize(Roles = "Contributor")]
+        public async Task<ActionResult> DeleteExercise(int id)
         {
+            if (!Helper.IsContributor(HttpContext)) { return Forbid(); }
+
             if (!ExerciseExists(id))
                 return NotFound($"Exercise with Id: {id} was not found");
 

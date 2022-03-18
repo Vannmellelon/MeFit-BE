@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MeFit_BE.Migrations
 {
     [DbContext(typeof(MeFitDbContext))]
-    [Migration("20220315134322_init")]
-    partial class init
+    [Migration("20220318135537_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -20,6 +20,115 @@ namespace MeFit_BE.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("ProductVersion", "5.0.12")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+            modelBuilder.Entity("MeFit_BE.Models.Domain.GoalDomain.Goal", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<bool>("Achieved")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("EndData")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("WorkoutProgramId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("WorkoutProgramId");
+
+                    b.ToTable("Goal");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Achieved = false,
+                            EndData = new DateTime(2022, 9, 12, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = 1,
+                            WorkoutProgramId = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Achieved = true,
+                            EndData = new DateTime(2022, 12, 24, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = 2,
+                            WorkoutProgramId = 2
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Achieved = true,
+                            EndData = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = 3,
+                            WorkoutProgramId = 3
+                        });
+                });
+
+            modelBuilder.Entity("MeFit_BE.Models.Domain.GoalDomain.SubGoal", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<bool>("Achieved")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("GoalId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("WorkoutId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GoalId");
+
+                    b.HasIndex("WorkoutId");
+
+                    b.ToTable("SubGoal");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Achieved = true,
+                            GoalId = 1,
+                            WorkoutId = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Achieved = false,
+                            GoalId = 2,
+                            WorkoutId = 2
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Achieved = true,
+                            GoalId = 3,
+                            WorkoutId = 3
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Achieved = false,
+                            GoalId = 2,
+                            WorkoutId = 1
+                        });
+                });
 
             modelBuilder.Entity("MeFit_BE.Models.Domain.UserDomain.Address", b =>
                 {
@@ -140,6 +249,9 @@ namespace MeFit_BE.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<string>("AuthId")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)");
 
@@ -211,9 +323,6 @@ namespace MeFit_BE.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("SetId")
-                        .HasColumnType("int");
-
                     b.Property<string>("TargetMuscleGroup")
                         .HasColumnType("nvarchar(max)");
 
@@ -224,8 +333,6 @@ namespace MeFit_BE.Migrations
 
                     b.HasIndex("ContributedById");
 
-                    b.HasIndex("SetId");
-
                     b.ToTable("Exercise");
 
                     b.HasData(
@@ -235,7 +342,6 @@ namespace MeFit_BE.Migrations
                             ContributorId = 0,
                             Description = "Lay on your back with your hands behind your head, and move your upper body up and down.",
                             Name = "Crunch",
-                            SetId = 1,
                             TargetMuscleGroup = "Stomach"
                         },
                         new
@@ -244,7 +350,6 @@ namespace MeFit_BE.Migrations
                             ContributorId = 0,
                             Description = "Hands on the floor. Straighten out your body and lift yourself down to the floor and back up by bending you arms.",
                             Name = "Push-up",
-                            SetId = 2,
                             TargetMuscleGroup = "Arms"
                         },
                         new
@@ -253,7 +358,6 @@ namespace MeFit_BE.Migrations
                             ContributorId = 0,
                             Description = "Lay down on the floor. Then lift and hold yourself up on your elbows and toes. Hold and breath.",
                             Name = "Plank",
-                            SetId = 3,
                             TargetMuscleGroup = "All"
                         },
                         new
@@ -262,54 +366,7 @@ namespace MeFit_BE.Migrations
                             ContributorId = 0,
                             Description = "Jump up and down while opening and closing your legs and lifting your arms over your head.",
                             Name = "Jumping Jacks",
-                            SetId = 4,
                             TargetMuscleGroup = "Stamina"
-                        });
-                });
-
-            modelBuilder.Entity("MeFit_BE.Models.Domain.WorkoutDomain.Goal", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<bool>("Achieved")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("EndData")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Goal");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Achieved = false,
-                            EndData = new DateTime(2022, 9, 12, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            UserId = 1
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Achieved = true,
-                            EndData = new DateTime(2022, 12, 24, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            UserId = 2
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Achieved = true,
-                            EndData = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            UserId = 3
                         });
                 });
 
@@ -320,6 +377,9 @@ namespace MeFit_BE.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<int>("ExerciseId")
+                        .HasColumnType("int");
+
                     b.Property<int>("ExerciseRepetitions")
                         .HasColumnType("int");
 
@@ -327,6 +387,8 @@ namespace MeFit_BE.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ExerciseId");
 
                     b.HasIndex("WorkoutId");
 
@@ -336,66 +398,30 @@ namespace MeFit_BE.Migrations
                         new
                         {
                             Id = 1,
+                            ExerciseId = 1,
                             ExerciseRepetitions = 20,
                             WorkoutId = 1
                         },
                         new
                         {
                             Id = 2,
+                            ExerciseId = 2,
                             ExerciseRepetitions = 10,
                             WorkoutId = 2
                         },
                         new
                         {
                             Id = 3,
+                            ExerciseId = 3,
                             ExerciseRepetitions = 1,
                             WorkoutId = 3
                         },
                         new
                         {
                             Id = 4,
+                            ExerciseId = 4,
                             ExerciseRepetitions = 30,
                             WorkoutId = 2
-                        });
-                });
-
-            modelBuilder.Entity("MeFit_BE.Models.Domain.WorkoutDomain.SubGoal", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<bool>("Achieved")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("WorkoutProgramId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("WorkoutProgramId");
-
-                    b.ToTable("SubGoal");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Achieved = false,
-                            WorkoutProgramId = 1
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Achieved = false,
-                            WorkoutProgramId = 2
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Achieved = true,
-                            WorkoutProgramId = 3
                         });
                 });
 
@@ -406,9 +432,6 @@ namespace MeFit_BE.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<bool>("Complete")
-                        .HasColumnType("bit");
-
                     b.Property<int?>("ContributedById")
                         .HasColumnType("int");
 
@@ -418,9 +441,6 @@ namespace MeFit_BE.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("SubGoalId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Type")
                         .HasColumnType("nvarchar(max)");
 
@@ -428,36 +448,28 @@ namespace MeFit_BE.Migrations
 
                     b.HasIndex("ContributedById");
 
-                    b.HasIndex("SubGoalId");
-
                     b.ToTable("Workout");
 
                     b.HasData(
                         new
                         {
                             Id = 1,
-                            Complete = false,
                             ContributorId = 0,
                             Name = "Strengthify",
-                            SubGoalId = 1,
                             Type = "Strength"
                         },
                         new
                         {
                             Id = 2,
-                            Complete = false,
                             ContributorId = 0,
                             Name = "Stamina Builder",
-                            SubGoalId = 2,
                             Type = "Stamina"
                         },
                         new
                         {
                             Id = 3,
-                            Complete = true,
                             ContributorId = 0,
                             Name = "Fitness",
-                            SubGoalId = 3,
                             Type = "Fitness"
                         });
                 });
@@ -478,17 +490,12 @@ namespace MeFit_BE.Migrations
                     b.Property<int>("ContributorId")
                         .HasColumnType("int");
 
-                    b.Property<int>("GoalId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ContributedById");
-
-                    b.HasIndex("GoalId");
 
                     b.ToTable("WorkoutProgram");
 
@@ -498,7 +505,6 @@ namespace MeFit_BE.Migrations
                             Id = 1,
                             Category = "Upper-body Strength",
                             ContributorId = 0,
-                            GoalId = 1,
                             Name = "Hot and Heavy"
                         },
                         new
@@ -506,7 +512,6 @@ namespace MeFit_BE.Migrations
                             Id = 2,
                             Category = "Fitness",
                             ContributorId = 0,
-                            GoalId = 2,
                             Name = "The Wellness Yourney"
                         },
                         new
@@ -514,9 +519,61 @@ namespace MeFit_BE.Migrations
                             Id = 3,
                             Category = "Stamina",
                             ContributorId = 0,
-                            GoalId = 3,
                             Name = "The Runner"
                         });
+                });
+
+            modelBuilder.Entity("WorkoutWorkoutProgram", b =>
+                {
+                    b.Property<int>("WorkoutProgramsId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("WorkoutsId")
+                        .HasColumnType("int");
+
+                    b.HasKey("WorkoutProgramsId", "WorkoutsId");
+
+                    b.HasIndex("WorkoutsId");
+
+                    b.ToTable("WorkoutWorkoutProgram");
+                });
+
+            modelBuilder.Entity("MeFit_BE.Models.Domain.GoalDomain.Goal", b =>
+                {
+                    b.HasOne("MeFit_BE.Models.Domain.UserDomain.User", "User")
+                        .WithMany("Goals")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MeFit_BE.Models.Domain.WorkoutDomain.WorkoutProgram", "WorkoutProgram")
+                        .WithMany()
+                        .HasForeignKey("WorkoutProgramId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+
+                    b.Navigation("WorkoutProgram");
+                });
+
+            modelBuilder.Entity("MeFit_BE.Models.Domain.GoalDomain.SubGoal", b =>
+                {
+                    b.HasOne("MeFit_BE.Models.Domain.GoalDomain.Goal", "Goal")
+                        .WithMany("SubGoals")
+                        .HasForeignKey("GoalId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MeFit_BE.Models.Domain.WorkoutDomain.Workout", "Workout")
+                        .WithMany()
+                        .HasForeignKey("WorkoutId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Goal");
+
+                    b.Navigation("Workout");
                 });
 
             modelBuilder.Entity("MeFit_BE.Models.Domain.UserDomain.Profile", b =>
@@ -542,48 +599,26 @@ namespace MeFit_BE.Migrations
                         .WithMany()
                         .HasForeignKey("ContributedById");
 
-                    b.HasOne("MeFit_BE.Models.Domain.WorkoutDomain.Set", "Set")
-                        .WithMany()
-                        .HasForeignKey("SetId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("ContributedBy");
-
-                    b.Navigation("Set");
-                });
-
-            modelBuilder.Entity("MeFit_BE.Models.Domain.WorkoutDomain.Goal", b =>
-                {
-                    b.HasOne("MeFit_BE.Models.Domain.UserDomain.User", "User")
-                        .WithMany("Goals")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("MeFit_BE.Models.Domain.WorkoutDomain.Set", b =>
                 {
+                    b.HasOne("MeFit_BE.Models.Domain.WorkoutDomain.Exercise", "Exercise")
+                        .WithMany("Sets")
+                        .HasForeignKey("ExerciseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("MeFit_BE.Models.Domain.WorkoutDomain.Workout", "Workout")
                         .WithMany("Sets")
                         .HasForeignKey("WorkoutId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Exercise");
+
                     b.Navigation("Workout");
-                });
-
-            modelBuilder.Entity("MeFit_BE.Models.Domain.WorkoutDomain.SubGoal", b =>
-                {
-                    b.HasOne("MeFit_BE.Models.Domain.WorkoutDomain.WorkoutProgram", "WorkoutProgram")
-                        .WithMany("SubGoals")
-                        .HasForeignKey("WorkoutProgramId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("WorkoutProgram");
                 });
 
             modelBuilder.Entity("MeFit_BE.Models.Domain.WorkoutDomain.Workout", b =>
@@ -592,15 +627,7 @@ namespace MeFit_BE.Migrations
                         .WithMany()
                         .HasForeignKey("ContributedById");
 
-                    b.HasOne("MeFit_BE.Models.Domain.WorkoutDomain.SubGoal", "SubGoal")
-                        .WithMany()
-                        .HasForeignKey("SubGoalId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("ContributedBy");
-
-                    b.Navigation("SubGoal");
                 });
 
             modelBuilder.Entity("MeFit_BE.Models.Domain.WorkoutDomain.WorkoutProgram", b =>
@@ -609,15 +636,27 @@ namespace MeFit_BE.Migrations
                         .WithMany()
                         .HasForeignKey("ContributedById");
 
-                    b.HasOne("MeFit_BE.Models.Domain.WorkoutDomain.Goal", "Goal")
-                        .WithMany("WorkoutPrograms")
-                        .HasForeignKey("GoalId")
+                    b.Navigation("ContributedBy");
+                });
+
+            modelBuilder.Entity("WorkoutWorkoutProgram", b =>
+                {
+                    b.HasOne("MeFit_BE.Models.Domain.WorkoutDomain.WorkoutProgram", null)
+                        .WithMany()
+                        .HasForeignKey("WorkoutProgramsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("ContributedBy");
+                    b.HasOne("MeFit_BE.Models.Domain.WorkoutDomain.Workout", null)
+                        .WithMany()
+                        .HasForeignKey("WorkoutsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
 
-                    b.Navigation("Goal");
+            modelBuilder.Entity("MeFit_BE.Models.Domain.GoalDomain.Goal", b =>
+                {
+                    b.Navigation("SubGoals");
                 });
 
             modelBuilder.Entity("MeFit_BE.Models.Domain.UserDomain.User", b =>
@@ -625,19 +664,14 @@ namespace MeFit_BE.Migrations
                     b.Navigation("Goals");
                 });
 
-            modelBuilder.Entity("MeFit_BE.Models.Domain.WorkoutDomain.Goal", b =>
+            modelBuilder.Entity("MeFit_BE.Models.Domain.WorkoutDomain.Exercise", b =>
                 {
-                    b.Navigation("WorkoutPrograms");
+                    b.Navigation("Sets");
                 });
 
             modelBuilder.Entity("MeFit_BE.Models.Domain.WorkoutDomain.Workout", b =>
                 {
                     b.Navigation("Sets");
-                });
-
-            modelBuilder.Entity("MeFit_BE.Models.Domain.WorkoutDomain.WorkoutProgram", b =>
-                {
-                    b.Navigation("SubGoals");
                 });
 #pragma warning restore 612, 618
         }
