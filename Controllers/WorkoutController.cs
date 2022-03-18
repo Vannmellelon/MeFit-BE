@@ -128,7 +128,7 @@ namespace MeFit_BE.Controllers
         }
 
         /// <summary>
-        /// Delete a workout. Requires the id of the workout. Can only be deleted by the 
+        /// Deletes a workout. Requires the id of the workout. Can only be deleted by the 
         /// workout's contributor.
         /// </summary>
         /// <param name="id">Workout id</param>
@@ -159,7 +159,7 @@ namespace MeFit_BE.Controllers
         }
 
         /// <summary>
-        /// Method returns true if there is a workout with the given id in the database.
+        /// Returns true if there is a workout with the given id in the database.
         /// </summary>
         /// <param name="id">Workout id</param>
         /// <returns>Boolean</returns>

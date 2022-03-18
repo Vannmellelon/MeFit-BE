@@ -328,12 +328,5 @@ namespace MeFit_BE.Models
             modelBuilder.Entity<SubGoal>().HasData(subGoal3);
             modelBuilder.Entity<SubGoal>().HasData(subGoal4);
         }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseSqlServer(
-                "Data Source= ND-5CG9030MCG\\SQLEXPRESS; Initial Catalog= MeFitDB; Integrated Security=True;"
-                );
-        }
     }
 }
