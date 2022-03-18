@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MeFit_BE.Migrations
 {
     [DbContext(typeof(MeFitDbContext))]
-    [Migration("20220318123349_WorkoutProgramRelationship")]
+    [Migration("20220318135554_WorkoutProgramRelationship")]
     partial class WorkoutProgramRelationship
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
