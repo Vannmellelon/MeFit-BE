@@ -63,11 +63,10 @@ namespace MeFit_BE
                 // If the access token does not have a `sub` claim, `User.Identity.Name` will be `null`. Map it to a different claim by setting the NameClaimType below.
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    // NameClaimType = ClaimTypes.NameIdentifier
-                    NameClaimType = "Roles",
+                    NameClaimType = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier",
                     RoleClaimType = "https://schemas.dev-o072w2hj.com/roles"
-                    // RoleClaimType = "https://dev-o072w2hj.eu.auth0.com/roles"
                 };
+                
             });
 
             services.AddControllers();
