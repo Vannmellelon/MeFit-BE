@@ -16,6 +16,8 @@ namespace MeFit_BE.Models.Domain.UserDomain
 
         public string Email { get; set; }
 
+        public string? AuthId { get; set; }
+
         [DefaultValue(false)]
         public bool IsContributor { get; set; }
 

@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mime;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoMapper;
 using MeFit_BE.Models;
@@ -9,7 +8,6 @@ using MeFit_BE.Models.Domain.UserDomain;
 using MeFit_BE.Models.Domain.WorkoutDomain;
 using MeFit_BE.Models.DTO.Workout;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,7 +15,7 @@ namespace MeFit_BE.Controllers
 {
     [Route("api/workout")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
     [ApiConventionType(typeof(DefaultApiConventions))]
@@ -66,60 +64,61 @@ namespace MeFit_BE.Controllers
 
 
         /// <summary>
-        /// Add a new workout to the database.
-        /// Workout must be in application/JSON format.
+        /// Adds a new workout to the database. Workout must be in application/JSON format. Only
+        /// a contributor can create a new workout.
         /// </summary>
         /// <param name="newWorkout">New workout object</param>
         /// <returns>New workout</returns>
         [HttpPost]
         [ProducesResponseType(201)]
         [ProducesResponseType(403)]
+        [ProducesResponseType(404)]
         public async Task<ActionResult<WorkoutReadDTO>> PostWorkout(WorkoutWriteDTO newWorkout)
         {
-            if (!IsContributor()) return Forbid();
-
-            GetExternalUserProviderId();
-
-            Workout _domainWorkout = _mapper.Map<Workout>(newWorkout);
+            if (!Helper.IsContributor(HttpContext)) return Forbid();
 
             // Get user id of current user.
-            //User user = await _context.Users.FirstOrDefaultAsync(u => u.AuthId == GetExternalUserProviderId());
+            User user = await Helper.GetCurrentUser(HttpContext, _context);
+            if (user == null) return NotFound();
 
             //Add contributor to workout.
-            //_domainWorkout.ContributorId = user.Id;
+            Workout domainWorkout = _mapper.Map<Workout>(newWorkout);
+            domainWorkout.ContributorId = user.Id;
 
-            _context.Add(_domainWorkout);
+            _context.Add(domainWorkout);
             await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetWorkout), new { id = _domainWorkout.Id }, _mapper.Map<WorkoutReadDTO>(_domainWorkout));
+            return CreatedAtAction(nameof(GetWorkout), new { id = domainWorkout.Id }, _mapper.Map<WorkoutReadDTO>(domainWorkout));
         }
+        
 
         /// <summary>
         /// Update existing workout. Requires the id of the workout.
-        /// Can only be updated by contributor.
+        /// Can only be updated by the workout's contributor.
         /// </summary>
         /// <param name="id">Id of workout to update</param>
         /// <param name="updatedWorkout">Workout object with partial updates.</param>
         /// <returns>Updated workout</returns>
         [HttpPatch("{id}")]
         [ProducesResponseType(403)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(200)]
         public async Task<ActionResult<WorkoutReadDTO>> PatchWorkout(int id, WorkoutEditDTO updatedWorkout)
         {
-            if (!IsContributor()) return Forbid();
+            if (!Helper.IsContributor(HttpContext)) return Forbid();
 
+            //Find workout and user in database
             if (!WorkoutExists(id))
             {
                 return NotFound($"Can not find workout with id: {id}");
             }
-
             Workout _domainWorkout = await _context.Workouts.FindAsync(id);
-            if (_domainWorkout == null) { return NotFound(); }
-
-            //Get id of current user.
-            //User user = GetCurrentUser();
+            User user = await Helper.GetCurrentUser(HttpContext, _context);
+            if (user == null) { return NotFound(); }
 
             //Ensure that current user is the contributor of the workout.
-            //if (_domainWorkout.ContributorId != user.Id) return Forbid();
+            if (_domainWorkout.ContributorId != user.Id) return Forbid();
 
+            //Update workout
             if (updatedWorkout.Name != null) { _domainWorkout.Name = updatedWorkout.Name; }
             if (updatedWorkout.Type != null) { _domainWorkout.Type = updatedWorkout.Type; }
             
@@ -128,40 +127,35 @@ namespace MeFit_BE.Controllers
             return Ok(_mapper.Map<WorkoutReadDTO>(_domainWorkout));
         }
 
-
-        // Can only be deleted by contributor/owner
         /// <summary>
-        /// Deletes a workout. Requires the id of the workout.
+        /// Deletes a workout. Requires the id of the workout. Can only be deleted by the 
+        /// workout's contributor.
         /// </summary>
         /// <param name="id">Workout id</param>
         /// <returns>No content</returns>
         [HttpDelete]
         [ProducesResponseType(403)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(200)]
         public async Task<ActionResult> DeleteWorkout(int id) 
         {
-            if (!IsContributor()) return Forbid();
+            if (!Helper.IsContributor(HttpContext)) return Forbid();
 
-            // TODO: Check if current user is owner/can change stuff
-
+            //Find workout and current user in database.
             if (!WorkoutExists(id))
             {
                 return NotFound($"Can not find workout with id: {id}");
             }
             Workout _domainWorkout = await _context.Workouts.FindAsync(id);
+            User user = await Helper.GetCurrentUser(HttpContext, _context);
+            if (user == null) return NotFound();
+
+            //Ensure current contributor owns the workout.
+            if (_domainWorkout.ContributorId != user.Id) return Forbid();
+
             _context.Remove(_domainWorkout);
             await _context.SaveChangesAsync();
-
             return Ok($"Successfully deleted workout with id: {id}.");
-        }
-
-
-        /// <summary>
-        /// Returns true if the current user is a contributor.
-        /// </summary>
-        /// <returns>Boolean</returns>
-        private bool IsContributor()
-        {
-            return HttpContext.User.IsInRole("Contributor");
         }
 
         /// <summary>
@@ -173,24 +167,5 @@ namespace MeFit_BE.Controllers
         {
             return _context.Workouts.Any(w => w.Id == id);
         }
-
-        /// <summary>
-        /// Returns the token id of the current user.
-        /// </summary>
-        /// <returns>String</returns>
-        private string GetExternalUserProviderId()
-        {
-            return HttpContext.User.Identity.Name.ToString();
-        }
-        /*
-        /// <summary>
-        /// Gets the current user based on the token user id.
-        /// </summary>
-        /// <returns>User</returns>
-        private User GetCurrentUser()
-        {
-            User user = _context.Users.FirstOrDefault(u => u.AuthId == GetExternalUserProviderId());
-            return user;
-        }*/
     }
 }
