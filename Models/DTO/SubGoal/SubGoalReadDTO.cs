@@ -11,6 +11,6 @@ namespace MeFit_BE.Models.DTO.SubGoal
 
         public bool Achieved { get; set; }
 
-        public int Workout { get; set; } 
+        public int WorkoutId { get; set; } 
     }
 }
