@@ -119,9 +119,7 @@ namespace MeFit_BE.Controllers
             if (user == null) return NotFound();
 
             //Ensure current user is the one being deleted.
-            if (user.Id != id) return Forbid();
-
-            // TODO: Admin can also delete user.
+            if (user.Id != id || !Helper.IsAdmin(HttpContext)) return Forbid();
 
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();
@@ -140,6 +138,50 @@ namespace MeFit_BE.Controllers
             Models.Domain.UserDomain.Profile profile = await _context.Profiles.FirstOrDefaultAsync(p => p.UserId == id);
             if (profile == null) return NotFound();
             return Ok(_mapper.Map<ProfileReadDTO>(profile));
+        }
+
+        /// <summary>
+        /// Method makes the user with the given id into an administrator.
+        /// Only administrators can make a user an administrator.
+        /// </summary>
+        /// <param name="id">User id</param>
+        /// <returns>Action result</returns>
+        [HttpPatch]
+        public async Task<IActionResult> MakeAdmin(int id)
+        {
+            if (!Helper.IsAdmin(HttpContext)) return Forbid();
+
+            //Get user from database.
+            User user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+            if (user == null) return NotFound();
+
+            //Make user an administrator.
+            user.IsAdmin = true;
+            _context.Entry(user).State = EntityState.Modified;
+            _context.SaveChanges();
+            return Ok();
+        }
+
+        /// <summary>
+        /// Method makes the user with the given id into a contributor.
+        /// Only administrators can make a user a contributor.
+        /// </summary>
+        /// <param name="id">User id</param>
+        /// <returns>Action result</returns>
+        [HttpPatch]
+        public async Task<IActionResult> MakeContributor(int id)
+        {
+            if (!Helper.IsAdmin(HttpContext)) return Forbid();
+
+            //Get user from database.
+            User user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+            if (user == null) return NotFound();
+
+            //Make user a contributor.
+            user.IsContributor = true;
+            _context.Entry(user).State = EntityState.Modified;
+            _context.SaveChanges();
+            return Ok();
         }
     }
 }

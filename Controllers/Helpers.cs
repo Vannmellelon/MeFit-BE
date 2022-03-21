@@ -12,10 +12,21 @@ namespace MeFit_BE.Controllers
         /// <summary>
         /// Method returns true if the current user is a contributor.
         /// </summary>
+        /// <param name="httpContext">HttpContext</param>
         /// <returns>Boolean</returns>
         public static bool IsContributor(HttpContext httpContext)
         {
            return httpContext.User.IsInRole("Contributor");
+        }
+
+        /// <summary>
+        /// Method returns true if the current user is an administrator.
+        /// </summary>
+        /// <param name="httpContext">HttpContext</param>
+        /// <returns>Boolean</returns>
+        public static bool IsAdmin(HttpContext httpContext)
+        {
+            return httpContext.User.IsInRole("Admin");
         }
 
         /// <summary>
