@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace MeFit_BE.Models.DTO.Goal
 {
@@ -12,5 +9,8 @@ namespace MeFit_BE.Models.DTO.Goal
         public bool Achieved { get; set; }
 
         public int UserId { get; set; }
+
+        public int WorkoutProgramId { get; set; }
+
     }
 }

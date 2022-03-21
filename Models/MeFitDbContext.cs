@@ -290,7 +290,7 @@ namespace MeFit_BE.Models
             modelBuilder.Entity<User>().HasData(user1);
             modelBuilder.Entity<User>().HasData(user2);
             modelBuilder.Entity<User>().HasData(user3);
-            
+
             // Save workout domain tables
 
             //Save WorkoutPrograms
@@ -302,7 +302,7 @@ namespace MeFit_BE.Models
             modelBuilder.Entity<Workout>().HasData(workout1);
             modelBuilder.Entity<Workout>().HasData(workout2);
             modelBuilder.Entity<Workout>().HasData(workout3);
-            
+
             //Save exercises
             modelBuilder.Entity<Exercise>().HasData(exercise1);
             modelBuilder.Entity<Exercise>().HasData(exercise2);
@@ -327,6 +327,16 @@ namespace MeFit_BE.Models
             modelBuilder.Entity<SubGoal>().HasData(subGoal2);
             modelBuilder.Entity<SubGoal>().HasData(subGoal3);
             modelBuilder.Entity<SubGoal>().HasData(subGoal4);
+
         }
+
+        // MAGIC??? why...
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseSqlServer(
+                    "Data Source= ND-5CG92747KF\\SQLEXPRESS; Initial Catalog= MeFitDB; Integrated Security=True;" // Anne
+                );
+        }
+    
     }
 }

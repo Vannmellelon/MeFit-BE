@@ -23,8 +23,9 @@ namespace MeFit_BE.Models.Domain.GoalDomain
 
         public ICollection<SubGoal> SubGoals { get; set; }
 
+        public int WorkoutProgramId { get; set; }
+
         public WorkoutProgram WorkoutProgram { get; set; }
 
-        public int WorkoutProgramId { get; set; }
     }
 }
