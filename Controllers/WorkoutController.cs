@@ -10,6 +10,7 @@ using MeFit_BE.Models.DTO.Workout;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using MeFit_BE.Models.Domain;
 
 namespace MeFit_BE.Controllers
 {
@@ -37,6 +38,8 @@ namespace MeFit_BE.Controllers
         /// </summary>
         /// <returns>Workout</returns>
         [HttpGet]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(403)]
         public async Task<ActionResult<List<WorkoutReadDTO>>> GetAllWorkouts() 
         {
             return _mapper.Map <List<WorkoutReadDTO>> (await _context.Workouts.Include(w => w.Sets).ToListAsync());
@@ -49,6 +52,9 @@ namespace MeFit_BE.Controllers
         /// <param name="id">Id of workout</param>
         /// <returns>Workout</returns>
         [HttpGet("{id}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(403)]
         public async Task<ActionResult<WorkoutReadDTO>> GetWorkout(int id)
         {
             if (!WorkoutExists(id))
@@ -58,7 +64,7 @@ namespace MeFit_BE.Controllers
             else
             {
                 Workout _domainWorkout = await _context.Workouts.Include(w => w.Sets).FirstOrDefaultAsync(w => w.Id == id);
-                return _mapper.Map<WorkoutReadDTO>(_domainWorkout);
+                return Ok(_mapper.Map<WorkoutReadDTO>(_domainWorkout));
             }
         }
 
@@ -73,6 +79,7 @@ namespace MeFit_BE.Controllers
         [ProducesResponseType(201)]
         [ProducesResponseType(403)]
         [ProducesResponseType(404)]
+        [ProducesResponseType(400)]
         public async Task<ActionResult<WorkoutReadDTO>> PostWorkout(WorkoutWriteDTO newWorkout)
         {
             if (!Helper.IsContributor(HttpContext)) return Forbid();
@@ -80,6 +87,12 @@ namespace MeFit_BE.Controllers
             // Get user id of current user.
             User user = await Helper.GetCurrentUser(HttpContext, _context);
             if (user == null) return NotFound();
+
+            //Check input validity
+            if (!Category.IsValid(newWorkout.Category))
+                return BadRequest($"Category {newWorkout.Category} is invalid.");
+            if (!Difficulty.IsValid(newWorkout.Difficulty))
+                return BadRequest($"Difficulty {newWorkout.Difficulty} is invalid");
 
             //Add contributor to workout.
             Workout domainWorkout = _mapper.Map<Workout>(newWorkout);
@@ -102,15 +115,14 @@ namespace MeFit_BE.Controllers
         [ProducesResponseType(403)]
         [ProducesResponseType(404)]
         [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
         public async Task<ActionResult<WorkoutReadDTO>> PatchWorkout(int id, WorkoutEditDTO updatedWorkout)
         {
             if (!Helper.IsContributor(HttpContext)) return Forbid();
 
             //Find workout and user in database
             if (!WorkoutExists(id))
-            {
-                return NotFound($"Can not find workout with id: {id}");
-            }
+            { return NotFound($"Cannot find workout with id: {id}"); }
             Workout _domainWorkout = await _context.Workouts.FindAsync(id);
             User user = await Helper.GetCurrentUser(HttpContext, _context);
             if (user == null) { return NotFound(); }
@@ -119,6 +131,18 @@ namespace MeFit_BE.Controllers
             if (_domainWorkout.ContributorId != user.Id) return Forbid();
 
             //Update workout
+            if (updatedWorkout.Category != null)
+            {
+                if (!Category.IsValid(updatedWorkout.Category))
+                    return BadRequest($"Category {updatedWorkout.Category} is invalid.");
+                else _domainWorkout.Category = updatedWorkout.Category;
+            }
+            if (updatedWorkout.Difficulty != null)
+            {
+                if (!Difficulty.IsValid(updatedWorkout.Difficulty))
+                    return BadRequest($"Difficulty {updatedWorkout.Difficulty} is invalid.");
+                else _domainWorkout.Difficulty = updatedWorkout.Difficulty;
+            }
             if (updatedWorkout.Name != null) { _domainWorkout.Name = updatedWorkout.Name; }
             
             _context.Entry(_domainWorkout).State = EntityState.Modified;
