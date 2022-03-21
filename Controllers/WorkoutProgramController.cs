@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
+using MeFit_BE.Models.Domain;
 
 
 namespace MeFit_BE.Controllers
@@ -71,6 +72,12 @@ namespace MeFit_BE.Controllers
             User user = await Helper.GetCurrentUser(HttpContext, _context);
             if (user == null) return NotFound();
 
+            //Check input validity.
+            if (!Category.IsValid(programDTO.Category)) 
+                return BadRequest($"{programDTO.Category} is not a valid category.");
+            if (!Difficulty.IsValid(programDTO.Difficulty))
+                return BadRequest($"{programDTO.Difficulty} is not a valid difficulty level.");
+
             //Create workout program with the current user as contributor.
             WorkoutProgram domainProgram = _mapper.Map<WorkoutProgram>(programDTO);
             domainProgram.ContributorId = user.Id;
@@ -92,7 +99,7 @@ namespace MeFit_BE.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(403)]
-        public async Task<IActionResult> Put(int id, [FromBody] WorkoutProgramEditDTO programDTO)
+        public async Task<IActionResult> Patch(int id, [FromBody] WorkoutProgramEditDTO programDTO)
         {
             if (!Helper.IsContributor(HttpContext)) return Forbid();
 
@@ -105,6 +112,18 @@ namespace MeFit_BE.Controllers
             if (program.ContributorId != user.Id) return Forbid();
 
             // Update WorkoutProgram
+            if (programDTO.Category != null)
+            {
+                if (!Category.IsValid(programDTO.Category))
+                    return BadRequest($"{programDTO.Category} is not a valid category.");
+                else program.Category = programDTO.Category;
+            }
+            if (programDTO.Difficulty != null)
+            {
+                if (!Difficulty.IsValid(programDTO.Difficulty))
+                    return BadRequest($"{programDTO.Difficulty} is not a valid difficulty level.");
+                else program.Difficulty = programDTO.Difficulty;
+            }
             if (programDTO.Name != null) program.Name = programDTO.Name;
 
             _context.WorkoutPrograms.Update(program);
