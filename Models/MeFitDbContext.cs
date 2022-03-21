@@ -119,33 +119,38 @@ namespace MeFit_BE.Models
             {
                 Id = 1,
                 Name = "Hot and Heavy",
-                ContributorId = user1.Id
+                ContributorId = user1.Id,
+                Difficulty = Domain.Difficulty.Beginner,
+                Category = Domain.Category.FullBody
             };
             WorkoutProgram workoutProgram2 = new WorkoutProgram()
             {
                 Id = 2,
                 Name = "The Wellness Yourney",
-                ContributorId = user1.Id
+                ContributorId = user1.Id,
+                Difficulty = Domain.Difficulty.Intermediate,
+                Category = Domain.Category.Flexibility
             };
             WorkoutProgram workoutProgram3 = new WorkoutProgram()
             {
                 Id = 3,
                 Name = "The Runner",
-                ContributorId = user2.Id
+                ContributorId = user2.Id,
+                Difficulty = Domain.Difficulty.Expert
             };
 
             //Goals
             Goal goal1 = new Goal()
             {
                 Id = 1,
-                EndData = new System.DateTime(2022, 9, 12),
+                EndData = new DateTime(2022, 9, 12),
                 UserId = user1.Id,
                 WorkoutProgramId = workoutProgram1.Id
             };
             Goal goal2 = new Goal()
             {
                 Id = 2,
-                EndData = new System.DateTime(2022, 12, 24),
+                EndData = new DateTime(2022, 12, 24),
                 Achieved = true,
                 UserId = user2.Id,
                 WorkoutProgramId = workoutProgram2.Id
@@ -153,7 +158,7 @@ namespace MeFit_BE.Models
             Goal goal3 = new Goal()
             {
                 Id = 3,
-                EndData = new System.DateTime(2025, 1, 1),
+                EndData = new DateTime(2025, 1, 1),
                 UserId = user3.Id,
                 Achieved = true,
                 WorkoutProgramId = workoutProgram3.Id
@@ -164,19 +169,25 @@ namespace MeFit_BE.Models
             {
                 Id = 1,
                 Name = "Strengthify",
-                ContributorId = user1.Id
+                ContributorId = user1.Id,
+                Category = Domain.Category.Core,
+                Difficulty = Domain.Difficulty.Beginner
             };
             Workout workout2 = new Workout()
             {
                 Id = 2,
                 Name = "Stamina Builder",
-                ContributorId = user1.Id
+                ContributorId = user1.Id,
+                Category = Domain.Category.Stamina,
+                Difficulty = Domain.Difficulty.Expert
             };
             Workout workout3 = new Workout()
             {
                 Id = 3,
                 Name = "Fitness",
-                ContributorId = user2.Id
+                ContributorId = user2.Id,
+                Category = Domain.Category.FullBody,
+                Difficulty = Domain.Difficulty.Intermediate
             };
 
             //SubGoals
@@ -216,7 +227,8 @@ namespace MeFit_BE.Models
                 "Lay on your back with your hands behind your head, and move your upper body up and down.",
                 Image = null,
                 Video = null,
-                ContributorId = user1.Id
+                ContributorId = user1.Id,
+                Category = Domain.Category.Core
             };
             Exercise exercise2 = new Exercise()
             {
@@ -226,7 +238,8 @@ namespace MeFit_BE.Models
                 "Hands on the floor. Straighten out your body and lift yourself down to the floor and back up by bending you arms.",
                 Image = null,
                 Video = null,
-                ContributorId = user1.Id
+                ContributorId = user1.Id,
+                Category = Domain.Category.Arms
             };
             Exercise exercise3 = new Exercise()
             {
@@ -236,7 +249,8 @@ namespace MeFit_BE.Models
                 "Lay down on the floor. Then lift and hold yourself up on your elbows and toes. Hold and breath.",
                 Image = null,
                 Video = null,
-                ContributorId = user2.Id
+                ContributorId = user2.Id,
+                Category = Domain.Category.FullBody,
             };
             Exercise exercise4 = new Exercise()
             {
@@ -246,7 +260,8 @@ namespace MeFit_BE.Models
                 "Jump up and down while opening and closing your legs and lifting your arms over your head.",
                 Image = null,
                 Video = null,
-                ContributorId = user2.Id
+                ContributorId = user2.Id,
+                Category = Domain.Category.Stamina
             };
 
             //Sets

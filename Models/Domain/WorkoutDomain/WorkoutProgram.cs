@@ -13,6 +13,10 @@ namespace MeFit_BE.Models.Domain.WorkoutDomain
 
         public string Name { get; set; }
 
+        public Category Category { get; set; }
+
+        public Difficulty Difficulty { get; set; }
+
         public int? ContributorId { get; set; }
 
         [ForeignKey("ContributorId")]

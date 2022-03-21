@@ -6,10 +6,6 @@ namespace MeFit_BE.Models.DTO.Workout
     {
         public string Name { get; set; }
 
-        public string Type { get; set; }
-
         public int ContributorId { get; set; }
-
-        //public List<int> SetIds { get; set; }
     }
 }
