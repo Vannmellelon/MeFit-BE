@@ -351,6 +351,7 @@ namespace MeFit_BE.Models
 
         }
 
+        /*
         // MAGIC??? why...
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -360,5 +361,6 @@ namespace MeFit_BE.Models
 
                 );
         }
+        */
     }
 }
