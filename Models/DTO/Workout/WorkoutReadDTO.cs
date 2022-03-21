@@ -15,6 +15,14 @@ namespace MeFit_BE.Models.DTO.Workout
 
         public string Difficulty { get; set; }
 
-        public List<int> Sets { get; set; }
+        public ICollection<SetDTO> Sets { get; set; }
+    }
+
+    public class SetDTO
+    {
+        public int ExerciseId { get; set; }
+
+        public int ExerciseRepetitions { get; set; }
+
     }
 }
