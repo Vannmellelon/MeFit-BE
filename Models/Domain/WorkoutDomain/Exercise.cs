@@ -17,7 +17,7 @@ namespace MeFit_BE.Models.Domain.WorkoutDomain
 
         public string Video { get; set; }
 
-        public Category Category { get; set; }
+        public string Category { get; set; }
 
         public int ContributorId { get; set; }
 

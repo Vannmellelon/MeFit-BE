@@ -168,7 +168,7 @@ namespace MeFit_BE.Controllers
         /// </summary>
         /// <param name="id">User id</param>
         /// <returns>Action result</returns>
-        [HttpPatch]
+        [HttpPatch("{id}/admin")]
         public async Task<IActionResult> MakeContributor(int id)
         {
             if (!Helper.IsAdmin(HttpContext)) return Forbid();

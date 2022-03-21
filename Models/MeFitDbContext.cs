@@ -120,23 +120,24 @@ namespace MeFit_BE.Models
                 Id = 1,
                 Name = "Hot and Heavy",
                 ContributorId = user1.Id,
-                Difficulty = Domain.Difficulty.Beginner,
-                Category = Domain.Category.FullBody
+                Difficulty = Domain.Difficulty.BEGINNER,
+                Category = Domain.Category.FULL_BODY
             };
             WorkoutProgram workoutProgram2 = new WorkoutProgram()
             {
                 Id = 2,
                 Name = "The Wellness Yourney",
                 ContributorId = user1.Id,
-                Difficulty = Domain.Difficulty.Intermediate,
-                Category = Domain.Category.Flexibility
+                Difficulty = Domain.Difficulty.INTERMEDIATE,
+                Category = Domain.Category.FLEXIBILITY
             };
             WorkoutProgram workoutProgram3 = new WorkoutProgram()
             {
                 Id = 3,
                 Name = "The Runner",
                 ContributorId = user2.Id,
-                Difficulty = Domain.Difficulty.Expert
+                Difficulty = Domain.Difficulty.EXPERT,
+                Category = Domain.Category.STAMINA
             };
 
             //Goals
@@ -170,24 +171,24 @@ namespace MeFit_BE.Models
                 Id = 1,
                 Name = "Strengthify",
                 ContributorId = user1.Id,
-                Category = Domain.Category.Core,
-                Difficulty = Domain.Difficulty.Beginner
+                Category = Domain.Category.CORE,
+                Difficulty = Domain.Difficulty.BEGINNER
             };
             Workout workout2 = new Workout()
             {
                 Id = 2,
                 Name = "Stamina Builder",
                 ContributorId = user1.Id,
-                Category = Domain.Category.Stamina,
-                Difficulty = Domain.Difficulty.Expert
+                Category = Domain.Category.STAMINA,
+                Difficulty = Domain.Difficulty.EXPERT
             };
             Workout workout3 = new Workout()
             {
                 Id = 3,
                 Name = "Fitness",
                 ContributorId = user2.Id,
-                Category = Domain.Category.FullBody,
-                Difficulty = Domain.Difficulty.Intermediate
+                Category = Domain.Category.FULL_BODY,
+                Difficulty = Domain.Difficulty.INTERMEDIATE
             };
 
             //SubGoals
@@ -228,7 +229,7 @@ namespace MeFit_BE.Models
                 Image = null,
                 Video = null,
                 ContributorId = user1.Id,
-                Category = Domain.Category.Core
+                Category = Domain.Category.CORE
             };
             Exercise exercise2 = new Exercise()
             {
@@ -239,7 +240,7 @@ namespace MeFit_BE.Models
                 Image = null,
                 Video = null,
                 ContributorId = user1.Id,
-                Category = Domain.Category.Arms
+                Category = Domain.Category.ARMS
             };
             Exercise exercise3 = new Exercise()
             {
@@ -250,7 +251,7 @@ namespace MeFit_BE.Models
                 Image = null,
                 Video = null,
                 ContributorId = user2.Id,
-                Category = Domain.Category.FullBody,
+                Category = Domain.Category.FULL_BODY
             };
             Exercise exercise4 = new Exercise()
             {
@@ -261,7 +262,7 @@ namespace MeFit_BE.Models
                 Image = null,
                 Video = null,
                 ContributorId = user2.Id,
-                Category = Domain.Category.Stamina
+                Category = Domain.Category.STAMINA
             };
 
             //Sets

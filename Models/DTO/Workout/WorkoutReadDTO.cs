@@ -11,6 +11,10 @@ namespace MeFit_BE.Models.DTO.Workout
 
         public int ContributorId { get; set; }
 
+        public string Category { get; set; }
+
+        public string Difficulty { get; set; }
+
         public List<int> Sets { get; set; }
     }
 }
