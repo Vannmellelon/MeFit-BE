@@ -119,33 +119,39 @@ namespace MeFit_BE.Models
             {
                 Id = 1,
                 Name = "Hot and Heavy",
-                Category = "Upper-body Strength",
+                ContributorId = user1.Id,
+                Difficulty = Domain.Difficulty.BEGINNER,
+                Category = Domain.Category.FULL_BODY
             };
             WorkoutProgram workoutProgram2 = new WorkoutProgram()
             {
                 Id = 2,
                 Name = "The Wellness Yourney",
-                Category = "Fitness",
+                ContributorId = user1.Id,
+                Difficulty = Domain.Difficulty.INTERMEDIATE,
+                Category = Domain.Category.FLEXIBILITY
             };
             WorkoutProgram workoutProgram3 = new WorkoutProgram()
             {
                 Id = 3,
                 Name = "The Runner",
-                Category = "Stamina",
+                ContributorId = user2.Id,
+                Difficulty = Domain.Difficulty.EXPERT,
+                Category = Domain.Category.STAMINA
             };
 
             //Goals
             Goal goal1 = new Goal()
             {
                 Id = 1,
-                EndData = new System.DateTime(2022, 9, 12),
+                EndData = new DateTime(2022, 9, 12),
                 UserId = user1.Id,
                 WorkoutProgramId = workoutProgram1.Id
             };
             Goal goal2 = new Goal()
             {
                 Id = 2,
-                EndData = new System.DateTime(2022, 12, 24),
+                EndData = new DateTime(2022, 12, 24),
                 Achieved = true,
                 UserId = user2.Id,
                 WorkoutProgramId = workoutProgram2.Id
@@ -153,7 +159,7 @@ namespace MeFit_BE.Models
             Goal goal3 = new Goal()
             {
                 Id = 3,
-                EndData = new System.DateTime(2025, 1, 1),
+                EndData = new DateTime(2025, 1, 1),
                 UserId = user3.Id,
                 Achieved = true,
                 WorkoutProgramId = workoutProgram3.Id
@@ -164,19 +170,25 @@ namespace MeFit_BE.Models
             {
                 Id = 1,
                 Name = "Strengthify",
-                Type = "Strength",
+                ContributorId = user1.Id,
+                Category = Domain.Category.CORE,
+                Difficulty = Domain.Difficulty.BEGINNER
             };
             Workout workout2 = new Workout()
             {
                 Id = 2,
                 Name = "Stamina Builder",
-                Type = "Stamina",
+                ContributorId = user1.Id,
+                Category = Domain.Category.STAMINA,
+                Difficulty = Domain.Difficulty.EXPERT
             };
             Workout workout3 = new Workout()
             {
                 Id = 3,
                 Name = "Fitness",
-                Type = "Fitness",
+                ContributorId = user2.Id,
+                Category = Domain.Category.FULL_BODY,
+                Difficulty = Domain.Difficulty.INTERMEDIATE
             };
 
             //SubGoals
@@ -212,37 +224,45 @@ namespace MeFit_BE.Models
             {
                 Id = 1,
                 Name = "Crunch",
-                Description = "Lay on your back with your hands behind your head, and move your upper body up and down.",
-                TargetMuscleGroup = "Stomach",
+                Description = 
+                "Lay on your back with your hands behind your head, and move your upper body up and down.",
                 Image = null,
-                Video = null
+                Video = null,
+                ContributorId = user1.Id,
+                Category = Domain.Category.CORE
             };
             Exercise exercise2 = new Exercise()
             {
                 Id = 2,
                 Name = "Push-up",
-                Description = "Hands on the floor. Straighten out your body and lift yourself down to the floor and back up by bending you arms.",
-                TargetMuscleGroup = "Arms",
+                Description = 
+                "Hands on the floor. Straighten out your body and lift yourself down to the floor and back up by bending you arms.",
                 Image = null,
-                Video = null
+                Video = null,
+                ContributorId = user1.Id,
+                Category = Domain.Category.ARMS
             };
             Exercise exercise3 = new Exercise()
             {
                 Id = 3,
                 Name = "Plank",
-                Description = "Lay down on the floor. Then lift and hold yourself up on your elbows and toes. Hold and breath.",
-                TargetMuscleGroup = "All",
+                Description = 
+                "Lay down on the floor. Then lift and hold yourself up on your elbows and toes. Hold and breath.",
                 Image = null,
-                Video = null
+                Video = null,
+                ContributorId = user2.Id,
+                Category = Domain.Category.FULL_BODY
             };
             Exercise exercise4 = new Exercise()
             {
                 Id = 4,
                 Name = "Jumping Jacks",
-                Description = "Jump up and down while opening and closing your legs and lifting your arms over your head.",
-                TargetMuscleGroup = "Stamina",
+                Description = 
+                "Jump up and down while opening and closing your legs and lifting your arms over your head.",
                 Image = null,
-                Video = null
+                Video = null,
+                ContributorId = user2.Id,
+                Category = Domain.Category.STAMINA
             };
 
             //Sets
@@ -276,6 +296,7 @@ namespace MeFit_BE.Models
             };
 
             // Save user domain tables
+
             //Save addresses
             modelBuilder.Entity<Address>().HasData(address1);
             modelBuilder.Entity<Address>().HasData(address2);
@@ -335,8 +356,9 @@ namespace MeFit_BE.Models
         {
             optionsBuilder.UseSqlServer(
                     "Data Source= ND-5CG92747KF\\SQLEXPRESS; Initial Catalog= MeFitDB; Integrated Security=True;" // Anne
+                    //"Data source=ND-5CG9030MCG\\SQLEXPRESS; Initial Catalog=MovieInfoAPIDB; Integrated Security=True;"); // Miriam
+
                 );
         }
-    
     }
 }

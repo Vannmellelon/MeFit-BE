@@ -15,7 +15,7 @@ namespace MeFit_BE.Controllers
 {
     [Route("api/exercise")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
     [ApiConventionType(typeof(DefaultApiConventions))]
@@ -107,7 +107,6 @@ namespace MeFit_BE.Controllers
             // Update Exercise
             if (exerciseDTO.Name != null) exercise.Name = exerciseDTO.Name;
             if (exerciseDTO.Description != null) exercise.Description = exerciseDTO.Description;
-            if (exerciseDTO.TargetMuscleGroup != null) exercise.TargetMuscleGroup = exerciseDTO.TargetMuscleGroup;
             if (exerciseDTO.Image != null) exercise.Image = exerciseDTO.Image;
             if (exerciseDTO.Name != null) exercise.Video = exerciseDTO.Video;
 

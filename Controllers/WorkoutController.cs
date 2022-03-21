@@ -120,7 +120,6 @@ namespace MeFit_BE.Controllers
 
             //Update workout
             if (updatedWorkout.Name != null) { _domainWorkout.Name = updatedWorkout.Name; }
-            if (updatedWorkout.Type != null) { _domainWorkout.Type = updatedWorkout.Type; }
             
             _context.Entry(_domainWorkout).State = EntityState.Modified;
             await _context.SaveChangesAsync();
