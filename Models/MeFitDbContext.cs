@@ -119,19 +119,19 @@ namespace MeFit_BE.Models
             {
                 Id = 1,
                 Name = "Hot and Heavy",
-                Category = "Upper-body Strength",
+                ContributorId = user1.Id
             };
             WorkoutProgram workoutProgram2 = new WorkoutProgram()
             {
                 Id = 2,
                 Name = "The Wellness Yourney",
-                Category = "Fitness",
+                ContributorId = user1.Id
             };
             WorkoutProgram workoutProgram3 = new WorkoutProgram()
             {
                 Id = 3,
                 Name = "The Runner",
-                Category = "Stamina",
+                ContributorId = user2.Id
             };
 
             //Goals
@@ -164,19 +164,19 @@ namespace MeFit_BE.Models
             {
                 Id = 1,
                 Name = "Strengthify",
-                Type = "Strength",
+                ContributorId = user1.Id
             };
             Workout workout2 = new Workout()
             {
                 Id = 2,
                 Name = "Stamina Builder",
-                Type = "Stamina",
+                ContributorId = user1.Id
             };
             Workout workout3 = new Workout()
             {
                 Id = 3,
                 Name = "Fitness",
-                Type = "Fitness",
+                ContributorId = user2.Id
             };
 
             //SubGoals
@@ -212,37 +212,41 @@ namespace MeFit_BE.Models
             {
                 Id = 1,
                 Name = "Crunch",
-                Description = "Lay on your back with your hands behind your head, and move your upper body up and down.",
-                TargetMuscleGroup = "Stomach",
+                Description = 
+                "Lay on your back with your hands behind your head, and move your upper body up and down.",
                 Image = null,
-                Video = null
+                Video = null,
+                ContributorId = user1.Id
             };
             Exercise exercise2 = new Exercise()
             {
                 Id = 2,
                 Name = "Push-up",
-                Description = "Hands on the floor. Straighten out your body and lift yourself down to the floor and back up by bending you arms.",
-                TargetMuscleGroup = "Arms",
+                Description = 
+                "Hands on the floor. Straighten out your body and lift yourself down to the floor and back up by bending you arms.",
                 Image = null,
-                Video = null
+                Video = null,
+                ContributorId = user1.Id
             };
             Exercise exercise3 = new Exercise()
             {
                 Id = 3,
                 Name = "Plank",
-                Description = "Lay down on the floor. Then lift and hold yourself up on your elbows and toes. Hold and breath.",
-                TargetMuscleGroup = "All",
+                Description = 
+                "Lay down on the floor. Then lift and hold yourself up on your elbows and toes. Hold and breath.",
                 Image = null,
-                Video = null
+                Video = null,
+                ContributorId = user2.Id
             };
             Exercise exercise4 = new Exercise()
             {
                 Id = 4,
                 Name = "Jumping Jacks",
-                Description = "Jump up and down while opening and closing your legs and lifting your arms over your head.",
-                TargetMuscleGroup = "Stamina",
+                Description = 
+                "Jump up and down while opening and closing your legs and lifting your arms over your head.",
                 Image = null,
-                Video = null
+                Video = null,
+                ContributorId = user2.Id
             };
 
             //Sets
@@ -276,6 +280,7 @@ namespace MeFit_BE.Models
             };
 
             // Save user domain tables
+
             //Save addresses
             modelBuilder.Entity<Address>().HasData(address1);
             modelBuilder.Entity<Address>().HasData(address2);
@@ -327,6 +332,12 @@ namespace MeFit_BE.Models
             modelBuilder.Entity<SubGoal>().HasData(subGoal2);
             modelBuilder.Entity<SubGoal>().HasData(subGoal3);
             modelBuilder.Entity<SubGoal>().HasData(subGoal4);
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseSqlServer(
+                "Data source=ND-5CG9030MCG\\SQLEXPRESS; Initial Catalog=MovieInfoAPIDB; Integrated Security=True;");
         }
     }
 }

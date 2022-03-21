@@ -13,15 +13,13 @@ namespace MeFit_BE.Models.Domain.WorkoutDomain
 
         public string Name { get; set; }
 
-        public string Type { get; set; }
-
         public ICollection<WorkoutProgram> WorkoutPrograms { get; set; }
 
         public ICollection<Set> Sets { get; set; }
       
-        // FK to contributor
-        public int ContributorId { get; set; }
+        public int? ContributorId { get; set; }
 
-        public User ContributedBy { get; set; }
+        [ForeignKey("ContributorId")]
+        public User Contributor { get; set; }
     }
 }

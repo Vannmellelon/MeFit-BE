@@ -106,7 +106,6 @@ namespace MeFit_BE.Controllers
 
             // Update WorkoutProgram
             if (programDTO.Name != null) program.Name = programDTO.Name;
-            if (programDTO.Category != null) program.Category = programDTO.Category;
 
             _context.WorkoutPrograms.Update(program);
             await _context.SaveChangesAsync();

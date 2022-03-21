@@ -13,15 +13,14 @@ namespace MeFit_BE.Models.Domain.WorkoutDomain
 
         public string Description { get; set; }
 
-        public string TargetMuscleGroup { get; set; }
-
         public string Image { get; set; }
 
         public string Video { get; set; }
 
         public int ContributorId { get; set; }
 
-        public User ContributedBy { get; set; }
+        [ForeignKey("ContributorId")]
+        public User Contributor { get; set; }
 
         public ICollection<Set> Sets { get; set; }
     }
