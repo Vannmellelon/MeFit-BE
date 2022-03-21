@@ -11,11 +11,13 @@ namespace MeFit_BE.Profiles
     {
         public GoalProfile()
         {
+            
             CreateMap<Goal, GoalReadDTO>()
                 .ForMember(g => g.SubGoals, opt => opt
                            .MapFrom(g => g.SubGoals
                            .Select(s => s.Id).ToList()))
                 .ReverseMap();
+            
             CreateMap<GoalWriteDTO, Goal>().ReverseMap();
             CreateMap<GoalEditDTO, Goal>().ReverseMap();
         }
