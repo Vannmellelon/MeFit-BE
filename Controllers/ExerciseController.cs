@@ -72,10 +72,9 @@ namespace MeFit_BE.Controllers
         [ProducesResponseType(403)]
         public async Task<ActionResult<ExerciseReadDTO>> PostExercise(ExerciseWriteDTO exerciseDTO)
         {
-            //if (!Helper.IsContributor(HttpContext)) { return Forbid(); }
+            if (!Helper.IsContributor(HttpContext)) { return Forbid(); }
 
-            //User user = await Helper.GetCurrentUser(HttpContext, _context);
-            User user = await _context.Users.FindAsync(1);
+            User user = await Helper.GetCurrentUser(HttpContext, _context);
             if (user == null) return NotFound();
 
             if (!Category.IsValid(exerciseDTO.Category)) 
@@ -143,10 +142,16 @@ namespace MeFit_BE.Controllers
         {
             if (!Helper.IsContributor(HttpContext)) { return Forbid(); }
 
+            //Get user and exercise from database.
+            User user = await Helper.GetCurrentUser(HttpContext, _context);
+            if (user == null) { return NotFound("No current user could be found."); }
             if (!ExerciseExists(id))
                 return NotFound($"Exercise with Id: {id} was not found");
-
             Exercise exercise = await GetExerciseAsync(id);
+
+            //Check that the current user owns the exercise.
+            if (exercise.Id != user.Id)
+                return Forbid("Tried to change an exercise not owned by the current user.");
 
             _context.Exercises.Remove(exercise);
             await _context.SaveChangesAsync();
