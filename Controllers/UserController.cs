@@ -7,6 +7,7 @@ using MeFit_BE.Models.Domain.UserDomain;
 using MeFit_BE.Models.DTO;
 using MeFit_BE.Models.DTO.Profile;
 using MeFit_BE.Models.DTO.User;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,6 +15,7 @@ namespace MeFit_BE.Controllers
 {
     [Route("api/user")]
     [ApiController]
+    [Authorize]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
     [ApiConventionType(typeof(MeFitConventions))]
@@ -29,18 +31,38 @@ namespace MeFit_BE.Controllers
             _mapper = mapper;
         }
 
-        // GET: UserController
+        /// <summary>
+        /// Redirects to the currently logged in user.
+        /// </summary>
+        /// <returns>User object of currently logged in user.</returns>
+        [HttpGet]
+        public async Task<ActionResult<UserReadDTO>> RedirectUser()
+        {
+            User user = await Helper.GetCurrentUser(HttpContext, _context);
+            if (user == null) return BadRequest();
+
+            string host = HttpContext.Request.Host.ToUriComponent();
+            string path = HttpContext.Request.Path.ToUriComponent();
+
+            //HttpContext.Response.StatusCode = 303;
+            //HttpContext.Response.Headers.Add("Location", $"https://{host}{path}{user.Id}");
+
+            // Returns 302, not 303, but it's fine ^^
+            return Redirect($"https://{host}{path}{user.Id}");
+
+        }
+
         /// <summary>
         /// Method fetches all users from the database.
         /// </summary>
         /// <returns>List of users</returns>
-        [HttpGet]
+        [HttpGet("all-users")]
         public async Task<ActionResult<List<UserReadDTO>>> GetUsers()
         {
             return _mapper.Map<List<UserReadDTO>>(await _context.Users.Include(u => u.Goals).ToListAsync());
         }
 
-        // GET api/<UserController>/5
+
         /// <summary>
         /// Method fetches a specific user form the database.
         /// </summary>
@@ -50,11 +72,12 @@ namespace MeFit_BE.Controllers
         public async Task<ActionResult<UserReadDTO>> GetUser(int id)
         {
             User user = await _context.Users.Include(u => u.Goals).FirstOrDefaultAsync(u => u.Id == id);
-            if (user == null) return NotFound();
+            if (user == null) return NotFound("HEi vi har blitt redirected");
+
             return _mapper.Map<UserReadDTO>(user);
         }
 
-        // POST api/<UserController>/
+
         /// <summary>
         /// Method creates a new user.
         /// </summary>
@@ -67,10 +90,11 @@ namespace MeFit_BE.Controllers
             user.AuthId = Helper.GetExternalUserProviderId(HttpContext);
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
+
             return CreatedAtAction("GetUser", new { Id = user.Id }, _mapper.Map<UserReadDTO>(user));
         }
 
-        // PATCH api/<UserController>/5
+
         /// <summary>
         /// Method updates a user in the database. 
         /// A user can only de altered by themselves.
@@ -79,10 +103,7 @@ namespace MeFit_BE.Controllers
         /// <param name="userDTO">User with updated values</param>
         /// <returns>Updated user</returns>
         [HttpPatch("{id}")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(403)]
-        [ProducesResponseType(404)]
-        public async Task<IActionResult> Patch(int id, [FromBody] UserEditDTO userDTO)
+        public async Task<IActionResult> PatchUser(int id, [FromBody] UserEditDTO userDTO)
         {
             //Get user from database.
             User user = await Helper.GetCurrentUser(HttpContext, _context);
@@ -98,10 +119,11 @@ namespace MeFit_BE.Controllers
 
             _context.Entry(user).State = EntityState.Modified;
             await _context.SaveChangesAsync();
+
             return Ok(_mapper.Map<UserReadDTO>(user));
         }
 
-        // GET: UserController/Delete/5
+
         /// <summary>
         /// Method deletes the user with the given id.
         /// A user can only be deleted by themselves or an administrator.
@@ -123,8 +145,10 @@ namespace MeFit_BE.Controllers
 
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();
+
             return NoContent();
         }
+
 
         /// <summary>
         /// Method returns the profile belonging to the user with the given id.
@@ -137,8 +161,10 @@ namespace MeFit_BE.Controllers
         {
             Models.Domain.UserDomain.Profile profile = await _context.Profiles.FirstOrDefaultAsync(p => p.UserId == id);
             if (profile == null) return NotFound();
+
             return Ok(_mapper.Map<ProfileReadDTO>(profile));
         }
+
 
         /// <summary>
         /// Method makes the user with the given id into an administrator.
@@ -159,8 +185,10 @@ namespace MeFit_BE.Controllers
             user.IsAdmin = true;
             _context.Entry(user).State = EntityState.Modified;
             _context.SaveChanges();
+
             return Ok();
         }
+
 
         /// <summary>
         /// Method makes the user with the given id into a contributor.
@@ -169,6 +197,7 @@ namespace MeFit_BE.Controllers
         /// <param name="id">User id</param>
         /// <returns>Action result</returns>
         [HttpPatch("{id}/contributor")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> MakeContributor(int id)
         {
             if (!Helper.IsAdmin(HttpContext)) return Forbid();
@@ -181,6 +210,7 @@ namespace MeFit_BE.Controllers
             user.IsContributor = true;
             _context.Entry(user).State = EntityState.Modified;
             _context.SaveChanges();
+
             return Ok();
         }
     }
