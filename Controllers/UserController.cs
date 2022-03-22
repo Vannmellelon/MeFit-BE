@@ -16,7 +16,7 @@ namespace MeFit_BE.Controllers
     [ApiController]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
-    [ApiConventionType(typeof(DefaultApiConventions))]
+    [ApiConventionType(typeof(MeFitConventions))]
     public class UserController : Controller
     {
 
@@ -146,7 +146,7 @@ namespace MeFit_BE.Controllers
         /// </summary>
         /// <param name="id">User id</param>
         /// <returns>Action result</returns>
-        [HttpPatch]
+        [HttpPatch("{id}/admin")]
         public async Task<IActionResult> MakeAdmin(int id)
         {
             if (!Helper.IsAdmin(HttpContext)) return Forbid();
@@ -168,7 +168,7 @@ namespace MeFit_BE.Controllers
         /// </summary>
         /// <param name="id">User id</param>
         /// <returns>Action result</returns>
-        [HttpPatch("{id}/admin")]
+        [HttpPatch("{id}/contributor")]
         public async Task<IActionResult> MakeContributor(int id)
         {
             if (!Helper.IsAdmin(HttpContext)) return Forbid();
