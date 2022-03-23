@@ -19,7 +19,7 @@ namespace MeFit_BE.Controllers
     //[Authorize]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
-    [ApiConventionType(typeof(DefaultApiConventions))]
+    [ApiConventionType(typeof(MeFitConventions))]
     public class GoalController : ControllerBase
     {
         private readonly MeFitDbContext _context;
@@ -55,6 +55,7 @@ namespace MeFit_BE.Controllers
             if (goal == null) return NotFound();
             return _mapper.Map<GoalReadDTO>(goal);
         }
+
 
         /// <summary>
         /// Adds a new goal to the database.

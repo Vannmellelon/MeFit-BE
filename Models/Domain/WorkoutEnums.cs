@@ -32,6 +32,7 @@
         public static readonly string INTERMEDIATE = "Intermediate";
         public static readonly string EXPERT = "Expert";
 
+
         /// <summary>
         /// Method checks if the given string matches any of the difficulties.
         /// </summary>

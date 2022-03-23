@@ -19,7 +19,7 @@ namespace MeFit_BE.Controllers
     [Authorize]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
-    [ApiConventionType(typeof(DefaultApiConventions))]
+    [ApiConventionType(typeof(MeFitConventions))]
     public class SubGoalController : ControllerBase
     {
         private readonly MeFitDbContext _context;
@@ -31,15 +31,17 @@ namespace MeFit_BE.Controllers
             _mapper = mapper;
         }
 
+
         /// <summary>
         /// Method fetches all SubGoals from the database.
         /// </summary>
         /// <returns>SubGoals</returns>
         [HttpGet]
-        public async Task<IEnumerable<SubGoalReadDTO>> Get()
+        public async Task<IEnumerable<SubGoalReadDTO>> GetSubgoal()
         {
             return _mapper.Map<List<SubGoalReadDTO>>(await _context.SubGoals.ToListAsync());
         }
+
 
         /// <summary>
         /// Method fetches a specific SubGoal from the database by id.
@@ -47,10 +49,11 @@ namespace MeFit_BE.Controllers
         /// <param name="id">SubGoal id</param>
         /// <returns>SubGoal</returns>
         [HttpGet("{id}")]
-        public async Task<ActionResult<SubGoalReadDTO>> Get(int id)
+        public async Task<ActionResult<SubGoalReadDTO>> GetSubGoal(int id)
         {
             return _mapper.Map<SubGoalReadDTO>(await GetSubGoalAsync(id));
         }
+
 
         /// <summary>
         /// Method adds a new SubGoal to the database.
@@ -58,13 +61,13 @@ namespace MeFit_BE.Controllers
         /// <param name="subGoalDTO">New SubGoal</param>
         /// <returns>New SubGoal</returns>
         [HttpPost]
-        public async Task<SubGoalReadDTO> Post(SubGoalWriteDTO subGoalDTO) 
+        public async Task<ActionResult<SubGoalReadDTO>> PostSubGoal(SubGoalWriteDTO subGoalDTO) 
         {
             var domainSubGoal = _mapper.Map<SubGoal>(subGoalDTO);
             _context.SubGoals.Add(domainSubGoal);
             await _context.SaveChangesAsync();
 
-            return _mapper.Map<SubGoalReadDTO>(domainSubGoal);
+            return CreatedAtAction(nameof(GetSubGoal), new {Id = domainSubGoal.Id }, _mapper.Map<SubGoalReadDTO>(domainSubGoal));
         }
 
 
@@ -75,7 +78,7 @@ namespace MeFit_BE.Controllers
         /// <param name="subGoalDTO">SubGoal with new values</param>
         /// <returns>Updated SubGoal</returns>
         [HttpPatch("{id}")]
-        public async Task<IActionResult> Put(int id, [FromBody] SubGoalEditDTO subGoalDTO)
+        public async Task<IActionResult> PatchSubGoal(int id, [FromBody] SubGoalEditDTO subGoalDTO)
         {
             // Get Excerise
             var subGoal = await GetSubGoalAsync(id);
@@ -87,8 +90,9 @@ namespace MeFit_BE.Controllers
             _context.SubGoals.Update(subGoal);
             await _context.SaveChangesAsync();
 
-            return Ok(subGoal);
+            return Ok(_mapper.Map<SubGoalReadDTO>(subGoal));
         }
+
 
         /// <summary>
         /// Method deletes a SubGoal in the database by id.
@@ -96,7 +100,7 @@ namespace MeFit_BE.Controllers
         /// <param name="id">SubGoal id</param>
         /// <returns>No content</returns>
         [HttpDelete("{id}")]
-        public async Task<ActionResult> Delete(int id)
+        public async Task<ActionResult> DeleteSubGoal(int id)
         {
             if (!SubGoalExists(id))
                 return NotFound();
@@ -106,37 +110,9 @@ namespace MeFit_BE.Controllers
             _context.SubGoals.Remove(subGoal);
             await _context.SaveChangesAsync();
 
-            return Ok();
+            return NoContent();
         }
 
-        /*
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="workoutId"></param>
-        /// <returns>Updated SubGoal</returns>
-        [HttpPatch("{id}/workout")]
-        public async Task<IActionResult> Patch(int id, int workoutId) 
-        {
-            if (!SubGoalExists(id)) return NotFound();
-
-            var subGoal = await GetSubGoalAsync(id);
-            try
-            {
-                var workout = await _context.Workouts.FindAsync(workoutId);
-                subGoal.Workout = workout ??
-                    throw new KeyNotFoundException($"Record of Workout with id: {workoutId} does not exist");
-                subGoal.WorkoutId = workoutId;
-                await _context.SaveChangesAsync();
-            }
-            catch (KeyNotFoundException e)
-            {
-                Console.WriteLine(e.Message);
-                return BadRequest();
-            }
-            return Ok(subGoal);
-        }*/
 
         /// <summary>
         /// Method used to fetch the SubGoal with the given id from the database.
@@ -148,6 +124,7 @@ namespace MeFit_BE.Controllers
             return await _context.SubGoals
                 .SingleOrDefaultAsync(sg => sg.Id == subGoalId);
         }
+
 
         /// <summary>
         /// Method checks if there is a SubGoal with the given id in the database.

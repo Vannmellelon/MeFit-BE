@@ -19,7 +19,7 @@ namespace MeFit_BE.Controllers
     [Authorize]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
-    [ApiConventionType(typeof(DefaultApiConventions))]
+    [ApiConventionType(typeof(MeFitConventions))]
     public class ExerciseController : ControllerBase
     {
         private readonly MeFitDbContext _context;
@@ -31,15 +31,12 @@ namespace MeFit_BE.Controllers
             _mapper = mapper;
         }
 
-        // GET: api/<ExerciseController>
+
         /// <summary>
         /// Method fetches all exercises from the database.
         /// </summary>
         /// <returns>List of Exercises</returns>
         [HttpGet]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(401)]
         public async Task<IEnumerable<ExerciseReadDTO>> GetExercises()
         {
             return _mapper.Map<List<ExerciseReadDTO>>(await _context.Exercises.ToListAsync());
@@ -51,10 +48,6 @@ namespace MeFit_BE.Controllers
         /// <param name="id">Exercise id</param>
         /// <returns>Exercise</returns>
         [HttpGet("{id}")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(401)]
-        [ProducesResponseType(404)]
         public async Task<ActionResult<ExerciseReadDTO>> GetExercise(int id)
         {
             return _mapper.Map<ExerciseReadDTO>(await GetExerciseAsync(id));
@@ -66,16 +59,15 @@ namespace MeFit_BE.Controllers
         /// <param name="exerciseDTO">New exercise</param>
         /// <returns>New exercise</returns>
         [HttpPost]
-        [ProducesResponseType(201)]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(401)]
-        [ProducesResponseType(403)]
+        [Authorize(Roles ="Contributor")]
         public async Task<ActionResult<ExerciseReadDTO>> PostExercise(ExerciseWriteDTO exerciseDTO)
         {
             if (!Helper.IsContributor(HttpContext)) { return Forbid(); }
 
             User user = await Helper.GetCurrentUser(HttpContext, _context);
-            if (user == null) return NotFound();
+            //User user = await _context.Users.FindAsync(1);
+            if (user == null) return BadRequest();
+
 
             if (!Category.IsValid(exerciseDTO.Category)) 
                 return BadRequest($"Category {exerciseDTO.Category} is not valid.");
@@ -84,7 +76,8 @@ namespace MeFit_BE.Controllers
             domainExercise.ContributorId = user.Id;
             _context.Exercises.Add(domainExercise);
             await _context.SaveChangesAsync();
-            return _mapper.Map<ExerciseReadDTO>(domainExercise);
+
+            return CreatedAtAction(nameof(GetExercise), new { Id = domainExercise.Id }, _mapper.Map<ExerciseReadDTO>(domainExercise));
         }
 
         /// <summary>
@@ -94,10 +87,7 @@ namespace MeFit_BE.Controllers
         /// <param name="exerciseDTO">Exercise with new values</param>
         /// <returns>Updated exercise</returns>
         [HttpPatch("{id}")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(403)]
-        [ProducesResponseType(404)]
+        [Authorize(Roles = "Contributor")]
         public async Task<IActionResult> PatchExercise(int id, [FromBody] ExerciseEditDTO exerciseDTO)
         {
             if (!Helper.IsContributor(HttpContext)) { return Forbid(); }
@@ -125,7 +115,8 @@ namespace MeFit_BE.Controllers
 
             _context.Exercises.Update(exercise);
             await _context.SaveChangesAsync();
-            return Ok(exercise);
+
+            return Ok(_mapper.Map<ExerciseReadDTO>(exercise));
         }
 
         /// <summary>
@@ -134,10 +125,7 @@ namespace MeFit_BE.Controllers
         /// <param name="id">Exercise id</param>
         /// <returns>No content</returns>
         [HttpDelete("{id}")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(403)]
-        [ProducesResponseType(404)]
+        [Authorize(Roles = "Contributor")]
         public async Task<ActionResult> DeleteExercise(int id)
         {
             if (!Helper.IsContributor(HttpContext)) { return Forbid(); }
@@ -156,7 +144,7 @@ namespace MeFit_BE.Controllers
             _context.Exercises.Remove(exercise);
             await _context.SaveChangesAsync();
 
-            return Ok($"Deleted Exercise with Id: {id}");
+            return NoContent();
         }
 
         /// <summary>
