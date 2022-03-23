@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace MeFit_BE.Models.Domain.UserDomain
 {
@@ -9,8 +10,10 @@ namespace MeFit_BE.Models.Domain.UserDomain
     {
         public int Id { get; set; }
 
+        [Range(0,1000)]
         public int Weight { get; set; }
 
+        [Range(0, 250)]
         public int Height { get; set; }
 
         public string MedicalConditions { get; set; }
