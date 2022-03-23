@@ -11,13 +11,13 @@ using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
 using MeFit_BE.Models.Domain;
-
+using MeFit_BE.Models.DTO.Workout;
 
 namespace MeFit_BE.Controllers
 {
     [Route("api/workout-program")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
     [ApiConventionType(typeof(MeFitConventions))]
@@ -160,6 +160,24 @@ namespace MeFit_BE.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// Method adds the workout with the given id to the given workout program.
+        /// </summary>
+        /// <param name="id">WorkoutProgram id</param>
+        /// <param name="workoutId">Workout id</param>
+        /// <returns></returns>
+        [HttpPatch("{id}/workouts/{workoutId}")]
+        public async Task<IActionResult> PatchAddWorkoutToProgram(int id, int workoutId)
+        {
+            WorkoutProgram workoutPogram = await _context.WorkoutPrograms
+                .Include(wp => wp.Workouts).SingleOrDefaultAsync(wp => wp.Id == id);
+            Workout workout = await _context.Workouts.FindAsync(workoutId);
+            if (workout == null || workoutPogram == null) return NotFound();
+
+            workoutPogram.Workouts.Add(workout);
+            _context.SaveChanges();
+            return Ok(_mapper.Map<WorkoutProgramReadDTO>(workoutPogram));
+        }
 
         /// <summary>
         /// Method returns the workout program with the given id.
