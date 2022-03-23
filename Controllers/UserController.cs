@@ -62,6 +62,17 @@ namespace MeFit_BE.Controllers
             return _mapper.Map<List<UserReadDTO>>(await _context.Users.Include(u => u.Goals).ToListAsync());
         }
 
+        /// <summary>
+        /// Admin only, fetches all users from the database.
+        /// </summary>
+        /// <returns>List of users</returns>
+        [HttpGet("admin/all-users")]
+        [Authorize(Roles ="Admin")]
+        public async Task<ActionResult<List<UserAdminReadDTO>>> GetUsersAdmin()
+        {
+            return _mapper.Map<List<UserAdminReadDTO>>(await _context.Users.Include(u => u.Goals).ToListAsync());
+        }
+
 
         /// <summary>
         /// Method fetches a specific user form the database.

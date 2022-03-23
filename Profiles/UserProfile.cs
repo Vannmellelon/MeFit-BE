@@ -15,6 +15,8 @@ namespace MeFit_BE.Profiles
                            .MapFrom(user => user.Goals
                                     .Select(g => g.Id).ToList())) 
                 .ReverseMap();
+
+            CreateMap<User, UserAdminReadDTO>().ReverseMap();
             CreateMap<User, UserWriteDTO>().ReverseMap();
             CreateMap<User, UserEditDTO>().ReverseMap();
         }
