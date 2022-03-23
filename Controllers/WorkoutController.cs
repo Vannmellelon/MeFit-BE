@@ -19,7 +19,7 @@ namespace MeFit_BE.Controllers
     [Authorize]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
-    [ApiConventionType(typeof(DefaultApiConventions))]
+    [ApiConventionType(typeof(MeFitConventions))]
     public class WorkoutController : Controller
     {
 
@@ -38,8 +38,6 @@ namespace MeFit_BE.Controllers
         /// </summary>
         /// <returns>Workout</returns>
         [HttpGet]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(403)]
         public async Task<ActionResult<List<WorkoutReadDTO>>> GetAllWorkouts() 
         {
             return _mapper.Map <List<WorkoutReadDTO>> (await _context.Workouts.Include(w => w.Sets).ToListAsync());
@@ -52,9 +50,6 @@ namespace MeFit_BE.Controllers
         /// <param name="id">Id of workout</param>
         /// <returns>Workout</returns>
         [HttpGet("{id}")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(404)]
-        [ProducesResponseType(403)]
         public async Task<ActionResult<WorkoutReadDTO>> GetWorkout(int id)
         {
             if (!WorkoutExists(id))
@@ -76,23 +71,20 @@ namespace MeFit_BE.Controllers
         /// <param name="newWorkout">New workout object</param>
         /// <returns>New workout</returns>
         [HttpPost]
-        [ProducesResponseType(201)]
-        [ProducesResponseType(403)]
-        [ProducesResponseType(404)]
-        [ProducesResponseType(400)]
+        [Authorize(Roles="Contributor")]
         public async Task<ActionResult<WorkoutReadDTO>> PostWorkout(WorkoutWriteDTO newWorkout)
         {
             if (!Helper.IsContributor(HttpContext)) return Forbid();
 
             // Get user id of current user.
             User user = await Helper.GetCurrentUser(HttpContext, _context);
-            if (user == null) return NotFound();
+            if (user == null) return BadRequest();
 
             //Check input validity
             if (!Category.IsValid(newWorkout.Category))
                 return BadRequest($"Category {newWorkout.Category} is invalid.");
             if (!Difficulty.IsValid(newWorkout.Difficulty))
-                return BadRequest($"Difficulty {newWorkout.Difficulty} is invalid");
+                return BadRequest($"Difficulty {newWorkout.Difficulty} is invalid.");
 
             //Add contributor to workout.
             Workout domainWorkout = _mapper.Map<Workout>(newWorkout);
@@ -100,6 +92,7 @@ namespace MeFit_BE.Controllers
 
             _context.Add(domainWorkout);
             await _context.SaveChangesAsync();
+
             return CreatedAtAction(nameof(GetWorkout), new { id = domainWorkout.Id }, _mapper.Map<WorkoutReadDTO>(domainWorkout));
         }
         
@@ -112,10 +105,7 @@ namespace MeFit_BE.Controllers
         /// <param name="updatedWorkout">Workout object with partial updates.</param>
         /// <returns>Updated workout</returns>
         [HttpPatch("{id}")]
-        [ProducesResponseType(403)]
-        [ProducesResponseType(404)]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
+        [Authorize(Roles = "Contributor")]
         public async Task<ActionResult<WorkoutReadDTO>> PatchWorkout(int id, WorkoutEditDTO updatedWorkout)
         {
             if (!Helper.IsContributor(HttpContext)) return Forbid();
@@ -124,8 +114,9 @@ namespace MeFit_BE.Controllers
             if (!WorkoutExists(id))
             { return NotFound($"Cannot find workout with id: {id}"); }
             Workout _domainWorkout = await _context.Workouts.FindAsync(id);
+
             User user = await Helper.GetCurrentUser(HttpContext, _context);
-            if (user == null) { return NotFound(); }
+            if (user == null) { return BadRequest(); }
 
             //Ensure that current user is the contributor of the workout.
             if (_domainWorkout.ContributorId != user.Id) return Forbid();
@@ -156,10 +147,8 @@ namespace MeFit_BE.Controllers
         /// </summary>
         /// <param name="id">Workout id</param>
         /// <returns>No content</returns>
-        [HttpDelete]
-        [ProducesResponseType(403)]
-        [ProducesResponseType(404)]
-        [ProducesResponseType(200)]
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "Contributor")]
         public async Task<ActionResult> DeleteWorkout(int id) 
         {
             if (!Helper.IsContributor(HttpContext)) return Forbid();
@@ -171,14 +160,14 @@ namespace MeFit_BE.Controllers
             }
             Workout _domainWorkout = await _context.Workouts.FindAsync(id);
             User user = await Helper.GetCurrentUser(HttpContext, _context);
-            if (user == null) return NotFound();
+            if (user == null) return BadRequest();
 
             //Ensure current contributor owns the workout.
             if (_domainWorkout.ContributorId != user.Id) return Forbid();
 
             _context.Remove(_domainWorkout);
             await _context.SaveChangesAsync();
-            return Ok($"Successfully deleted workout with id: {id}.");
+            return NoContent();
         }
 
         /// <summary>

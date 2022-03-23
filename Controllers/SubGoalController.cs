@@ -42,6 +42,7 @@ namespace MeFit_BE.Controllers
             return _mapper.Map<List<SubGoalReadDTO>>(await _context.SubGoals.ToListAsync());
         }
 
+
         /// <summary>
         /// Method fetches a specific SubGoal from the database by id.
         /// </summary>
@@ -52,6 +53,7 @@ namespace MeFit_BE.Controllers
         {
             return _mapper.Map<SubGoalReadDTO>(await GetSubGoalAsync(id));
         }
+
 
         /// <summary>
         /// Method adds a new SubGoal to the database.
@@ -91,6 +93,7 @@ namespace MeFit_BE.Controllers
             return Ok(_mapper.Map<SubGoalReadDTO>(subGoal));
         }
 
+
         /// <summary>
         /// Method deletes a SubGoal in the database by id.
         /// </summary>
@@ -109,35 +112,6 @@ namespace MeFit_BE.Controllers
 
             return NoContent();
         }
-
-        /*
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="workoutId"></param>
-        /// <returns>Updated SubGoal</returns>
-        [HttpPatch("{id}/workout")]
-        public async Task<IActionResult> Patch(int id, int workoutId) 
-        {
-            if (!SubGoalExists(id)) return NotFound();
-
-            var subGoal = await GetSubGoalAsync(id);
-            try
-            {
-                var workout = await _context.Workouts.FindAsync(workoutId);
-                subGoal.Workout = workout ??
-                    throw new KeyNotFoundException($"Record of Workout with id: {workoutId} does not exist");
-                subGoal.WorkoutId = workoutId;
-                await _context.SaveChangesAsync();
-            }
-            catch (KeyNotFoundException e)
-            {
-                Console.WriteLine(e.Message);
-                return BadRequest();
-            }
-            return Ok(subGoal);
-        }*/
 
 
         /// <summary>

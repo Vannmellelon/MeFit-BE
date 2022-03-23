@@ -7,12 +7,17 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mime;
 using System.Threading.Tasks;
 
 namespace MeFit_BE.Controllers
 {
     [Route("api/login")]
     [ApiController]
+    [Authorize]
+    [Produces(MediaTypeNames.Application.Json)]
+    [Consumes(MediaTypeNames.Application.Json)]
+    [ApiConventionType(typeof(MeFitConventions))]
     public class LoginController : ControllerBase
     {
         /*

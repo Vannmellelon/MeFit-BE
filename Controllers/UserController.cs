@@ -72,7 +72,7 @@ namespace MeFit_BE.Controllers
         public async Task<ActionResult<UserReadDTO>> GetUser(int id)
         {
             User user = await _context.Users.Include(u => u.Goals).FirstOrDefaultAsync(u => u.Id == id);
-            if (user == null) return NotFound("HEi vi har blitt redirected");
+            if (user == null) return BadRequest();
 
             return _mapper.Map<UserReadDTO>(user);
         }
@@ -84,16 +84,19 @@ namespace MeFit_BE.Controllers
         /// <param name="userDTO">New user</param>
         /// <returns>New user</returns>
         [HttpPost]
-        public async Task<ActionResult<UserReadDTO>> PostAsync([FromBody] UserWriteDTO userDTO)
+        public async Task<ActionResult<UserReadDTO>> PostUser([FromBody] UserWriteDTO userDTO)
         {
             User user = _mapper.Map<User>(userDTO);
             user.AuthId = Helper.GetExternalUserProviderId(HttpContext);
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetUser", new { Id = user.Id }, _mapper.Map<UserReadDTO>(user));
+            return CreatedAtAction(nameof(GetUser), new { Id = user.Id }, _mapper.Map<UserReadDTO>(user));
         }
 
+
+        // TODO:
+        // Admin should also be able to update any user, add check.
 
         /// <summary>
         /// Method updates a user in the database. 
@@ -105,14 +108,14 @@ namespace MeFit_BE.Controllers
         [HttpPatch("{id}")]
         public async Task<IActionResult> PatchUser(int id, [FromBody] UserEditDTO userDTO)
         {
-            //Get user from database.
+            // Get user from database
             User user = await Helper.GetCurrentUser(HttpContext, _context);
-            if (user == null) return NotFound();
+            if (user == null) return BadRequest();
 
-            //Ensure current user is the user being changed.
+            // Ensure current user is the user being changed
             if (user.Id != id) return Forbid();
 
-            //Update user.
+            // Update user
             if (userDTO.Email != null) user.Email = userDTO.Email;
             if (userDTO.FirstName != null) user.FirstName = userDTO.FirstName;
             if (userDTO.LastName != null) user.LastName = userDTO.LastName;
@@ -131,16 +134,13 @@ namespace MeFit_BE.Controllers
         /// <param name="id">User id</param>
         /// <returns>No content</returns>
         [HttpDelete("{id}")]
-        [ProducesResponseType(204)]
-        [ProducesResponseType(403)]
-        [ProducesResponseType(404)]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> DeleteUser(int id)
         {
-            //Get user from database.
+            // Get user from database
             User user = await Helper.GetCurrentUser(HttpContext, _context);
-            if (user == null) return NotFound();
+            if (user == null) return BadRequest();
 
-            //Ensure current user is the one being deleted.
+            // Ensure current user is admin OR the one being deleted
             if (user.Id != id || !Helper.IsAdmin(HttpContext)) return Forbid();
 
             _context.Users.Remove(user);
@@ -165,6 +165,9 @@ namespace MeFit_BE.Controllers
             return Ok(_mapper.Map<ProfileReadDTO>(profile));
         }
 
+
+        // TODO:
+        // Add request to auth0 managementAPI, to sync user-info
 
         /// <summary>
         /// Method makes the user with the given id into an administrator.
