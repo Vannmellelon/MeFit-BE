@@ -81,6 +81,14 @@ namespace MeFit_BE.Models
                 FirstName = "Else",
                 LastName = "Berg",
             };
+            User anne = new User()
+            {
+                Id = 9,
+                Email = "anneelarsen98@gmail.com",
+                FirstName = "Anne E.",
+                LastName = "Larsen",
+                IsContributor = true
+            };
 
             //Profiles
             Profile profile1 = new Profile()
@@ -140,6 +148,23 @@ namespace MeFit_BE.Models
                 Category = Domain.Category.STAMINA
             };
 
+            WorkoutProgram niceAndEasy = new WorkoutProgram()
+            {
+                Id = 4,
+                Name = "Nice and Easy",
+                ContributorId = anne.Id,
+                Difficulty = Domain.Difficulty.BEGINNER,
+                Category = Domain.Category.FULL_BODY
+            };
+            WorkoutProgram compoundCollection = new WorkoutProgram()
+            {
+                Id = 5,
+                Name = "The Compound Collection",
+                ContributorId = anne.Id,
+                Difficulty = Domain.Difficulty.INTERMEDIATE,
+                Category = Domain.Category.FULL_BODY
+            };
+
             //Goals
             Goal goal1 = new Goal()
             {
@@ -191,6 +216,31 @@ namespace MeFit_BE.Models
                 Difficulty = Domain.Difficulty.INTERMEDIATE
             };
 
+            Workout nae = new Workout()
+            {
+                Id = 4,
+                Name = "Machine Trio",
+                ContributorId = anne.Id,
+                Category = Domain.Category.ARMS,
+                Difficulty = Domain.Difficulty.BEGINNER
+            };
+            Workout tcc1 = new Workout()
+            {
+                Id = 5,
+                Name = "The Compound Collection 1",
+                ContributorId = anne.Id,
+                Category = Domain.Category.FULL_BODY,
+                Difficulty = Domain.Difficulty.INTERMEDIATE
+            };
+            Workout tcc2 = new Workout()
+            {
+                Id = 6,
+                Name = "The Compound Collection 2",
+                ContributorId = anne.Id,
+                Category = Domain.Category.ARMS,
+                Difficulty = Domain.Difficulty.INTERMEDIATE
+            };
+
             //SubGoals
             SubGoal subGoal1 = new SubGoal()
             {
@@ -226,7 +276,7 @@ namespace MeFit_BE.Models
                 Name = "Crunch",
                 Description = 
                 "Lay on your back with your hands behind your head, and move your upper body up and down.",
-                Image = null,
+                Image = "https://us.123rf.com/450wm/lioputra/lioputra2011/lioputra201100006/158485483-man-doing-sit-ups-exercise-abdominals-exercise-flat-vector-illustration-isolated-on-white-background.jpg?ver=6",
                 Video = null,
                 ContributorId = user1.Id,
                 Category = Domain.Category.CORE
@@ -238,7 +288,7 @@ namespace MeFit_BE.Models
                 Description = 
                 "Hands on the floor. Straighten out your body and lift yourself down to the floor and back up by bending you arms.",
                 Image = null,
-                Video = null,
+                Video = "https://youtu.be/uCNgB_rU3IQ?t=5",
                 ContributorId = user1.Id,
                 Category = Domain.Category.ARMS
             };
@@ -249,7 +299,7 @@ namespace MeFit_BE.Models
                 Description = 
                 "Lay down on the floor. Then lift and hold yourself up on your elbows and toes. Hold and breath.",
                 Image = null,
-                Video = null,
+                Video = "https://youtu.be/HW4yjoCkbm0?t=5",
                 ContributorId = user2.Id,
                 Category = Domain.Category.FULL_BODY
             };
@@ -263,6 +313,107 @@ namespace MeFit_BE.Models
                 Video = null,
                 ContributorId = user2.Id,
                 Category = Domain.Category.STAMINA
+            };
+            Exercise machineChest = new Exercise()
+            {
+                Id = 5,
+                Name = "Chest-press Machine",
+                Description =
+                "Adjust seat and weights to an approperiate level. " +
+                "Grab handles, your elbows should be parallell to the floor. " +
+                "Push handles away from your chest by extending your elbows all the way. " +
+                "Make sure your back remains in contact with the backrest throughout. " +
+                "Pull your arms back towards you with controll. Repeat.",
+                Image = null, 
+                Video = "https://youtu.be/IbeA5ypeMns?t=5",
+                ContributorId = anne.Id,
+                Category = Domain.Category.ARMS
+            };
+            Exercise machineShoulder = new Exercise()
+            {
+                Id = 6,
+                Name = "Seated Shoulder-press Machine",
+                Description =
+                "Adjust seat and weights to an approperiate level. " +
+                "Grab handles, your elbows should point to the floor. " +
+                "Lift the handles by extending your elbows all the way. " +
+                "Make sure your lower back remains in contact with the backrest throughout. " +
+                "Lower arms with controll. Repeat.",
+                Image = null,
+                Video = "https://youtu.be/OD5pz7-703U",
+                ContributorId = anne.Id,
+                Category = Domain.Category.ARMS
+            };
+            Exercise machineRowing = new Exercise()
+            {
+                Id = 7,
+                Name = "Rowing Machine",
+                Description =
+                "Row, row, row your boat.",
+                Image = null,
+                Video = "https://youtu.be/g2Q-etHs9LI?t=4",
+                ContributorId = anne.Id,
+                Category = Domain.Category.ARMS
+            };
+
+            Exercise compoundDeadlift = new Exercise()
+            {
+                Id = 8,
+                Name = "Deadlift",
+                Description = 
+                "Stand with your feet shoulder-width apart. " +
+                "Grasp the bar with your hands just outside your legs. " +
+                "Lift the bar by driving your hips forward, keeping a flat back. " +
+                "Lower the bar with controll. Repeat.",
+                Image = "https://cdn.mos.cms.futurecdn.net/pcDfKtAmMLgLLbXc8sSAkF-970-80.jpg.webp",
+                Video = "https://youtu.be/ABga0-lEY58?t=5",
+                ContributorId = anne.Id,
+                Category= Domain.Category.LEGS
+            };
+            Exercise compoundPullup = new Exercise()
+            {
+                Id = 9,
+                Name = "Pull Up",
+                Description =
+                "Grab onto the bar and hang with your arms fully extended. " +
+                "Pull yourself up, with controll, untill your chin is above the bar. " +
+                "Try to keep the rest of your body still, be mindfull not to bend your hips or knees. " +
+                "Slowly lower yourself down into the starting position, with controll. Repeat.",
+                Image = "https://evofitness.no/wp-content/uploads/2019/12/pullupfront.png__666x666_q85_subsampling-2.jpeg",
+                Video = null,
+                ContributorId = anne.Id,
+                Category = Domain.Category.ARMS
+            };
+            Exercise compoundBenchPress = new Exercise()
+            {
+                Id = 10,
+                Name = "Bench Press",
+                Description =
+                "Lie down on your back on the bench. " +
+                "Your feet should rest flat on the ground. " +
+                "Grasp the bar, positioning your hands slightly wider than your shoulders. " +
+                "Lift the bar and hold it over your chest. " +
+                "Slowly lower the bar towards your chest. " +
+                "Push the bar away from your chest, until your arms are fully extended. Repeat",
+                Image = "https://image.shutterstock.com/image-illustration/closegrip-barbell-bench-press-3d-260nw-430936051.jpg",
+                Video = null,
+                ContributorId = anne.Id,
+                Category = Domain.Category.ARMS
+            };
+            Exercise compoundDips = new Exercise()
+            {
+                Id = 11,
+                Name = "Dips",
+                Description =
+                "Grasp the two bars. " +
+                "Extend your arms so that they support your full weight, your legs should be hanging. " +
+                "Lower your body down by bending your elbows. " +
+                "Throughout the exercise, your elbows should be in line with your wrists. " +
+                "Your shoulders should be almost parallell with your elbows before pushing your body up again. Repeat.",
+                Image = "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Dipexercise.svg/300px-Dipexercise.svg.png",
+                Video = null,
+                ContributorId = anne.Id,
+                Category = Domain.Category.ARMS
             };
 
             //Sets
@@ -295,6 +446,56 @@ namespace MeFit_BE.Models
                 ExerciseId = exercise4.Id
             };
 
+            Set nae1 = new Set()
+            {
+                Id = 5,
+                ExerciseRepetitions = 15,
+                WorkoutId = nae.Id,
+                ExerciseId = machineChest.Id
+            };
+            Set nae2 = new Set()
+            {
+                Id = 6,
+                ExerciseRepetitions = 15,
+                WorkoutId = nae.Id,
+                ExerciseId = machineShoulder.Id
+            };
+            Set nae3 = new Set()
+            {
+                Id = 7,
+                ExerciseRepetitions = 15,
+                WorkoutId = nae.Id,
+                ExerciseId = machineRowing.Id
+            };
+            Set tcc11 = new Set()
+            {
+                Id = 8,
+                ExerciseRepetitions = 12,
+                WorkoutId = tcc1.Id,
+                ExerciseId = compoundDeadlift.Id
+            };
+            Set tcc12 = new Set()
+            {
+                Id = 9,
+                ExerciseRepetitions = 12,
+                WorkoutId = tcc1.Id,
+                ExerciseId = compoundPullup.Id
+            };
+            Set tcc21 = new Set()
+            {
+                Id = 10,
+                ExerciseRepetitions = 12,
+                WorkoutId = tcc2.Id,
+                ExerciseId = compoundBenchPress.Id
+            };
+            Set tcc22 = new Set()
+            {
+                Id = 11,
+                ExerciseRepetitions = 12,
+                WorkoutId = tcc2.Id,
+                ExerciseId = compoundDips.Id
+            };
+
             // Save user domain tables
 
             //Save addresses
@@ -311,6 +512,8 @@ namespace MeFit_BE.Models
             modelBuilder.Entity<User>().HasData(user1);
             modelBuilder.Entity<User>().HasData(user2);
             modelBuilder.Entity<User>().HasData(user3);
+            
+            modelBuilder.Entity<User>().HasData(anne);
 
             // Save workout domain tables
 
@@ -318,23 +521,47 @@ namespace MeFit_BE.Models
             modelBuilder.Entity<WorkoutProgram>().HasData(workoutProgram1);
             modelBuilder.Entity<WorkoutProgram>().HasData(workoutProgram2);
             modelBuilder.Entity<WorkoutProgram>().HasData(workoutProgram3);
+            
+            modelBuilder.Entity<WorkoutProgram>().HasData(niceAndEasy);
+            modelBuilder.Entity<WorkoutProgram>().HasData(compoundCollection);
 
             //Save Workouts
             modelBuilder.Entity<Workout>().HasData(workout1);
             modelBuilder.Entity<Workout>().HasData(workout2);
             modelBuilder.Entity<Workout>().HasData(workout3);
+            
+            modelBuilder.Entity<Workout>().HasData(nae);
+            modelBuilder.Entity<Workout>().HasData(tcc1);
+            modelBuilder.Entity<Workout>().HasData(tcc2);
 
             //Save exercises
             modelBuilder.Entity<Exercise>().HasData(exercise1);
             modelBuilder.Entity<Exercise>().HasData(exercise2);
             modelBuilder.Entity<Exercise>().HasData(exercise3);
             modelBuilder.Entity<Exercise>().HasData(exercise4);
+            
+            modelBuilder.Entity<Exercise>().HasData(machineChest);
+            modelBuilder.Entity<Exercise>().HasData(machineRowing);
+            modelBuilder.Entity<Exercise>().HasData(machineShoulder);
+            modelBuilder.Entity<Exercise>().HasData(compoundBenchPress);
+            modelBuilder.Entity<Exercise>().HasData(compoundDeadlift);
+            modelBuilder.Entity<Exercise>().HasData(compoundDips);
+            modelBuilder.Entity<Exercise>().HasData(compoundPullup);
+
 
             //Save sets
             modelBuilder.Entity<Set>().HasData(set1);
             modelBuilder.Entity<Set>().HasData(set2);
             modelBuilder.Entity<Set>().HasData(set3);
             modelBuilder.Entity<Set>().HasData(set4);
+
+            modelBuilder.Entity<Set>().HasData(nae1);
+            modelBuilder.Entity<Set>().HasData(nae2);
+            modelBuilder.Entity<Set>().HasData(nae3);
+            modelBuilder.Entity<Set>().HasData(tcc11);
+            modelBuilder.Entity<Set>().HasData(tcc12);
+            modelBuilder.Entity<Set>().HasData(tcc21);
+            modelBuilder.Entity<Set>().HasData(tcc22);
 
             // Save goal domain tables
 
