@@ -1,6 +1,7 @@
 ﻿using MeFit_BE.Models.Domain.GoalDomain;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MeFit_BE.Models.Domain.UserDomain
@@ -10,10 +11,14 @@ namespace MeFit_BE.Models.Domain.UserDomain
     {
         public int Id { get; set; }
 
+        [StringLength(50)]
         public string FirstName { get; set; }
 
+        [StringLength(50)]
         public string LastName { get; set; }
 
+        [StringLength(100)]
+        [EmailAddress]
         public string Email { get; set; }
 
         public string? AuthId { get; set; }

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MeFit_BE.Models.Domain.WorkoutDomain
 {
@@ -7,6 +8,7 @@ namespace MeFit_BE.Models.Domain.WorkoutDomain
     {
         public int Id { get; set; }
 
+        [Range(1, 100)]
         public int ExerciseRepetitions { get; set; }
 
         public Workout Workout { get; set; }
