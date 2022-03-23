@@ -68,6 +68,7 @@ namespace MeFit_BE.Controllers
             //User user = await _context.Users.FindAsync(1);
             if (user == null) return BadRequest();
 
+
             if (!Category.IsValid(exerciseDTO.Category)) 
                 return BadRequest($"Category {exerciseDTO.Category} is not valid.");
 
@@ -129,10 +130,16 @@ namespace MeFit_BE.Controllers
         {
             if (!Helper.IsContributor(HttpContext)) { return Forbid(); }
 
+            //Get user and exercise from database.
+            User user = await Helper.GetCurrentUser(HttpContext, _context);
+            if (user == null) { return NotFound("No current user could be found."); }
             if (!ExerciseExists(id))
                 return NotFound($"Exercise with Id: {id} was not found");
-
             Exercise exercise = await GetExerciseAsync(id);
+
+            //Check that the current user owns the exercise.
+            if (exercise.Id != user.Id)
+                return Forbid("Tried to change an exercise not owned by the current user.");
 
             _context.Exercises.Remove(exercise);
             await _context.SaveChangesAsync();

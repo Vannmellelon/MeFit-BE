@@ -16,7 +16,7 @@ namespace MeFit_BE.Controllers
 {
     [Route("api/goal")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
     [ApiConventionType(typeof(MeFitConventions))]
@@ -133,6 +133,28 @@ namespace MeFit_BE.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
+        }
+
+        /// <summary>
+        /// Method adds a workout to a goal by adding it as one of the
+        /// goal's sub-goal.
+        /// </summary>
+        /// <param name="id">Goal id</param>
+        /// <param name="workoutId">Workout id</param>
+        /// <returns>Goal</returns>
+        [HttpPatch("{id}/workouts/{workoutId}")]
+        public async Task<ActionResult<GoalReadDTO>> PatchWorkoutToGoal(int id, int workoutId)
+        {
+            Goal goal = await GetGoalAsync(id); 
+            if (goal == null) return NotFound($"Could not find goal with id {id}.");
+            SubGoal subGoal = new SubGoal()
+            {
+                WorkoutId = workoutId,
+                GoalId = goal.Id
+            };
+            _context.SubGoals.Add(subGoal);
+            await _context.SaveChangesAsync();
+            return Ok(_mapper.Map<GoalReadDTO>(goal));
         }
 
 
