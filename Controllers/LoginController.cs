@@ -1,4 +1,6 @@
 ﻿using Auth0.AspNetCore.Authentication;
+using MeFit_BE.Models;
+using MeFit_BE.Models.Domain.UserDomain;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
@@ -7,7 +9,9 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Net.Mime;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace MeFit_BE.Controllers
@@ -20,6 +24,40 @@ namespace MeFit_BE.Controllers
     [ApiConventionType(typeof(MeFitConventions))]
     public class LoginController : ControllerBase
     {
+        private readonly MeFitDbContext _context;
+
+        public LoginController(MeFitDbContext context)
+        {
+            _context = context;
+        }
+
+
+        /// <summary>
+        /// Checks if currently logged in user exists in database.
+        /// </summary>
+        /// <returns>Returns a JSON object with a boolean.</returns>
+        [HttpGet]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(401)]
+        public async Task<IActionResult> Login()
+        {
+            // Frontend uses this to know where to redirect the user
+
+            User user = await Helper.GetCurrentUser(HttpContext, _context);
+            object userStatus;
+
+            if (user == null)
+            {
+                userStatus = new { userExists = false };
+            }
+            else
+            {
+                userStatus = new { userExists = true };
+            }
+
+            return Ok(Newtonsoft.Json.JsonConvert.SerializeObject(userStatus));
+        }
+
         /*
         [HttpGet("private")]
         //[Authorize()]
