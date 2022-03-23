@@ -16,7 +16,7 @@ namespace MeFit_BE.Controllers
 {
     [Route("api/goal")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
     [ApiConventionType(typeof(MeFitConventions))]
