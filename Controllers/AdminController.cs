@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Auth0.AuthenticationApi;
+using Auth0.AuthenticationApi.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,30 +28,44 @@ namespace MeFit_BE.Controllers
         public AdminController(HttpClient client)
         {
             _client = client;
-            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", ACCESS_TOKEN);
+            _client.DefaultRequestHeaders.Authorization = 
+                new AuthenticationHeaderValue("Bearer", GetAccessTokenAsync().Result);
+            // _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", ACCESS_TOKEN);
         }
 
-        //[HttpGet("users")]
-        //public async Task<IActionResult> GetUsers()
-        //{
-        //    var response = await _client.GetStringAsync(BASE_URL + "users");
-        //    return Ok(response);
-        //}
-
-        [HttpGet("users/{id}")]
-        public async Task<IActionResult> GetUser(string id)
+        [HttpGet("auth0")]
+        public async Task<IActionResult> GetToken()
         {
-            var url = BASE_URL + $"users/{id}";
-            var response = await _client.GetStringAsync(url);
-            return Ok(response);
+            var client = new AuthenticationApiClient(new Uri("https://dev-o072w2hj.eu.auth0.com/"));
+
+
+            var request = new ClientCredentialsTokenRequest
+            {
+                Audience = "https://dev-o072w2hj.eu.auth0.com/api/v2/",
+                ClientId = "4XDd6Abg3AwWP0Zd4coiF2N547u4etgr",
+                ClientSecret = "5urccG3ubdhB3Q7UkMU4A8F5r5cUaeE_3L7re-wVT0Eq1PriylPu5H7mExUQRRAB"
+            };
+
+            var token = await client.GetTokenAsync(request);
+
+            return Ok(token);
+            //return Ok(GetAccessTokenAsync().Result);
         }
 
-        [HttpGet("users/{id}/roles")]
-        public async Task<IActionResult> GetUserRoles(string id)
+        private async Task<string> GetAccessTokenAsync()
         {
-            var url = BASE_URL + $"users/{id}/roles";
-            var response = await _client.GetStringAsync(url);
-            return Ok(response);
+            var client = new AuthenticationApiClient(new Uri("https://dev-o072w2hj.eu.auth0.com/"));
+
+            var request = new ClientCredentialsTokenRequest
+            {
+                Audience = "https://dev-o072w2hj.eu.auth0.com/api/v2/",
+                ClientId = "4XDd6Abg3AwWP0Zd4coiF2N547u4etgr",
+                ClientSecret = "5urccG3ubdhB3Q7UkMU4A8F5r5cUaeE_3L7re-wVT0Eq1PriylPu5H7mExUQRRAB"
+            };
+
+            var token = await client.GetTokenAsync(request);
+
+            return token.AccessToken;
         }
 
         [HttpPost("users/{id}/roles")]
@@ -65,11 +82,35 @@ namespace MeFit_BE.Controllers
                 Method = HttpMethod.Delete,
                 RequestUri = new Uri(url)
             };
+
             await _client.SendAsync(request);
 
             await _client.PostAsync(url, new StringContent(body, Encoding.UTF8, "application/json"));
 
             return Ok();
+        }
+
+        [HttpGet("users")]
+        private async Task<IActionResult> GetUsers()
+        {
+            var response = await _client.GetStringAsync(BASE_URL + "users");
+            return Ok(response);
+        }
+
+        [HttpGet("users/{id}")]
+        private async Task<IActionResult> GetUser(string id)
+        {
+            var url = BASE_URL + $"users/{id}";
+            var response = await _client.GetStringAsync(url);
+            return Ok(response);
+        }
+
+        [HttpGet("users/{id}/roles")]
+        private async Task<IActionResult> GetUserRoles(string id)
+        {
+            var url = BASE_URL + $"users/{id}/roles";
+            var response = await _client.GetStringAsync(url);
+            return Ok(response);
         }
 
         private string GetRoleBody(string role)
@@ -82,5 +123,56 @@ namespace MeFit_BE.Controllers
                 _ => null,
             };
         }
+
+        /*
+       [HttpPost("users/{id}/password")]
+       public async Task<IActionResult> postPassword(string id, string password)
+       {
+           var url = BASE_URL + $"users/{id}/roles";
+           // /api/v2/tickets/password-change
+
+           //var response = await _client.PostAsync(“dbconnections / change_password”, content);
+
+           //string body = GetRoleBody(role); 
+           //if (body == null) return BadRequest();
+
+           //await _client.PostAsync(url, new StringContent(body, Encoding.UTF8, "application/json"));
+
+           return Ok();
+       }
+
+       [HttpPost("users/{id}/password")]
+       public async Task<IActionResult> postPassword(string id, string password)
+       {
+           var url = BASE_URL + $"users/{id}/roles";
+           // /api/v2/tickets/password-change
+
+           //var response = await _client.PostAsync(“dbconnections / change_password”, content);
+
+           //string body = GetRoleBody(role); 
+           //if (body == null) return BadRequest();
+
+           //await _client.PostAsync(url, new StringContent(body, Encoding.UTF8, "application/json"));
+
+           return Ok();
+       }
+       */
+
+        /*
+        public class AccessTokenRequestBody
+        {
+            [JsonProperty("client_id")]
+            public string ClientId { get; set; }
+
+            [JsonProperty("client_secret")]
+            public string ClientSecret { get; set; }
+
+            [JsonProperty("audience")]
+            public string Audience { get; set; }
+
+            [JsonProperty("grant_type")]
+            public string GrantType { get; } = "client_credentials";
+        }
+        */
     }
 }
