@@ -106,9 +106,6 @@ namespace MeFit_BE.Controllers
         }
 
 
-        // TODO:
-        // Admin should also be able to update any user, add check.
-
         /// <summary>
         /// Method updates a user in the database. 
         /// A user can only de altered by themselves.
@@ -127,7 +124,6 @@ namespace MeFit_BE.Controllers
             if (user.Id != id) return Forbid();
 
             // Update user
-            if (userDTO.Email != null) user.Email = userDTO.Email;
             if (userDTO.FirstName != null) user.FirstName = userDTO.FirstName;
             if (userDTO.LastName != null) user.LastName = userDTO.LastName;
 
