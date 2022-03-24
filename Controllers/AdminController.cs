@@ -114,7 +114,31 @@ namespace MeFit_BE.Controllers
         }
 
         /// <summary>
-        /// Method assigns roles to User using Auth0 Manegement API and updates User in DB
+        /// Method Deletes User from Auth0 and DB using Auth0 Manegement API and MeFit DB Context
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpDelete("users/{id}")]
+        public async Task<IActionResult> DeleteUser(string id) 
+        {
+            var url = BASE_URL + $"users/{id}";
+
+            await _client.DeleteAsync(url);
+
+            User user = await _context.Users.FirstOrDefaultAsync(u => u.AuthId == id);
+
+            if (user != null)
+            {
+                // Remove User in DB
+                _context.Users.Remove(user);
+                await _context.SaveChangesAsync();
+            }
+
+            return NoContent();
+        }
+
+        /// <summary>
+        /// Method assigns roles to User using Auth0 Manegement API and updates User in DB 
         /// </summary>
         /// <param name="id"></param>
         /// <param name="role"></param>
