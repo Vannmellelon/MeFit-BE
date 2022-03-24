@@ -14,7 +14,7 @@ namespace MeFit_BE.Controllers
         public static void Get()
         { }
 
-        [ProducesResponseType(StatusCodes.Status303SeeOther)]
+        [ProducesResponseType(StatusCodes.Status302Found)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ApiConventionNameMatch(ApiConventionNameMatchBehavior.Prefix)]
