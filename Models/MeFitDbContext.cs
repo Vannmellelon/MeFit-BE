@@ -422,7 +422,7 @@ namespace MeFit_BE.Models
                 Id = 1,
                 ExerciseRepetitions = 20,
                 WorkoutId = workout1.Id,
-                ExerciseId = exercise1.Id,
+                ExerciseId = exercise1.Id
             };
             Set set2 = new Set()
             {
@@ -495,6 +495,22 @@ namespace MeFit_BE.Models
                 WorkoutId = tcc2.Id,
                 ExerciseId = compoundDips.Id
             };
+
+            modelBuilder.Entity<Set>()
+                    .HasOne(s => s.Workout).WithMany(w => w.Sets)
+                    .HasForeignKey(s => s.WorkoutId)
+                    .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<Set>()
+                    .HasOne(s => s.Exercise).WithMany(e => e.Sets)
+                    .HasForeignKey(s => s.ExerciseId)
+                    .OnDelete(DeleteBehavior.NoAction);
+            
+            /*
+            modelBuilder.Entity<SubGoal>()
+                    .HasOne(s => s.Workout).WithOne()
+                    .HasForeignKey(s => s.WorkoutId)
+                    .OnDelete(DeleteBehavior.NoAction);*/
 
             // Save user domain tables
 

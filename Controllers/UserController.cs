@@ -1,9 +1,12 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
 using AutoMapper;
 using MeFit_BE.Models;
+using MeFit_BE.Models.Domain.GoalDomain;
 using MeFit_BE.Models.Domain.UserDomain;
+using MeFit_BE.Models.Domain.WorkoutDomain;
 using MeFit_BE.Models.DTO;
 using MeFit_BE.Models.DTO.Profile;
 using MeFit_BE.Models.DTO.User;
@@ -144,11 +147,85 @@ namespace MeFit_BE.Controllers
         public async Task<IActionResult> DeleteUser(int id)
         {
             // Get user from database
-            User user = await Helper.GetCurrentUser(HttpContext, _context);
+            User user = await _context.Users.FindAsync(id);
             if (user == null) return BadRequest();
 
             // Ensure current user is admin OR the one being deleted
-            if (user.Id != id || !Helper.IsAdmin(HttpContext)) return Forbid();
+            if (user.Id != id && !Helper.IsAdmin(HttpContext)) return Forbid();
+            
+            //Delete the user's goals.
+            List<Goal> goals = await _context.Goals.Include(g => g.SubGoals)
+                .Where(g => g.UserId == id).ToListAsync();
+            foreach (Goal goal in goals)
+            {
+                List<SubGoal> subGoals = goal.SubGoals.ToList();
+                foreach (SubGoal subGoal in subGoals)
+                {
+                    subGoal.WorkoutId = null;
+                    _context.SubGoals.Remove(subGoal);
+                }
+                _context.Goals.Remove(goal);
+            }
+
+            
+
+            if (user.IsContributor)
+            {
+
+                // slett andre sine koblinger til contributors eiendom.
+                List<WorkoutProgram> programs = await _context.WorkoutPrograms
+                    .Include(wp => wp.Workouts).Where(wp => wp.ContributorId == id).ToListAsync();
+                foreach (WorkoutProgram program in programs)
+                {
+                    List<Workout> programWorkouts = program.Workouts.ToList();
+                    foreach (Workout workout in programWorkouts)
+                    {
+                        List<SubGoal> subgoals = _context.SubGoals.Where(s => s.WorkoutId == workout.Id).ToList();
+                        foreach (SubGoal subGoal in subgoals)
+                        {
+                            _context.SubGoals.Remove(subGoal);
+                        }
+                    }
+
+                    List<Goal> peopleGoals = await _context.Goals.Where(g => g.WorkoutProgramId == program.Id).ToListAsync();
+                    foreach (Goal goal in peopleGoals)
+                    {
+                        _context.Goals.Remove(goal);
+                    }
+                }
+
+                // slett contrubitrs eiendom
+                List<Workout> workouts = await _context.Workouts.Include(w => w.Sets)
+                    .Where(wp => wp.ContributorId == id).ToListAsync();
+
+
+                foreach (var workout in workouts)
+                {
+                    
+                }
+                
+                foreach (Workout workout1 in workouts)
+                {
+                    _context.Workouts.Remove(workout1);
+                }
+                
+                foreach (WorkoutProgram program1 in programs)
+                {
+                    _context.WorkoutPrograms.Remove(program1);
+                }
+                
+                List<Exercise> exercises = await _context.Exercises.Include(e => e.Sets)
+                    .Where(e => e.ContributorId == id).ToListAsync();
+                foreach (Exercise exercise in exercises)
+                {
+                    List<Set> sets = exercise.Sets.ToList();
+                    foreach (Set set in sets)
+                    {
+                        _context.Sets.Remove(set);
+                    }
+                    _context.Exercises.Remove(exercise);
+                }
+            }
 
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();

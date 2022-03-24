@@ -25,7 +25,7 @@ namespace MeFit_BE.Models.Domain.WorkoutDomain
 
         public ICollection<Set> Sets { get; set; }
       
-        public int? ContributorId { get; set; }
+        public int ContributorId { get; set; }
 
         [ForeignKey("ContributorId")]
         public User Contributor { get; set; }

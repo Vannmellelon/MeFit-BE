@@ -13,7 +13,7 @@ namespace MeFit_BE.Models.Domain.WorkoutDomain
         [StringLength(50)]
         public string Name { get; set; }
 
-        [StringLength(200)]
+        [MaxLength]
         public string Description { get; set; }
 
         [MaxLength]
