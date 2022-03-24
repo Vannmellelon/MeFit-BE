@@ -47,10 +47,6 @@ namespace MeFit_BE.Controllers
             string host = HttpContext.Request.Host.ToUriComponent();
             string path = HttpContext.Request.Path.ToUriComponent();
 
-            //HttpContext.Response.StatusCode = 303;
-            //HttpContext.Response.Headers.Add("Location", $"https://{host}{path}{user.Id}");
-
-            // Returns 302, not 303, but it's fine ^^
             return Redirect($"https://{host}{path}{user.Id}");
 
         }

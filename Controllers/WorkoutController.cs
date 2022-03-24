@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MeFit_BE.Models.Domain;
+using MeFit_BE.Models.Domain.GoalDomain;
 
 namespace MeFit_BE.Controllers
 {
@@ -164,6 +165,13 @@ namespace MeFit_BE.Controllers
 
             //Ensure current contributor owns the workout.
             if (_domainWorkout.ContributorId != user.Id) return Forbid();
+
+            //Remove all sub-goals that rely on the workout before removing the workout.
+            List<SubGoal> subGoals = await _context.SubGoals.Where(s => s.WorkoutId == id).ToListAsync();
+            foreach (SubGoal subGoal in subGoals)
+            {
+                _context.SubGoals.Remove(subGoal);
+            }
 
             _context.Remove(_domainWorkout);
             await _context.SaveChangesAsync();
