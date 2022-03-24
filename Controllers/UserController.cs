@@ -146,14 +146,18 @@ namespace MeFit_BE.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
-            // Get user from database
-            User user = await _context.Users.FindAsync(id);
+            // Get current user
+            User user = await Helper.GetCurrentUser(HttpContext, _context);
             if (user == null) return BadRequest();
 
-            // Ensure current user is admin OR the one being deleted
+            // Ensure current user is admin OR the one being deleted.
             if (user.Id != id && !Helper.IsAdmin(HttpContext)) return Forbid();
-            
-            //Delete the user's goals.
+
+            //Get the user to be deleted.
+            User userToBeDeleted = await _context.Users.FindAsync(id);
+            if (userToBeDeleted == null) return NotFound();
+
+            //Delete the user's goals and sub-goals.
             List<Goal> goals = await _context.Goals.Include(g => g.SubGoals)
                 .Where(g => g.UserId == id).ToListAsync();
             foreach (Goal goal in goals)
@@ -167,53 +171,13 @@ namespace MeFit_BE.Controllers
                 _context.Goals.Remove(goal);
             }
 
-            
-
             if (user.IsContributor)
             {
-
-                // slett andre sine koblinger til contributors eiendom.
-                List<WorkoutProgram> programs = await _context.WorkoutPrograms
-                    .Include(wp => wp.Workouts).Where(wp => wp.ContributorId == id).ToListAsync();
-                foreach (WorkoutProgram program in programs)
-                {
-                    List<Workout> programWorkouts = program.Workouts.ToList();
-                    foreach (Workout workout in programWorkouts)
-                    {
-                        List<SubGoal> subgoals = _context.SubGoals.Where(s => s.WorkoutId == workout.Id).ToList();
-                        foreach (SubGoal subGoal in subgoals)
-                        {
-                            _context.SubGoals.Remove(subGoal);
-                        }
-                    }
-
-                    List<Goal> peopleGoals = await _context.Goals.Where(g => g.WorkoutProgramId == program.Id).ToListAsync();
-                    foreach (Goal goal in peopleGoals)
-                    {
-                        _context.Goals.Remove(goal);
-                    }
-                }
-
-                // slett contrubitrs eiendom
-                List<Workout> workouts = await _context.Workouts.Include(w => w.Sets)
-                    .Where(wp => wp.ContributorId == id).ToListAsync();
-
-
-                foreach (var workout in workouts)
-                {
-                    
-                }
+                //Delete goals and sub-goals that rely on objects by the contributor to be deleted.
+                DeleteGoalsRelatedToContributor(id);
                 
-                foreach (Workout workout1 in workouts)
-                {
-                    _context.Workouts.Remove(workout1);
-                }
-                
-                foreach (WorkoutProgram program1 in programs)
-                {
-                    _context.WorkoutPrograms.Remove(program1);
-                }
-                
+                //Delete exercises and sets owned by the contributor to avoid issues with 
+                //cascading deletes on the Set table.
                 List<Exercise> exercises = await _context.Exercises.Include(e => e.Sets)
                     .Where(e => e.ContributorId == id).ToListAsync();
                 foreach (Exercise exercise in exercises)
@@ -227,12 +191,10 @@ namespace MeFit_BE.Controllers
                 }
             }
 
-            _context.Users.Remove(user);
+            _context.Users.Remove(userToBeDeleted);
             await _context.SaveChangesAsync();
-
             return NoContent();
         }
-
 
         /// <summary>
         /// Method returns the profile belonging to the user with the given id.
@@ -276,7 +238,6 @@ namespace MeFit_BE.Controllers
             return Ok();
         }
 
-
         /// <summary>
         /// Method makes the user with the given id into a contributor.
         /// Only administrators can make a user a contributor.
@@ -299,6 +260,40 @@ namespace MeFit_BE.Controllers
             _context.SaveChanges();
 
             return Ok();
+        }
+
+        /// <summary>
+        /// Method deletes the goals and sub-goals that rely on workouts and
+        /// workout programs made by the contributor with the given id.
+        /// </summary>
+        /// <param name="id">Contributor id</param>
+        private void DeleteGoalsRelatedToContributor(int id)
+        {
+            //Get all workout programs owned by the contributor.
+            List<WorkoutProgram> programs = _context.WorkoutPrograms
+                .Include(wp => wp.Workouts).Where(wp => wp.ContributorId == id).ToList();
+
+
+            foreach (WorkoutProgram program in programs)
+            {
+                //Delete sub-goals.
+                List<Workout> workouts = program.Workouts.ToList();
+                foreach (Workout workout in workouts)
+                {
+                    List<SubGoal> subgoals = _context.SubGoals.Where(s => s.WorkoutId == workout.Id).ToList();
+                    foreach (SubGoal subGoal in subgoals)
+                    {
+                        _context.SubGoals.Remove(subGoal);
+                    }
+                }
+
+                //Delete goals.
+                List<Goal> goals = _context.Goals.Where(g => g.WorkoutProgramId == program.Id).ToList();
+                foreach (Goal goal in goals)
+                {
+                    _context.Goals.Remove(goal);
+                }
+            }
         }
     }
 }
