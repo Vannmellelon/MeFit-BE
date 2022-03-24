@@ -12,12 +12,13 @@ using System.Net.Mime;
 using System.Threading.Tasks;
 using MeFit_BE.Models.Domain;
 using MeFit_BE.Models.DTO.Workout;
+using MeFit_BE.Models.Domain.GoalDomain;
 
 namespace MeFit_BE.Controllers
 {
     [Route("api/workout-program")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
     [ApiConventionType(typeof(MeFitConventions))]
@@ -142,17 +143,24 @@ namespace MeFit_BE.Controllers
         [Authorize(Roles = "Contributor")]
         public async Task<ActionResult<WorkoutProgram>> DeleteWorkoutProgram(int id)
         {
-            if (Helper.IsContributor(HttpContext)) return Forbid();
+            if (!Helper.IsContributor(HttpContext)) return Forbid();
 
             //Get workout program and current user form database.
             if (!ProgramExists(id))
                 return NotFound($"Program with Id: {id} was not found");
             WorkoutProgram program = await _context.WorkoutPrograms.FindAsync(id);
             User user = await Helper.GetCurrentUser(HttpContext, _context);
-            if (user == null) return NotFound();
+            if (user == null) return BadRequest();
 
             //Ensure current contributor owns the workout program.
             if (program.Id != user.Id) return Forbid();
+
+            //Remove goals that rely on the workout program before deleting the program.
+            List<Goal> goals = await _context.Goals.Where(g => g.WorkoutProgramId == id).ToListAsync();
+            foreach (Goal goal in goals)
+            {
+                _context.Goals.Remove(goal);
+            }
 
             _context.WorkoutPrograms.Remove(program);
             await _context.SaveChangesAsync();
