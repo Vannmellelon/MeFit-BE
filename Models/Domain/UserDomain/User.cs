@@ -17,6 +17,11 @@ namespace MeFit_BE.Models.Domain.UserDomain
         [StringLength(50)]
         public string LastName { get; set; }
 
+        [StringLength(50)]
+        public string FitnessLevel { get; set; }
+
+        public string RestrictedCategories { get; set;}
+
         [StringLength(100)]
         [EmailAddress]
         public string Email { get; set; }
