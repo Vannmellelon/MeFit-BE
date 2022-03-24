@@ -31,6 +31,10 @@ namespace MeFit_BE.Controllers
             _context = context;
         }
 
+        public class UserStatus
+        {
+            public bool UserExists { get; set; }
+        }
 
         /// <summary>
         /// Checks if currently logged in user exists in database.
@@ -39,20 +43,20 @@ namespace MeFit_BE.Controllers
         [HttpGet]
         [ProducesResponseType(200)]
         [ProducesResponseType(401)]
-        public async Task<IActionResult> Login()
+        public async Task<ActionResult<UserStatus>> Login()
         {
             // Frontend uses this to know where to redirect the user
 
             User user = await Helper.GetCurrentUser(HttpContext, _context);
-            object userStatus;
+            UserStatus userStatus = new();
 
             if (user == null)
             {
-                userStatus = new { userExists = false };
+                userStatus.UserExists = false;
             }
             else
             {
-                userStatus = new { userExists = true };
+                userStatus.UserExists = true;
             }
 
             return Ok(Newtonsoft.Json.JsonConvert.SerializeObject(userStatus));
