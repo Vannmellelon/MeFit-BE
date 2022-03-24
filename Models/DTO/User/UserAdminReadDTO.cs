@@ -2,9 +2,11 @@
 
 namespace MeFit_BE.Models.DTO
 {
-    public class UserReadDTO
+    public class UserAdminReadDTO
     {
         public int Id { get; set; }
+
+        public string? AuthId { get; set; }
 
         public string Email { get; set; }
 
@@ -16,10 +18,5 @@ namespace MeFit_BE.Models.DTO
 
         public bool IsAdmin { get; set; }
 
-        public string FitnessLevel { get; set; }
-
-        public string RestrictedCategories { get; set; }
-
-        public List<int> Goals { get; set; }
     }
 }

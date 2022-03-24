@@ -10,16 +10,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
-
+using MeFit_BE.Models.Domain;
+using MeFit_BE.Models.DTO.Workout;
 
 namespace MeFit_BE.Controllers
 {
     [Route("api/workout-program")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
-    [ApiConventionType(typeof(DefaultApiConventions))]
+    [ApiConventionType(typeof(MeFitConventions))]
     public class WorkoutProgramController : ControllerBase
     {
         private readonly MeFitDbContext _context;
@@ -31,15 +32,17 @@ namespace MeFit_BE.Controllers
             _mapper = mapper;
         }
 
+
         /// <summary>
         /// Method fetches all programs from the database.
         /// </summary>
         /// <returns>List of Programs</returns>
         [HttpGet]
-        public async Task<IEnumerable<WorkoutProgramReadDTO>> Get()
+        public async Task<IEnumerable<WorkoutProgramReadDTO>> GetWorkoutPrograms()
         {
             return _mapper.Map<List<WorkoutProgramReadDTO>>(await _context.WorkoutPrograms.Include(wp => wp.Workouts).ToListAsync());
         }
+
 
         /// <summary>
         /// Method fetches a specific workout program from the database by id.
@@ -47,12 +50,13 @@ namespace MeFit_BE.Controllers
         /// <param name="id">Workout program id</param>
         /// <returns>WorkoutProgram</returns>
         [HttpGet("{id}")]
-        public async Task<ActionResult<WorkoutProgramReadDTO>> Get(int id)
+        public async Task<ActionResult<WorkoutProgramReadDTO>> GetWorkoutProgram(int id)
         {
             WorkoutProgram workoutProgram = await _context.WorkoutPrograms.Include(wp => wp.Workouts).FirstOrDefaultAsync(wp => wp.Id == id);
             if (workoutProgram == null) return NotFound();
             return _mapper.Map<WorkoutProgramReadDTO>(workoutProgram);
         }
+
 
         /// <summary>
         /// Method adds a new workout program to the database. Only a contributor can create new workout programs.
@@ -60,16 +64,20 @@ namespace MeFit_BE.Controllers
         /// <param name="programDTO">New workout program values</param>
         /// <returns>New workout program</returns>
         [HttpPost]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(404)]
-        [ProducesResponseType(403)]
-        public async Task<ActionResult<WorkoutProgramReadDTO>> Post(WorkoutProgramWriteDTO programDTO)  
+        [Authorize(Roles ="Contributor")]
+        public async Task<ActionResult<WorkoutProgramReadDTO>> PostWorkoutProgram(WorkoutProgramWriteDTO programDTO)  
         {
             if (!Helper.IsContributor(HttpContext)) return Forbid();
 
             //Find current user in the database.
             User user = await Helper.GetCurrentUser(HttpContext, _context);
             if (user == null) return NotFound();
+
+            //Check input validity.
+            if (!Category.IsValid(programDTO.Category)) 
+                return BadRequest($"{programDTO.Category} is not a valid category.");
+            if (!Difficulty.IsValid(programDTO.Difficulty))
+                return BadRequest($"{programDTO.Difficulty} is not a valid difficulty level.");
 
             //Create workout program with the current user as contributor.
             WorkoutProgram domainProgram = _mapper.Map<WorkoutProgram>(programDTO);
@@ -80,6 +88,7 @@ namespace MeFit_BE.Controllers
             return CreatedAtAction("Get", new {Id = domainProgram.Id}, _mapper.Map<WorkoutProgramReadDTO>(domainProgram));
         }
 
+
         /// <summary>
         /// Method updates a workout program in the database by id;
         /// must pass in an updated workout program object. Only the contributor of the 
@@ -89,10 +98,8 @@ namespace MeFit_BE.Controllers
         /// <param name="programDTO">Workout program with new values</param>
         /// <returns>Updated workout program</returns>
         [HttpPatch("{id}")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(404)]
-        [ProducesResponseType(403)]
-        public async Task<IActionResult> Put(int id, [FromBody] WorkoutProgramEditDTO programDTO)
+        [Authorize(Roles = "Contributor")]
+        public async Task<IActionResult> PatchWorkoutProgram(int id, [FromBody] WorkoutProgramEditDTO programDTO)
         {
             if (!Helper.IsContributor(HttpContext)) return Forbid();
 
@@ -105,13 +112,26 @@ namespace MeFit_BE.Controllers
             if (program.ContributorId != user.Id) return Forbid();
 
             // Update WorkoutProgram
+            if (programDTO.Category != null)
+            {
+                if (!Category.IsValid(programDTO.Category))
+                    return BadRequest($"{programDTO.Category} is not a valid category.");
+                else program.Category = programDTO.Category;
+            }
+            if (programDTO.Difficulty != null)
+            {
+                if (!Difficulty.IsValid(programDTO.Difficulty))
+                    return BadRequest($"{programDTO.Difficulty} is not a valid difficulty level.");
+                else program.Difficulty = programDTO.Difficulty;
+            }
             if (programDTO.Name != null) program.Name = programDTO.Name;
-            if (programDTO.Category != null) program.Category = programDTO.Category;
 
             _context.WorkoutPrograms.Update(program);
             await _context.SaveChangesAsync();
+
             return Ok(program);
         }
+
 
         /// <summary>
         /// Method deletes a workout program in the database by id. Only the
@@ -119,10 +139,8 @@ namespace MeFit_BE.Controllers
         /// </summary>
         /// <param name="id">Workout program id</param>
         [HttpDelete("{id}")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(404)]
-        [ProducesResponseType(403)]
-        public async Task<ActionResult<WorkoutProgram>> Delete(int id)
+        [Authorize(Roles = "Contributor")]
+        public async Task<ActionResult<WorkoutProgram>> DeleteWorkoutProgram(int id)
         {
             if (Helper.IsContributor(HttpContext)) return Forbid();
 
@@ -138,7 +156,27 @@ namespace MeFit_BE.Controllers
 
             _context.WorkoutPrograms.Remove(program);
             await _context.SaveChangesAsync();
-            return Ok($"Deleted Program with Id: {id}");
+
+            return NoContent();
+        }
+
+        /// <summary>
+        /// Method adds the workout with the given id to the given workout program.
+        /// </summary>
+        /// <param name="id">WorkoutProgram id</param>
+        /// <param name="workoutId">Workout id</param>
+        /// <returns></returns>
+        [HttpPatch("{id}/workouts/{workoutId}")]
+        public async Task<IActionResult> PatchAddWorkoutToProgram(int id, int workoutId)
+        {
+            WorkoutProgram workoutPogram = await _context.WorkoutPrograms
+                .Include(wp => wp.Workouts).SingleOrDefaultAsync(wp => wp.Id == id);
+            Workout workout = await _context.Workouts.FindAsync(workoutId);
+            if (workout == null || workoutPogram == null) return NotFound();
+
+            workoutPogram.Workouts.Add(workout);
+            _context.SaveChanges();
+            return Ok(_mapper.Map<WorkoutProgramReadDTO>(workoutPogram));
         }
 
         /// <summary>
@@ -151,6 +189,7 @@ namespace MeFit_BE.Controllers
             return await _context.WorkoutPrograms
                 .SingleOrDefaultAsync(p => p.Id == programId);
         }
+
 
         /// <summary>
         /// Method checks if a workout program with the given id exists 

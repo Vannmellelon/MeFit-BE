@@ -13,7 +13,7 @@ namespace MeFit_BE.Controllers
     [ApiController]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
-    [ApiConventionType(typeof(DefaultApiConventions))]
+    [ApiConventionType(typeof(MeFitConventions))]
     public class ProfileController : Controller
     {
         private readonly MeFitDbContext _context;
@@ -25,7 +25,7 @@ namespace MeFit_BE.Controllers
             _mapper = mapper;
         }
 
-        // GET: ProfileController
+
         /// <summary>
         /// Method fetches all profiles from the database.
         /// </summary>
@@ -36,7 +36,7 @@ namespace MeFit_BE.Controllers
             return _mapper.Map<List<ProfileReadDTO>>(await _context.Profiles.ToListAsync());
         }
         
-        // GET api/<ProfileController>/5
+
         /// <summary>
         /// Method fetches a specific profile from the database.
         /// </summary>
@@ -48,22 +48,23 @@ namespace MeFit_BE.Controllers
             return _mapper.Map<ProfileReadDTO>(await _context.Profiles.FindAsync(id));
         }
         
-        // POST api/<ProfileController>/
+
         /// <summary>
         /// Method creates a new Profile.
         /// </summary>
         /// <param name="profileDTO">New profile</param>
         /// <returns>New profile</returns>
         [HttpPost]
-        public async Task<ActionResult<ProfileReadDTO>> Post([FromBody] ProfileWriteDTO profileDTO)
+        public async Task<ActionResult<ProfileReadDTO>> PostProfile([FromBody] ProfileWriteDTO profileDTO)
         {
             Models.Domain.UserDomain.Profile profile = _mapper.Map<Models.Domain.UserDomain.Profile>(profileDTO);
             _context.Profiles.Add(profile);
             await _context.SaveChangesAsync();
-            return CreatedAtAction("GetProfile", new { Id = profile.Id }, _mapper.Map<ProfileReadDTO>(profile));
+
+            return CreatedAtAction(nameof(GetProfile), new { Id = profile.Id }, _mapper.Map<ProfileReadDTO>(profile));
         }
 
-        // PATCH api/<ProfileController>/5
+
         /// <summary>
         /// Method updates a profile in the database.
         /// </summary>
@@ -71,7 +72,7 @@ namespace MeFit_BE.Controllers
         /// <param name="profileDTO">Profile with updated values</param>
         /// <returns>Updated profile</returns>
         [HttpPatch("{id}")]
-        public async Task<IActionResult> Patch(int id, [FromBody] ProfileEditDTO profileDTO)
+        public async Task<IActionResult> PatchProfile(int id, [FromBody] ProfileEditDTO profileDTO)
         {
             //Get profile.
             Models.Domain.UserDomain.Profile profile = await _context.Profiles.FindAsync(id);
@@ -85,22 +86,24 @@ namespace MeFit_BE.Controllers
 
             _context.Entry(profile).State = EntityState.Modified;
             await _context.SaveChangesAsync();
+
             return Ok(_mapper.Map<ProfileReadDTO>(profile));
         }
 
-        // GET: ProfileController/Delete/5
+
         /// <summary>
         /// Method deletes the profile with the given id.
         /// </summary>
         /// <param name="id">Profile id</param>
         /// <returns>No content</returns>
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> DeleteProfile(int id)
         {
             Models.Domain.UserDomain.Profile profile = await _context.Profiles.FindAsync(id);
             if (profile == null) return NotFound();
             _context.Profiles.Remove(profile);
             await _context.SaveChangesAsync();
+
             return NoContent();
         }
     }

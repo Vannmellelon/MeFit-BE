@@ -9,10 +9,20 @@ namespace MeFit_BE.Models.DTO.Workout
 
         public string Name { get; set; }
 
-        public string Type { get; set; }
-
         public int ContributorId { get; set; }
 
-        public List<int> Sets { get; set; }
+        public string Category { get; set; }
+
+        public string Difficulty { get; set; }
+
+        public ICollection<SetDTO> Sets { get; set; }
+    }
+
+    public class SetDTO
+    {
+        public int ExerciseId { get; set; }
+
+        public int ExerciseRepetitions { get; set; }
+
     }
 }

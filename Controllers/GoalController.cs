@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using MeFit_BE.Models;
 using MeFit_BE.Models.Domain.GoalDomain;
+using MeFit_BE.Models.Domain.WorkoutDomain;
 using MeFit_BE.Models.DTO.Goal;
 using MeFit_BE.Models.DTO.WorkoutProgram;
 using Microsoft.AspNetCore.Authorization;
@@ -18,7 +19,7 @@ namespace MeFit_BE.Controllers
     [Authorize]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
-    [ApiConventionType(typeof(DefaultApiConventions))]
+    [ApiConventionType(typeof(MeFitConventions))]
     public class GoalController : ControllerBase
     {
         private readonly MeFitDbContext _context;
@@ -30,6 +31,7 @@ namespace MeFit_BE.Controllers
             _mapper = mapper;
         }
 
+
         /// <summary>
         /// Method fetches all goals from the database.
         /// </summary>
@@ -39,6 +41,7 @@ namespace MeFit_BE.Controllers
         {
             return _mapper.Map<List<GoalReadDTO>>(await _context.Goals.Include(g => g.SubGoals).ToListAsync());
         }
+
 
         /// <summary>
         /// Method fetches a specific goal from the database by id.
@@ -53,19 +56,40 @@ namespace MeFit_BE.Controllers
             return _mapper.Map<GoalReadDTO>(goal);
         }
 
+
         /// <summary>
-        /// Method adds a new goal to the database.
+        /// Adds a new goal to the database.
+        /// Creates necessary subgoals based on the provided workout-program.
         /// </summary>
-        /// <param name="goalDTO">New goal</param>
+        /// <param name="newGoal">New goal</param>
         /// <returns>New Goal</returns>
         [HttpPost]
-        public async Task<GoalReadDTO> Post(GoalWriteDTO goalDTO)
+        public async Task<ActionResult<GoalReadDTO>> PostGoal(GoalWriteDTO newGoal)
         {
-            var domainGoal = _mapper.Map<Goal>(goalDTO);
+            // Adding goal to the database
+            Goal domainGoal = _mapper.Map<Goal>(newGoal);
             _context.Goals.Add(domainGoal);
             await _context.SaveChangesAsync();
-            return _mapper.Map<GoalReadDTO>(domainGoal);
+
+            // Find program, make subgoals for workouts
+            WorkoutProgram program = await _context.WorkoutPrograms.Include(wp => wp.Workouts).FirstOrDefaultAsync(wp => wp.Id == newGoal.WorkoutProgramId);
+            if (program == null) return BadRequest("Cannot find workout-program with id: "+newGoal.WorkoutProgramId);
+            WorkoutProgramReadDTO wpRdto = _mapper.Map<WorkoutProgramReadDTO>(program);
+
+            foreach (int wid in wpRdto.Workouts)
+            {
+                SubGoal _subGoal = new SubGoal();
+                _context.SubGoals.Add(_subGoal);
+
+                _subGoal.WorkoutId = wid;
+                _subGoal.GoalId = domainGoal.Id;
+
+                await _context.SaveChangesAsync();
+            }
+
+            return CreatedAtAction(nameof(GetGoal), new { id = domainGoal.Id }, _mapper.Map<GoalReadDTO>(domainGoal));
         }
+
 
         /// <summary>
         /// Method updates a goal in the database by id;
@@ -91,6 +115,7 @@ namespace MeFit_BE.Controllers
             return Ok(goal);
         }
 
+
         /// <summary>
         /// Method deletes a goal in the database by id.
         /// </summary>
@@ -111,6 +136,29 @@ namespace MeFit_BE.Controllers
         }
 
         /// <summary>
+        /// Method adds a workout to a goal by adding it as one of the
+        /// goal's sub-goal.
+        /// </summary>
+        /// <param name="id">Goal id</param>
+        /// <param name="workoutId">Workout id</param>
+        /// <returns>Goal</returns>
+        [HttpPatch("{id}/workouts/{workoutId}")]
+        public async Task<ActionResult<GoalReadDTO>> PatchWorkoutToGoal(int id, int workoutId)
+        {
+            Goal goal = await GetGoalAsync(id); 
+            if (goal == null) return NotFound($"Could not find goal with id {id}.");
+            SubGoal subGoal = new SubGoal()
+            {
+                WorkoutId = workoutId,
+                GoalId = goal.Id
+            };
+            _context.SubGoals.Add(subGoal);
+            await _context.SaveChangesAsync();
+            return Ok(_mapper.Map<GoalReadDTO>(goal));
+        }
+
+
+        /// <summary>
         /// Method checks if a goal with the given id exists in the database.
         /// </summary>
         /// <param name="id">Goal id</param>
@@ -119,6 +167,7 @@ namespace MeFit_BE.Controllers
         {
             return _context.Goals.Any(g => g.Id == id);
         }
+
 
         /// <summary>
         /// Method gets the goal with the given id from the database.

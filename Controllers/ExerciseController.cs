@@ -9,7 +9,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
-
+using MeFit_BE.Models.Domain;
+using MeFit_BE.Models.Domain.UserDomain;
 
 namespace MeFit_BE.Controllers
 {
@@ -18,7 +19,7 @@ namespace MeFit_BE.Controllers
     [Authorize]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
-    [ApiConventionType(typeof(DefaultApiConventions))]
+    [ApiConventionType(typeof(MeFitConventions))]
     public class ExerciseController : ControllerBase
     {
         private readonly MeFitDbContext _context;
@@ -30,15 +31,12 @@ namespace MeFit_BE.Controllers
             _mapper = mapper;
         }
 
-        // GET: api/<ExerciseController>
+
         /// <summary>
         /// Method fetches all exercises from the database.
         /// </summary>
         /// <returns>List of Exercises</returns>
         [HttpGet]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(401)]
         public async Task<IEnumerable<ExerciseReadDTO>> GetExercises()
         {
             return _mapper.Map<List<ExerciseReadDTO>>(await _context.Exercises.ToListAsync());
@@ -50,10 +48,6 @@ namespace MeFit_BE.Controllers
         /// <param name="id">Exercise id</param>
         /// <returns>Exercise</returns>
         [HttpGet("{id}")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(401)]
-        [ProducesResponseType(404)]
         public async Task<ActionResult<ExerciseReadDTO>> GetExercise(int id)
         {
             return _mapper.Map<ExerciseReadDTO>(await GetExerciseAsync(id));
@@ -65,23 +59,25 @@ namespace MeFit_BE.Controllers
         /// <param name="exerciseDTO">New exercise</param>
         /// <returns>New exercise</returns>
         [HttpPost]
-        [ProducesResponseType(201)]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(401)]
-        [ProducesResponseType(403)]
-        //[Authorize(Roles = "Contributor")]
+        [Authorize(Roles ="Contributor")]
         public async Task<ActionResult<ExerciseReadDTO>> PostExercise(ExerciseWriteDTO exerciseDTO)
         {
             if (!Helper.IsContributor(HttpContext)) { return Forbid(); }
 
-            // TODO:
-            // Get id of current user via helper method for extracting authID from token, match to userId in db
-            // Add UserId to new exercise
+            User user = await Helper.GetCurrentUser(HttpContext, _context);
+            //User user = await _context.Users.FindAsync(1);
+            if (user == null) return BadRequest();
+
+
+            if (!Category.IsValid(exerciseDTO.Category)) 
+                return BadRequest($"Category {exerciseDTO.Category} is not valid.");
 
             Exercise domainExercise = _mapper.Map<Exercise>(exerciseDTO);
+            domainExercise.ContributorId = user.Id;
             _context.Exercises.Add(domainExercise);
             await _context.SaveChangesAsync();
-            return _mapper.Map<ExerciseReadDTO>(domainExercise);
+
+            return CreatedAtAction(nameof(GetExercise), new { Id = domainExercise.Id }, _mapper.Map<ExerciseReadDTO>(domainExercise));
         }
 
         /// <summary>
@@ -91,30 +87,36 @@ namespace MeFit_BE.Controllers
         /// <param name="exerciseDTO">Exercise with new values</param>
         /// <returns>Updated exercise</returns>
         [HttpPatch("{id}")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(403)]
-        [ProducesResponseType(404)]
-        //[Authorize(Roles = "Contributor")]
+        [Authorize(Roles = "Contributor")]
         public async Task<IActionResult> PatchExercise(int id, [FromBody] ExerciseEditDTO exerciseDTO)
         {
             if (!Helper.IsContributor(HttpContext)) { return Forbid(); }
 
-            // Get Excerise
-            var exercise = await GetExerciseAsync(id);
+            // Get user and exercise
+            User user = await Helper.GetCurrentUser(HttpContext, _context);
+            if (user == null) return NotFound($"Could not find a current user.");
+            Exercise exercise = await GetExerciseAsync(id);
             if (exercise == null) return NotFound($"Exercise with Id: {id} was not found");
 
+            //Check that the current user owns the exercise.
+            if (exercise.Id != user.Id) 
+                return Forbid("Tried to change an exercise not owned by the current user.");
+
             // Update Exercise
+            if (exercise.Category != null) {
+                if (!Category.IsValid(exerciseDTO.Category))
+                    return BadRequest($"Category {exerciseDTO.Category} is not valid.");
+                else exercise.Category = exerciseDTO.Category;
+            }
             if (exerciseDTO.Name != null) exercise.Name = exerciseDTO.Name;
             if (exerciseDTO.Description != null) exercise.Description = exerciseDTO.Description;
-            if (exerciseDTO.TargetMuscleGroup != null) exercise.TargetMuscleGroup = exerciseDTO.TargetMuscleGroup;
             if (exerciseDTO.Image != null) exercise.Image = exerciseDTO.Image;
             if (exerciseDTO.Name != null) exercise.Video = exerciseDTO.Video;
 
             _context.Exercises.Update(exercise);
             await _context.SaveChangesAsync();
 
-            return Ok(exercise);
+            return Ok(_mapper.Map<ExerciseReadDTO>(exercise));
         }
 
         /// <summary>
@@ -123,24 +125,26 @@ namespace MeFit_BE.Controllers
         /// <param name="id">Exercise id</param>
         /// <returns>No content</returns>
         [HttpDelete("{id}")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(403)]
-        [ProducesResponseType(404)]
-        //[Authorize(Roles = "Contributor")]
+        [Authorize(Roles = "Contributor")]
         public async Task<ActionResult> DeleteExercise(int id)
         {
             if (!Helper.IsContributor(HttpContext)) { return Forbid(); }
 
+            //Get user and exercise from database.
+            User user = await Helper.GetCurrentUser(HttpContext, _context);
+            if (user == null) { return NotFound("No current user could be found."); }
             if (!ExerciseExists(id))
                 return NotFound($"Exercise with Id: {id} was not found");
+            Exercise exercise = await GetExerciseAsync(id);
 
-            var exercise = await GetExerciseAsync(id);
+            //Check that the current user owns the exercise.
+            if (exercise.Id != user.Id)
+                return Forbid("Tried to change an exercise not owned by the current user.");
 
             _context.Exercises.Remove(exercise);
             await _context.SaveChangesAsync();
 
-            return Ok($"Deleted Exercise with Id: {id}");
+            return NoContent();
         }
 
         /// <summary>

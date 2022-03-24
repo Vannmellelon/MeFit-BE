@@ -1,20 +1,71 @@
 ﻿using Auth0.AspNetCore.Authentication;
+using MeFit_BE.Models;
+using MeFit_BE.Models.Domain.UserDomain;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Mime;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace MeFit_BE.Controllers
 {
     [Route("api/login")]
     [ApiController]
+    [Authorize]
+    [Produces(MediaTypeNames.Application.Json)]
+    [Consumes(MediaTypeNames.Application.Json)]
+    [ApiConventionType(typeof(MeFitConventions))]
     public class LoginController : ControllerBase
     {
+        private readonly MeFitDbContext _context;
+
+        public LoginController(MeFitDbContext context)
+        {
+            _context = context;
+        }
+
+        public class UserStatus
+        {
+            [JsonProperty("user_status")]
+            public bool UserExists { get; set; }
+        }
+
+        /// <summary>
+        /// Checks if currently logged in user exists in database.
+        /// </summary>
+        /// <returns>Returns a JSON object with a boolean.</returns>
+        [HttpGet]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(401)]
+        public async Task<ActionResult<UserStatus>> Login()
+        {
+            // Frontend uses this to know where to redirect the user
+
+            User user = await Helper.GetCurrentUser(HttpContext, _context);
+            UserStatus userStatus = new();
+
+            if (user == null)
+            {
+                userStatus.UserExists = false;
+            }
+            else
+            {
+                userStatus.UserExists = true;
+            }
+
+            var json = JsonConvert.SerializeObject(userStatus);
+
+            return Ok(json);
+        }
+
         /*
         [HttpGet("private")]
         //[Authorize()]
