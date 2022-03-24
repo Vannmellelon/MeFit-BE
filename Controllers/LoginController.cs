@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,6 +34,7 @@ namespace MeFit_BE.Controllers
 
         public class UserStatus
         {
+            [JsonProperty("user_status")]
             public bool UserExists { get; set; }
         }
 
@@ -59,7 +61,9 @@ namespace MeFit_BE.Controllers
                 userStatus.UserExists = true;
             }
 
-            return Ok(Newtonsoft.Json.JsonConvert.SerializeObject(userStatus));
+            var json = JsonConvert.SerializeObject(userStatus);
+
+            return Ok(json);
         }
 
         /*
