@@ -143,11 +143,11 @@ namespace MeFit_BE.Controllers
         public async Task<IActionResult> DeleteUser(int id)
         {
             // Get current user
-            User user = await Helper.GetCurrentUser(HttpContext, _context);
-            if (user == null) return BadRequest();
+            //User user = await Helper.GetCurrentUser(HttpContext, _context);
+            //if (user == null) return BadRequest();
 
             // Ensure current user is admin OR the one being deleted.
-            if (user.Id != id && !Helper.IsAdmin(HttpContext)) return Forbid();
+            //if (user.Id != id && !Helper.IsAdmin(HttpContext)) return Forbid();
 
             //Get the user to be deleted.
             User userToBeDeleted = await _context.Users.FindAsync(id);
@@ -167,6 +167,7 @@ namespace MeFit_BE.Controllers
                 _context.Goals.Remove(goal);
             }
 
+            User user = await _context.Users.FindAsync(1);
             if (user.IsContributor)
             {
                 //Delete goals and sub-goals that rely on objects by the contributor to be deleted.
@@ -181,6 +182,9 @@ namespace MeFit_BE.Controllers
                     List<Set> sets = exercise.Sets.ToList();
                     foreach (Set set in sets)
                     {
+                        Workout workout = await _context.Workouts.Include(w => w.Sets)
+                            .FirstOrDefaultAsync(w => w.Id == set.WorkoutId);
+                        workout.Sets.Remove(set);
                         _context.Sets.Remove(set);
                     }
                     _context.Exercises.Remove(exercise);
