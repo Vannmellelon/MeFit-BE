@@ -3,6 +3,7 @@ using System.Net.Mime;
 using System.Threading.Tasks;
 using AutoMapper;
 using MeFit_BE.Models;
+using MeFit_BE.Models.Domain;
 using MeFit_BE.Models.Domain.UserDomain;
 using MeFit_BE.Models.DTO;
 using MeFit_BE.Models.DTO.Profile;
@@ -97,12 +98,43 @@ namespace MeFit_BE.Controllers
         [HttpPost]
         public async Task<ActionResult<UserReadDTO>> PostUser([FromBody] UserWriteDTO userDTO)
         {
+            // Validates custom-type parameters
+            if (userDTO == null) return BadRequest();
+            if (!Difficulty.IsValid(userDTO.FitnessLevel)) return BadRequest("Please enter a valid difficulty-category." + userDTO.FitnessLevel + " is not valid.");
+            foreach (var res in userDTO.RestrictedCategories.Split(","))
+            {
+                // no category should be allowed
+                if (!Category.IsValid(res)) return BadRequest("Please enter a valid exercise-category. " + res + " is not valid.");
+            }
+
             User user = _mapper.Map<User>(userDTO);
             user.AuthId = Helper.GetExternalUserProviderId(HttpContext);
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetUser), new { Id = user.Id }, _mapper.Map<UserReadDTO>(user));
+        }
+
+
+        /// <summary>
+        /// Allows a user to submit a request to become a contributor.
+        /// User must already be registered in the database to submit this request.
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost("contributer-request")]
+        public async Task<ActionResult> PostRequestContributor()
+        {
+            // Check if user is in database, submit request for contributor-status.
+            User user = await Helper.GetCurrentUser(HttpContext, _context);
+            if (user == null) return BadRequest();
+
+            ContributorRequest cr = new ContributorRequest();
+            cr.RequestingUser = user;
+
+            _context.ContributorRequests.Add(cr);
+            await _context.SaveChangesAsync();
+
+            return Ok();
         }
 
 

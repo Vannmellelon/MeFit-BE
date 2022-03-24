@@ -22,6 +22,7 @@ namespace MeFit_BE.Models
         public DbSet<Set> Sets { get; set; } 
         public DbSet<SubGoal> SubGoals { get; set; }
         public DbSet<Workout> Workouts { get; set; }
+        public DbSet<ContributorRequest> ContributorRequests { get; set; }
 
 
         public MeFitDbContext([NotNullAttribute] DbContextOptions options) : base(options) { }

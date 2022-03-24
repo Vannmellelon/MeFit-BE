@@ -16,6 +16,10 @@ namespace MeFit_BE.Models.DTO
 
         public bool IsAdmin { get; set; }
 
+        public string FitnessLevel { get; set; }
+
+        public string RestrictedCategories { get; set; }
+
         public List<int> Goals { get; set; }
     }
 }

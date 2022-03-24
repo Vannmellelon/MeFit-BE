@@ -1,7 +1,9 @@
 ﻿using Auth0.AuthenticationApi;
 using Auth0.AuthenticationApi.Models;
+using AutoMapper;
 using MeFit_BE.Models;
 using MeFit_BE.Models.Domain.UserDomain;
+using MeFit_BE.Models.DTO.ContributorRequest;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -19,21 +21,23 @@ namespace MeFit_BE.Controllers
 {
     [Route("api/admin")]
     [ApiController]
-    //[Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
     public class AdminController : ControllerBase
     {
         private readonly HttpClient _client;
         private readonly MeFitDbContext _context;
+        private readonly IMapper _mapper;
 
         // Auth0 Management API 
         private readonly string BASE_URL = "https://dev-o072w2hj.eu.auth0.com/api/v2/";
 
-        public AdminController(HttpClient client, MeFitDbContext context)
+        public AdminController(HttpClient client, MeFitDbContext context, IMapper mapper)
         {
             _client = client;
             _client.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Bearer", GetAccessTokenAsync().Result);
             _context = context;
+            _mapper = mapper;
         }
 
         /// <summary>
@@ -165,6 +169,33 @@ namespace MeFit_BE.Controllers
             await UpdateDBRolesAsync(id, role);
 
             return Ok();
+        }
+
+        // Methods for contributor requests
+
+        /// <summary>
+        /// Get all pending contributor requests.
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("contributer-request")]
+        public async Task<IEnumerable<ContributorRequestReadDTO>> GetPendingContributorRequests()
+        {
+            return _mapper.Map<List<ContributorRequestReadDTO>>(await _context.ContributorRequests.ToListAsync());
+        }
+
+        /// <summary>
+        /// Delete a contributor request
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpDelete("contributer-request/{id}")]
+        public async Task<ActionResult> DeleteContributorRequest(int id)
+        {
+            ContributorRequest cr = await _context.ContributorRequests.FirstOrDefaultAsync(x => x.Id == id);
+            _context.ContributorRequests.Remove(cr);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
 
         private string GetRoleBody(string role)
