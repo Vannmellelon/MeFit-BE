@@ -19,7 +19,7 @@ namespace MeFit_BE.Controllers
 {
     [Route("api/admin")]
     [ApiController]
-    [Authorize(Roles = "Admin")]
+    //[Authorize(Roles = "Admin")]
     public class AdminController : ControllerBase
     {
         private readonly HttpClient _client;
@@ -73,6 +73,40 @@ namespace MeFit_BE.Controllers
             return token.AccessToken;
         }
 
+
+        [HttpPatch("users/{id}")]
+        public async Task<IActionResult> PatchUser(string id, string email, string nickname) 
+        {
+            var url = BASE_URL + $"users/{id}";
+
+            //var body = new Auth0UserBody() { Name = "Bob" };
+
+            var body = new Auth0UserBody()
+            {
+                ClientId = "ViXbPTcrznJsmZxaEze6IdPXCZrGB4rp",
+                Connection = "Username-Password-Authentication",
+                Email = email,
+                Nickname = nickname
+                //Password = password
+            };
+
+            var json = JsonConvert.SerializeObject(body);
+
+            await _client.PatchAsync(url, new StringContent(json, Encoding.UTF8, "application/json"));
+
+            User user = await _context.Users.FirstOrDefaultAsync(u => u.AuthId == id);
+
+            if (user != null)
+            {
+                // Updates Email of User in DB
+                user.Email = email;
+                _context.Entry(user).State = EntityState.Modified;
+                _context.SaveChanges();
+            }
+
+            return Ok(json);
+        }
+
         [HttpPost("users/{id}/roles")]
         public async Task<IActionResult> UpdateUserRoles(string id, string role)
         {
@@ -112,6 +146,7 @@ namespace MeFit_BE.Controllers
         {
             //Get user from database.
             User user = await _context.Users.FirstOrDefaultAsync(u => u.AuthId == id);
+            //User user = await _context.Users.FirstOrDefaultAsync(u => u.Id == 1);
 
             if (user != null)
             {
@@ -139,39 +174,43 @@ namespace MeFit_BE.Controllers
 
         }
 
+
+        public class Auth0UserBody
+        {
+            [JsonProperty("client_id")]
+            public string ClientId { get; set; }
+
+            [JsonProperty("connection")]
+            public string Connection { get; set; }
+
+            [JsonProperty("email")]
+            public string Email { get; set; }
+
+            [JsonProperty("nickname")]
+            public string Nickname { get; set; } 
+
+            //[JsonProperty("password")]
+            //public string Password { get; set; }
+        }
+
         /*
-       [HttpPost("users/{id}/password")]
-       public async Task<IActionResult> postPassword(string id, string password)
-       {
-           var url = BASE_URL + $"users/{id}/roles";
-           // /api/v2/tickets/password-change
 
-           //var response = await _client.PostAsync(“dbconnections / change_password”, content);
+        [HttpPost("users/{id}/password")]
+        public async Task<IActionResult> postPassword(string id, string password)
+        {
+            var url = BASE_URL + $"users/{id}/roles";
+            // /api/v2/tickets/password-change
 
-           //string body = GetRoleBody(role); 
-           //if (body == null) return BadRequest();
+            //var response = await _client.PostAsync(“dbconnections / change_password”, content);
 
-           //await _client.PostAsync(url, new StringContent(body, Encoding.UTF8, "application/json"));
+            //string body = GetRoleBody(role); 
+            //if (body == null) return BadRequest();
 
-           return Ok();
-       }
+            //await _client.PostAsync(url, new StringContent(body, Encoding.UTF8, "application/json"));
 
-       [HttpPost("users/{id}/password")]
-       public async Task<IActionResult> postPassword(string id, string password)
-       {
-           var url = BASE_URL + $"users/{id}/roles";
-           // /api/v2/tickets/password-change
-
-           //var response = await _client.PostAsync(“dbconnections / change_password”, content);
-
-           //string body = GetRoleBody(role); 
-           //if (body == null) return BadRequest();
-
-           //await _client.PostAsync(url, new StringContent(body, Encoding.UTF8, "application/json"));
-
-           return Ok();
-       }
-       */
+            return Ok();
+        }
+        */
 
         /*
         public class AccessTokenRequestBody
