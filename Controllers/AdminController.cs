@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -22,7 +23,10 @@ namespace MeFit_BE.Controllers
 {
     [Route("api/admin")]
     [ApiController]
-    //[Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [Consumes(MediaTypeNames.Application.Json)]
+    [ApiConventionType(typeof(MeFitConventions))]
     public class AdminController : ControllerBase
     {
         private readonly HttpClient _client;
@@ -48,18 +52,7 @@ namespace MeFit_BE.Controllers
         [HttpGet("auth0")]
         public async Task<IActionResult> GetToken()
         {
-            var client = new AuthenticationApiClient(new Uri("https://dev-o072w2hj.eu.auth0.com/"));
-
-            var request = new ClientCredentialsTokenRequest
-            {
-                Audience = "https://dev-o072w2hj.eu.auth0.com/api/v2/",
-                ClientId = "4XDd6Abg3AwWP0Zd4coiF2N547u4etgr",
-                ClientSecret = "5urccG3ubdhB3Q7UkMU4A8F5r5cUaeE_3L7re-wVT0Eq1PriylPu5H7mExUQRRAB"
-            };
-
-            var token = await client.GetTokenAsync(request);
-
-            return Ok(token);
+            return Ok(await GetAccessTokenAsync());
         }
 
         /// <summary>
@@ -99,7 +92,7 @@ namespace MeFit_BE.Controllers
                 _context.SaveChanges();
             }
 
-            return Ok(json);
+            return Ok();
         }
 
         /// <summary>
