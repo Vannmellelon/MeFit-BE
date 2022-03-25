@@ -92,7 +92,7 @@ namespace MeFit_BE.Services
             }
         }
 
-        public async Task UpdateUserRolesAsync(string id, Auth0RoleBody body) 
+        public async Task UpdateUserRolesAsync(string id, string role, Auth0RoleBody body) 
         {
             var url = BASE_URL + $"users/{id}/roles";
 
@@ -110,12 +110,43 @@ namespace MeFit_BE.Services
             var json = JsonConvert.SerializeObject(body);
             await _client.PostAsync(url, new StringContent(json, Encoding.UTF8, "application/json"));
 
-            //await UpdateDBRolesAsync(id, role);
+            await UpdateDBRolesAsync(id, role);
         }
 
         public bool UserExists(string id)
         {
             return _context.Users.Any(u => u.AuthId == id);
+        }
+
+        private async Task UpdateDBRolesAsync(string id, string role)
+        {
+            //Get user from database.
+            User user = await _context.Users.FirstOrDefaultAsync(u => u.AuthId == id);
+            //User user = await _context.Users.FirstOrDefaultAsync(u => u.Id == 1);
+
+            if (user != null)
+            {
+                // Assign Auth0 Roles and make User an Administrator or Contributor in DB
+                switch (role)
+                {
+                    case "Admin":
+                        user.IsAdmin = true;
+                        user.IsContributor = true;
+                        break;
+                    case "Contributor":
+                        user.IsAdmin = false;
+                        user.IsContributor = true;
+                        break;
+                    case "User":
+                        user.IsAdmin = false;
+                        user.IsContributor = false;
+                        break;
+                    default:
+                        return;
+                }
+                _context.Entry(user).State = EntityState.Modified;
+                _context.SaveChanges();
+            }
         }
     }
 }

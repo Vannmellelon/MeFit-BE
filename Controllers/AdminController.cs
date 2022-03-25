@@ -30,20 +30,14 @@ namespace MeFit_BE.Controllers
     [ApiConventionType(typeof(MeFitConventions))]
     public class AdminController : ControllerBase
     {
-        private readonly HttpClient _client;
+        //private readonly HttpClient _client;
         private readonly MeFitDbContext _context;
         private readonly IAuth0Service _auth0Service; 
         private readonly IMapper _mapper;
 
-        // Auth0 Management API 
-        private readonly string BASE_URL = "https://dev-o072w2hj.eu.auth0.com/api/v2/";
-
-        public AdminController(IAuth0Service auth0Service, HttpClient client, MeFitDbContext context, IMapper mapper)
+        public AdminController(IAuth0Service auth0Service, MeFitDbContext context, IMapper mapper)
         {
             _auth0Service = auth0Service;
-            _client = client;
-            _client.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", auth0Service.GetAccessTokenAsync().Result);
             _context = context;
             _mapper = mapper;
         }
@@ -96,15 +90,9 @@ namespace MeFit_BE.Controllers
         {
             var body = new Auth0RoleBody(role);
             if (body.Roles == null) return BadRequest();
+            // Todo: if (!_auth0Service.UserExists(id)) return NotFound($"User with Auth0 Id: {id} was not found");
 
-
-            // Todo: 
-            //if (!_auth0Service.UserExists(id))
-            //    return NotFound($"User with Auth0 Id: {id} was not found");
-
-            await _auth0Service.UpdateUserRolesAsync(id, body);
-
-            await UpdateDBRolesAsync(id, role);
+            await _auth0Service.UpdateUserRolesAsync(id, role, body);
 
             return Ok();
         }
@@ -139,77 +127,27 @@ namespace MeFit_BE.Controllers
         [HttpGet("users")]
         private async Task<IActionResult> GetUsers()
         {
-            var response = await _client.GetStringAsync(BASE_URL + "users");
+            //var response = await _client.GetStringAsync(BASE_URL + "users");
+            var response = await _auth0Service.GetAccessTokenAsync();
             return Ok(response);
         }
 
         [HttpGet("users/{id}")]
         private async Task<IActionResult> GetUser(string id)
         {
-            var url = BASE_URL + $"users/{id}";
-            var response = await _client.GetStringAsync(url);
+            //var url = BASE_URL + $"users/{id}";
+            //var response = await _client.GetStringAsync(url);
+            var response = await _auth0Service.GetAccessTokenAsync();
             return Ok(response);
         }
 
         [HttpGet("users/{id}/roles")]
         private async Task<IActionResult> GetUserRoles(string id)
         {
-            var url = BASE_URL + $"users/{id}/roles";
-            var response = await _client.GetStringAsync(url);
+            //var url = BASE_URL + $"users/{id}/roles";
+            //var response = await _client.GetStringAsync(url);
+            var response = await _auth0Service.GetAccessTokenAsync();
             return Ok(response);
-        }
-
-        //private static async Task<string> GetAccessTokenAsync()
-        //{
-        //    var client = new AuthenticationApiClient(new Uri("https://dev-o072w2hj.eu.auth0.com/"));
-
-        //    var request = new ClientCredentialsTokenRequest
-        //    {
-        //        Audience = "https://dev-o072w2hj.eu.auth0.com/api/v2/",
-        //        ClientId = "4XDd6Abg3AwWP0Zd4coiF2N547u4etgr",
-        //        ClientSecret = "5urccG3ubdhB3Q7UkMU4A8F5r5cUaeE_3L7re-wVT0Eq1PriylPu5H7mExUQRRAB"
-        //    };
-
-        //    var token = await client.GetTokenAsync(request);
-
-        //    return token.AccessToken;
-        //}
-
-        private async Task UpdateDBRolesAsync(string id, string role)
-        {
-            //Get user from database.
-            User user = await _context.Users.FirstOrDefaultAsync(u => u.AuthId == id);
-            //User user = await _context.Users.FirstOrDefaultAsync(u => u.Id == 1);
-
-            if (user != null)
-            {
-                // Assign Auth0 Roles and make User an Administrator or Contributor in DB
-                switch (role)
-                {
-                    case "Admin":
-                        user.IsAdmin = true;
-                        user.IsContributor = true;
-                        break;
-                    case "Contributor":
-                        user.IsAdmin = false;
-                        user.IsContributor = true;
-                        break;
-                    case "User":
-                        user.IsAdmin = false;
-                        user.IsContributor = false;
-                        break;
-                    default:
-                        return;
-                }
-                _context.Entry(user).State = EntityState.Modified;
-                _context.SaveChanges();
-            }
-        }
-
-        private static string GetJsonRoles()
-        {
-            var rolesBody = new Auth0RoleBody("Admin");
-            return JsonConvert.SerializeObject(rolesBody); ;
         }
 
     }

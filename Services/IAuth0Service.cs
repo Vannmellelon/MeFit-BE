@@ -10,9 +10,9 @@ namespace MeFit_BE.Services
     public interface IAuth0Service
     {
         public Task<String> GetAccessTokenAsync();
-        public Task UpdateUserRolesAsync(string id, Auth0RoleBody body); 
-        public Task UpdateUserAsync(string id, string email, string nickname); 
         public Task DeleteUserAsync(string id);  
+        public Task UpdateUserAsync(string id, string email, string nickname); 
+        public Task UpdateUserRolesAsync(string id, string role, Auth0RoleBody body);
         public bool UserExists(string id); 
     }
 }
