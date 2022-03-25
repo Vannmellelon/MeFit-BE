@@ -13,10 +13,10 @@ namespace MeFit_BE.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Street = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Street = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     PostalCode = table.Column<int>(type: "int", maxLength: 4, nullable: false),
-                    PostalPlace = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Country = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    PostalPlace = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true),
+                    Country = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -29,9 +29,11 @@ namespace MeFit_BE.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FirstName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    LastName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    FitnessLevel = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    RestrictedCategories = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     AuthId = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     IsContributor = table.Column<bool>(type: "bit", nullable: false),
                     IsAdmin = table.Column<bool>(type: "bit", nullable: false)
@@ -42,28 +44,46 @@ namespace MeFit_BE.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ContributorRequests",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    RequestingUserId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ContributorRequests", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ContributorRequests_User_RequestingUserId",
+                        column: x => x.RequestingUserId,
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Exercise",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    TargetMuscleGroup = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Image = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Video = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ContributorId = table.Column<int>(type: "int", nullable: false),
-                    ContributedById = table.Column<int>(type: "int", nullable: true)
+                    Category = table.Column<string>(type: "nvarchar(15)", maxLength: 15, nullable: true),
+                    ContributorId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Exercise", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Exercise_User_ContributedById",
-                        column: x => x.ContributedById,
+                        name: "FK_Exercise_User_ContributorId",
+                        column: x => x.ContributorId,
                         principalTable: "User",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -102,20 +122,20 @@ namespace MeFit_BE.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Type = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ContributorId = table.Column<int>(type: "int", nullable: false),
-                    ContributedById = table.Column<int>(type: "int", nullable: true)
+                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    Category = table.Column<string>(type: "nvarchar(15)", maxLength: 15, nullable: true),
+                    Difficulty = table.Column<string>(type: "nvarchar(15)", maxLength: 15, nullable: true),
+                    ContributorId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Workout", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Workout_User_ContributedById",
-                        column: x => x.ContributedById,
+                        name: "FK_Workout_User_ContributorId",
+                        column: x => x.ContributorId,
                         principalTable: "User",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -124,17 +144,17 @@ namespace MeFit_BE.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Category = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ContributorId = table.Column<int>(type: "int", nullable: false),
-                    ContributedById = table.Column<int>(type: "int", nullable: true)
+                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    Category = table.Column<string>(type: "nvarchar(15)", maxLength: 15, nullable: true),
+                    Difficulty = table.Column<string>(type: "nvarchar(15)", maxLength: 15, nullable: true),
+                    ContributorId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_WorkoutProgram", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_WorkoutProgram_User_ContributedById",
-                        column: x => x.ContributedById,
+                        name: "FK_WorkoutProgram_User_ContributorId",
+                        column: x => x.ContributorId,
                         principalTable: "User",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
@@ -147,8 +167,8 @@ namespace MeFit_BE.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ExerciseRepetitions = table.Column<int>(type: "int", nullable: false),
-                    WorkoutId = table.Column<int>(type: "int", nullable: false),
-                    ExerciseId = table.Column<int>(type: "int", nullable: false)
+                    WorkoutId = table.Column<int>(type: "int", nullable: true),
+                    ExerciseId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -157,14 +177,12 @@ namespace MeFit_BE.Migrations
                         name: "FK_Set_Exercise_ExerciseId",
                         column: x => x.ExerciseId,
                         principalTable: "Exercise",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Set_Workout_WorkoutId",
                         column: x => x.WorkoutId,
                         principalTable: "Workout",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -176,7 +194,7 @@ namespace MeFit_BE.Migrations
                     EndData = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Achieved = table.Column<bool>(type: "bit", nullable: false),
                     UserId = table.Column<int>(type: "int", nullable: false),
-                    WorkoutProgramId = table.Column<int>(type: "int", nullable: false)
+                    WorkoutProgramId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -192,7 +210,7 @@ namespace MeFit_BE.Migrations
                         column: x => x.WorkoutProgramId,
                         principalTable: "WorkoutProgram",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -227,7 +245,7 @@ namespace MeFit_BE.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Achieved = table.Column<bool>(type: "bit", nullable: false),
                     GoalId = table.Column<int>(type: "int", nullable: false),
-                    WorkoutId = table.Column<int>(type: "int", nullable: false)
+                    WorkoutId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -243,7 +261,7 @@ namespace MeFit_BE.Migrations
                         column: x => x.WorkoutId,
                         principalTable: "Workout",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.InsertData(
@@ -257,44 +275,67 @@ namespace MeFit_BE.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "Exercise",
-                columns: new[] { "Id", "ContributedById", "ContributorId", "Description", "Image", "Name", "TargetMuscleGroup", "Video" },
+                table: "User",
+                columns: new[] { "Id", "AuthId", "Email", "FirstName", "FitnessLevel", "IsAdmin", "IsContributor", "LastName", "RestrictedCategories" },
                 values: new object[,]
                 {
-                    { 1, null, 0, "Lay on your back with your hands behind your head, and move your upper body up and down.", null, "Crunch", "Stomach", null },
-                    { 2, null, 0, "Hands on the floor. Straighten out your body and lift yourself down to the floor and back up by bending you arms.", null, "Push-up", "Arms", null },
-                    { 3, null, 0, "Lay down on the floor. Then lift and hold yourself up on your elbows and toes. Hold and breath.", null, "Plank", "All", null },
-                    { 4, null, 0, "Jump up and down while opening and closing your legs and lifting your arms over your head.", null, "Jumping Jacks", "Stamina", null }
+                    { 1, null, "kari.nordmann@gmail.com", "Kari", null, true, true, "Nordmann", null },
+                    { 2, null, "ola.hansen@gmail.com", "Ola", null, false, true, "Hansen", null },
+                    { 3, null, "else.berg@gmail.com", "Else", null, false, false, "Berg", null },
+                    { 9, null, "anneelarsen98@gmail.com", "Anne E.", null, false, true, "Larsen", null }
                 });
 
             migrationBuilder.InsertData(
-                table: "User",
-                columns: new[] { "Id", "AuthId", "Email", "FirstName", "IsAdmin", "IsContributor", "LastName" },
+                table: "Exercise",
+                columns: new[] { "Id", "Category", "ContributorId", "Description", "Image", "Name", "Video" },
                 values: new object[,]
                 {
-                    { 1, null, "kari.nordmann@gmail.com", "Kari", true, true, "Nordmann" },
-                    { 2, null, "ola.hansen@gmail.com", "Ola", false, true, "Hansen" },
-                    { 3, null, "else.berg@gmail.com", "Else", false, false, "Berg" }
+                    { 1, "Core", 1, "Lay on your back with your hands behind your head, and move your upper body up and down.", "https://us.123rf.com/450wm/lioputra/lioputra2011/lioputra201100006/158485483-man-doing-sit-ups-exercise-abdominals-exercise-flat-vector-illustration-isolated-on-white-background.jpg?ver=6", "Crunch", null },
+                    { 2, "Arms", 1, "Hands on the floor. Straighten out your body and lift yourself down to the floor and back up by bending you arms.", null, "Push-up", "https://youtu.be/uCNgB_rU3IQ?t=5" },
+                    { 9, "Arms", 9, "Grab onto the bar and hang with your arms fully extended. Pull yourself up, with controll, untill your chin is above the bar. Try to keep the rest of your body still, be mindfull not to bend your hips or knees. Slowly lower yourself down into the starting position, with controll. Repeat.", "https://evofitness.no/wp-content/uploads/2019/12/pullupfront.png__666x666_q85_subsampling-2.jpeg", "Pull Up", null },
+                    { 11, "Arms", 9, "Grasp the two bars. Extend your arms so that they support your full weight, your legs should be hanging. Lower your body down by bending your elbows. Throughout the exercise, your elbows should be in line with your wrists. Your shoulders should be almost parallell with your elbows before pushing your body up again. Repeat.", "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Dipexercise.svg/300px-Dipexercise.svg.png", "Dips", null },
+                    { 8, "Legs", 9, "Stand with your feet shoulder-width apart. Grasp the bar with your hands just outside your legs. Lift the bar by driving your hips forward, keeping a flat back. Lower the bar with controll. Repeat.", "https://cdn.mos.cms.futurecdn.net/pcDfKtAmMLgLLbXc8sSAkF-970-80.jpg.webp", "Deadlift", "https://youtu.be/ABga0-lEY58?t=5" },
+                    { 10, "Arms", 9, "Lie down on your back on the bench. Your feet should rest flat on the ground. Grasp the bar, positioning your hands slightly wider than your shoulders. Lift the bar and hold it over your chest. Slowly lower the bar towards your chest. Push the bar away from your chest, until your arms are fully extended. Repeat", "https://image.shutterstock.com/image-illustration/closegrip-barbell-bench-press-3d-260nw-430936051.jpg", "Bench Press", null },
+                    { 6, "Arms", 9, "Adjust seat and weights to an approperiate level. Grab handles, your elbows should point to the floor. Lift the handles by extending your elbows all the way. Make sure your lower back remains in contact with the backrest throughout. Lower arms with controll. Repeat.", null, "Seated Shoulder-press Machine", "https://youtu.be/OD5pz7-703U" },
+                    { 3, "Full body", 2, "Lay down on the floor. Then lift and hold yourself up on your elbows and toes. Hold and breath.", null, "Plank", "https://youtu.be/HW4yjoCkbm0?t=5" },
+                    { 4, "Stamina", 2, "Jump up and down while opening and closing your legs and lifting your arms over your head.", null, "Jumping Jacks", null },
+                    { 7, "Arms", 9, "Row, row, row your boat.", null, "Rowing Machine", "https://youtu.be/g2Q-etHs9LI?t=4" },
+                    { 5, "Arms", 9, "Adjust seat and weights to an approperiate level. Grab handles, your elbows should be parallell to the floor. Push handles away from your chest by extending your elbows all the way. Make sure your back remains in contact with the backrest throughout. Pull your arms back towards you with controll. Repeat.", null, "Chest-press Machine", "https://youtu.be/IbeA5ypeMns?t=5" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Profile",
+                columns: new[] { "Id", "AddressId", "Disabilities", "Height", "MedicalConditions", "UserId", "Weight" },
+                values: new object[,]
+                {
+                    { 1, 1, null, 170, null, 1, 89 },
+                    { 3, 3, "Wheelchair-bound", 164, null, 3, 78 },
+                    { 2, 2, null, 145, null, 2, 150 }
                 });
 
             migrationBuilder.InsertData(
                 table: "Workout",
-                columns: new[] { "Id", "ContributedById", "ContributorId", "Name", "Type" },
+                columns: new[] { "Id", "Category", "ContributorId", "Difficulty", "Name" },
                 values: new object[,]
                 {
-                    { 1, null, 0, "Strengthify", "Strength" },
-                    { 2, null, 0, "Stamina Builder", "Stamina" },
-                    { 3, null, 0, "Fitness", "Fitness" }
+                    { 3, "Full body", 2, "Intermediate", "Fitness" },
+                    { 2, "Stamina", 1, "Expert", "Stamina Builder" },
+                    { 1, "Core", 1, "Beginner", "Strengthify" },
+                    { 4, "Arms", 9, "Beginner", "Machine Trio" },
+                    { 5, "Full body", 9, "Intermediate", "The Compound Collection 1" },
+                    { 6, "Arms", 9, "Intermediate", "The Compound Collection 2" }
                 });
 
             migrationBuilder.InsertData(
                 table: "WorkoutProgram",
-                columns: new[] { "Id", "Category", "ContributedById", "ContributorId", "Name" },
+                columns: new[] { "Id", "Category", "ContributorId", "Difficulty", "Name" },
                 values: new object[,]
                 {
-                    { 1, "Upper-body Strength", null, 0, "Hot and Heavy" },
-                    { 2, "Fitness", null, 0, "The Wellness Yourney" },
-                    { 3, "Stamina", null, 0, "The Runner" }
+                    { 3, "Stamina", 2, "Expert", "The Runner" },
+                    { 2, "Flexibility", 1, "Intermediate", "The Wellness Yourney" },
+                    { 1, "Full body", 1, "Beginner", "Hot and Heavy" },
+                    { 4, "Full body", 9, "Beginner", "Nice and Easy" },
+                    { 5, "Full body", 9, "Intermediate", "The Compound Collection" }
                 });
 
             migrationBuilder.InsertData(
@@ -308,16 +349,6 @@ namespace MeFit_BE.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "Profile",
-                columns: new[] { "Id", "AddressId", "Disabilities", "Height", "MedicalConditions", "UserId", "Weight" },
-                values: new object[,]
-                {
-                    { 1, 1, null, 170, null, 1, 89 },
-                    { 2, 2, null, 145, null, 2, 150 },
-                    { 3, 3, "Wheelchair-bound", 164, null, 3, 78 }
-                });
-
-            migrationBuilder.InsertData(
                 table: "Set",
                 columns: new[] { "Id", "ExerciseId", "ExerciseRepetitions", "WorkoutId" },
                 values: new object[,]
@@ -325,7 +356,14 @@ namespace MeFit_BE.Migrations
                     { 1, 1, 20, 1 },
                     { 2, 2, 10, 2 },
                     { 4, 4, 30, 2 },
-                    { 3, 3, 1, 3 }
+                    { 3, 3, 1, 3 },
+                    { 5, 5, 15, 4 },
+                    { 6, 6, 15, 4 },
+                    { 7, 7, 15, 4 },
+                    { 8, 8, 12, 5 },
+                    { 9, 9, 12, 5 },
+                    { 10, 10, 12, 6 },
+                    { 11, 11, 12, 6 }
                 });
 
             migrationBuilder.InsertData(
@@ -340,9 +378,14 @@ namespace MeFit_BE.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Exercise_ContributedById",
+                name: "IX_ContributorRequests_RequestingUserId",
+                table: "ContributorRequests",
+                column: "RequestingUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Exercise_ContributorId",
                 table: "Exercise",
-                column: "ContributedById");
+                column: "ContributorId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Goal_UserId",
@@ -385,14 +428,14 @@ namespace MeFit_BE.Migrations
                 column: "WorkoutId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Workout_ContributedById",
+                name: "IX_Workout_ContributorId",
                 table: "Workout",
-                column: "ContributedById");
+                column: "ContributorId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_WorkoutProgram_ContributedById",
+                name: "IX_WorkoutProgram_ContributorId",
                 table: "WorkoutProgram",
-                column: "ContributedById");
+                column: "ContributorId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_WorkoutWorkoutProgram_WorkoutsId",
@@ -402,6 +445,9 @@ namespace MeFit_BE.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "ContributorRequests");
+
             migrationBuilder.DropTable(
                 name: "Profile");
 
