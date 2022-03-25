@@ -132,15 +132,21 @@ namespace MeFit_BE.Controllers
 
             //Get user and exercise from database.
             User user = await Helper.GetCurrentUser(HttpContext, _context);
-            if (user == null) { return NotFound("No current user could be found."); }
+            if (user == null) { return BadRequest(); }
             if (!ExerciseExists(id))
                 return NotFound($"Exercise with Id: {id} was not found");
             Exercise exercise = await GetExerciseAsync(id);
-
+            
             //Check that the current user owns the exercise.
             if (exercise.Id != user.Id)
                 return Forbid("Tried to change an exercise not owned by the current user.");
 
+            //Delete the sets that belong to the exercise before deleting the exercise.
+            List<Set> sets = exercise.Sets.ToList();
+            foreach (Set set in sets)
+            {
+                _context.Sets.Remove(set);
+            }
             _context.Exercises.Remove(exercise);
             await _context.SaveChangesAsync();
 
@@ -155,7 +161,7 @@ namespace MeFit_BE.Controllers
         /// <returns>Exercise</returns>
         private async Task<Exercise> GetExerciseAsync(int exerciseId) 
         {
-            return await _context.Exercises
+            return await _context.Exercises.Include(e => e.Sets)
                 .SingleOrDefaultAsync(e => e.Id == exerciseId);
         }
 

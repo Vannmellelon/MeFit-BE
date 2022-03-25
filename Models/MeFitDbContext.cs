@@ -216,7 +216,6 @@ namespace MeFit_BE.Models
                 Category = Domain.Category.FULL_BODY,
                 Difficulty = Domain.Difficulty.INTERMEDIATE
             };
-
             Workout nae = new Workout()
             {
                 Id = 4,
@@ -356,7 +355,6 @@ namespace MeFit_BE.Models
                 ContributorId = anne.Id,
                 Category = Domain.Category.ARMS
             };
-
             Exercise compoundDeadlift = new Exercise()
             {
                 Id = 8,
@@ -423,7 +421,7 @@ namespace MeFit_BE.Models
                 Id = 1,
                 ExerciseRepetitions = 20,
                 WorkoutId = workout1.Id,
-                ExerciseId = exercise1.Id,
+                ExerciseId = exercise1.Id
             };
             Set set2 = new Set()
             {
@@ -446,7 +444,6 @@ namespace MeFit_BE.Models
                 WorkoutId = workout2.Id,
                 ExerciseId = exercise4.Id
             };
-
             Set nae1 = new Set()
             {
                 Id = 5,
@@ -497,6 +494,16 @@ namespace MeFit_BE.Models
                 ExerciseId = compoundDips.Id
             };
 
+            modelBuilder.Entity<Set>()
+                    .HasOne(s => s.Workout).WithMany(w => w.Sets)
+                    .HasForeignKey(s => s.WorkoutId)
+                    .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<Set>()
+                    .HasOne(s => s.Exercise).WithMany(e => e.Sets)
+                    .HasForeignKey(s => s.ExerciseId)
+                    .OnDelete(DeleteBehavior.NoAction);
+
             // Save user domain tables
 
             //Save addresses
@@ -513,7 +520,6 @@ namespace MeFit_BE.Models
             modelBuilder.Entity<User>().HasData(user1);
             modelBuilder.Entity<User>().HasData(user2);
             modelBuilder.Entity<User>().HasData(user3);
-            
             modelBuilder.Entity<User>().HasData(anne);
 
             // Save workout domain tables
@@ -522,7 +528,6 @@ namespace MeFit_BE.Models
             modelBuilder.Entity<WorkoutProgram>().HasData(workoutProgram1);
             modelBuilder.Entity<WorkoutProgram>().HasData(workoutProgram2);
             modelBuilder.Entity<WorkoutProgram>().HasData(workoutProgram3);
-            
             modelBuilder.Entity<WorkoutProgram>().HasData(niceAndEasy);
             modelBuilder.Entity<WorkoutProgram>().HasData(compoundCollection);
 
@@ -530,7 +535,6 @@ namespace MeFit_BE.Models
             modelBuilder.Entity<Workout>().HasData(workout1);
             modelBuilder.Entity<Workout>().HasData(workout2);
             modelBuilder.Entity<Workout>().HasData(workout3);
-            
             modelBuilder.Entity<Workout>().HasData(nae);
             modelBuilder.Entity<Workout>().HasData(tcc1);
             modelBuilder.Entity<Workout>().HasData(tcc2);
@@ -540,7 +544,6 @@ namespace MeFit_BE.Models
             modelBuilder.Entity<Exercise>().HasData(exercise2);
             modelBuilder.Entity<Exercise>().HasData(exercise3);
             modelBuilder.Entity<Exercise>().HasData(exercise4);
-            
             modelBuilder.Entity<Exercise>().HasData(machineChest);
             modelBuilder.Entity<Exercise>().HasData(machineRowing);
             modelBuilder.Entity<Exercise>().HasData(machineShoulder);
@@ -549,13 +552,11 @@ namespace MeFit_BE.Models
             modelBuilder.Entity<Exercise>().HasData(compoundDips);
             modelBuilder.Entity<Exercise>().HasData(compoundPullup);
 
-
             //Save sets
             modelBuilder.Entity<Set>().HasData(set1);
             modelBuilder.Entity<Set>().HasData(set2);
             modelBuilder.Entity<Set>().HasData(set3);
             modelBuilder.Entity<Set>().HasData(set4);
-
             modelBuilder.Entity<Set>().HasData(nae1);
             modelBuilder.Entity<Set>().HasData(nae2);
             modelBuilder.Entity<Set>().HasData(nae3);
@@ -576,16 +577,15 @@ namespace MeFit_BE.Models
             modelBuilder.Entity<SubGoal>().HasData(subGoal2);
             modelBuilder.Entity<SubGoal>().HasData(subGoal3);
             modelBuilder.Entity<SubGoal>().HasData(subGoal4);
-
         }
 
         /*
-        // MAGIC??? why...
+        // Reguired when having more than one migration.
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlServer(
-                    "Data Source= ND-5CG92747KF\\SQLEXPRESS; Initial Catalog= MeFitDB; Integrated Security=True;" // Anne
-                    //"Data source=ND-5CG9030MCG\\SQLEXPRESS; Initial Catalog=MovieInfoAPIDB; Integrated Security=True;"); // Miriam
+                    //"Data Source= ND-5CG92747KF\\SQLEXPRESS; Initial Catalog= MeFitDB; Integrated Security=True;" // Anne
+                    "Data source=ND-5CG9030MCG\\SQLEXPRESS; Initial Catalog=MeFitDB; Integrated Security=True;" // Miriam
 
                 );
         }
