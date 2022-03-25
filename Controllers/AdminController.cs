@@ -62,22 +62,6 @@ namespace MeFit_BE.Controllers
             return Ok(token);
         }
 
-        private async Task<string> GetAccessTokenAsync()
-        {
-            var client = new AuthenticationApiClient(new Uri("https://dev-o072w2hj.eu.auth0.com/"));
-
-            var request = new ClientCredentialsTokenRequest
-            {
-                Audience = "https://dev-o072w2hj.eu.auth0.com/api/v2/",
-                ClientId = "4XDd6Abg3AwWP0Zd4coiF2N547u4etgr",
-                ClientSecret = "5urccG3ubdhB3Q7UkMU4A8F5r5cUaeE_3L7re-wVT0Eq1PriylPu5H7mExUQRRAB"
-            };
-
-            var token = await client.GetTokenAsync(request);
-
-            return token.AccessToken;
-        }
-
         /// <summary>
         /// Method Updates User using Auth0 Manegement API and updates User in DB
         /// </summary>
@@ -153,19 +137,22 @@ namespace MeFit_BE.Controllers
         {
             var url = BASE_URL + $"users/{id}/roles";
 
-            string body = GetRoleBody(role);
-            if (body == null) return BadRequest();
+            var body = new Auth0RoleBody(role);
+            if (body.Roles == null) return BadRequest();
 
+            // delete Auth0 roles of User before assigning new ones
             var request = new HttpRequestMessage
             {
-                Content = new StringContent("{ \"roles\": [ \"rol_faU4A9kaqPd9WNXs\", \"rol_29pfwlGC1UEEYnDZ\", \"rol_zVdwxW5XMstHTCc2\" ] }", Encoding.UTF8, "application/json"),
+                Content = new StringContent(GetJsonRoles(), Encoding.UTF8, "application/json"),
+                // Content = new StringContent("{ \"roles\": [ \"rol_faU4A9kaqPd9WNXs\", \"rol_29pfwlGC1UEEYnDZ\", \"rol_zVdwxW5XMstHTCc2\" ] }", Encoding.UTF8, "application/json"),
                 Method = HttpMethod.Delete,
                 RequestUri = new Uri(url)
             };
-
             await _client.SendAsync(request);
 
-            await _client.PostAsync(url, new StringContent(body, Encoding.UTF8, "application/json"));
+            // assign roles to user in Auth0 and update DB
+            var json = JsonConvert.SerializeObject(body);
+            await _client.PostAsync(url, new StringContent(json, Encoding.UTF8, "application/json"));
 
             await UpdateDBRolesAsync(id, role);
 
@@ -199,48 +186,6 @@ namespace MeFit_BE.Controllers
             return NoContent();
         }
 
-        private string GetRoleBody(string role)
-        {
-            return role switch
-            {
-                "Admin" => "{ \"roles\": [ \"rol_faU4A9kaqPd9WNXs\", \"rol_29pfwlGC1UEEYnDZ\", \"rol_zVdwxW5XMstHTCc2\" ] }",
-                "Contributor" => "{ \"roles\": [ \"rol_29pfwlGC1UEEYnDZ\", \"rol_zVdwxW5XMstHTCc2\" ] }",
-                "User" => "{ \"roles\": [ \"rol_zVdwxW5XMstHTCc2\" ] }",
-                _ => null,
-            };
-        }
-
-        private async Task UpdateDBRolesAsync(string id, string role)
-        {
-            //Get user from database.
-            User user = await _context.Users.FirstOrDefaultAsync(u => u.AuthId == id);
-            //User user = await _context.Users.FirstOrDefaultAsync(u => u.Id == 1);
-
-            if (user != null)
-            {
-                // Make user an administrator or Contributor
-                switch (role)
-                {
-                    case "Admin":
-                        user.IsAdmin = true;
-                        user.IsContributor = true;
-                        break;
-                    case "Contributor":
-                        user.IsAdmin = false;
-                        user.IsContributor = true;
-                        break;
-                    case "User":
-                        user.IsAdmin = false;
-                        user.IsContributor = false;
-                        break;
-                    default:
-                        return;
-                }
-                _context.Entry(user).State = EntityState.Modified;
-                _context.SaveChanges();
-            }
-        }
-
         [HttpGet("users")]
         private async Task<IActionResult> GetUsers()
         {
@@ -263,5 +208,59 @@ namespace MeFit_BE.Controllers
             var response = await _client.GetStringAsync(url);
             return Ok(response);
         }
+
+        private static async Task<string> GetAccessTokenAsync()
+        {
+            var client = new AuthenticationApiClient(new Uri("https://dev-o072w2hj.eu.auth0.com/"));
+
+            var request = new ClientCredentialsTokenRequest
+            {
+                Audience = "https://dev-o072w2hj.eu.auth0.com/api/v2/",
+                ClientId = "4XDd6Abg3AwWP0Zd4coiF2N547u4etgr",
+                ClientSecret = "5urccG3ubdhB3Q7UkMU4A8F5r5cUaeE_3L7re-wVT0Eq1PriylPu5H7mExUQRRAB"
+            };
+
+            var token = await client.GetTokenAsync(request);
+
+            return token.AccessToken;
+        }
+
+        private async Task UpdateDBRolesAsync(string id, string role)
+        {
+            //Get user from database.
+            User user = await _context.Users.FirstOrDefaultAsync(u => u.AuthId == id);
+            //User user = await _context.Users.FirstOrDefaultAsync(u => u.Id == 1);
+
+            if (user != null)
+            {
+                // Assign Auth0 Roles and make User an Administrator or Contributor in DB
+                switch (role)
+                {
+                    case "Admin":
+                        user.IsAdmin = true;
+                        user.IsContributor = true;
+                        break;
+                    case "Contributor":
+                        user.IsAdmin = false;
+                        user.IsContributor = true;
+                        break;
+                    case "User":
+                        user.IsAdmin = false;
+                        user.IsContributor = false;
+                        break;
+                    default:
+                        return;
+                }
+                _context.Entry(user).State = EntityState.Modified;
+                _context.SaveChanges();
+            }
+        }
+
+        private static string GetJsonRoles()
+        {
+            var rolesBody = new Auth0RoleBody("Admin");
+            return JsonConvert.SerializeObject(rolesBody); ;
+        }
+
     }
 }
