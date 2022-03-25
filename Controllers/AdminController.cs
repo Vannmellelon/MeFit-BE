@@ -5,6 +5,7 @@ using MeFit_BE.Models;
 using MeFit_BE.Models.Domain.UserDomain;
 using MeFit_BE.Models.DTO.ContributorRequest;
 using MeFit_BE.Models.JSON;
+using MeFit_BE.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -23,7 +24,7 @@ namespace MeFit_BE.Controllers
 {
     [Route("api/admin")]
     [ApiController]
-    [Authorize(Roles = "Admin")]
+    //[Authorize(Roles = "Admin")]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
     [ApiConventionType(typeof(MeFitConventions))]
@@ -31,16 +32,18 @@ namespace MeFit_BE.Controllers
     {
         private readonly HttpClient _client;
         private readonly MeFitDbContext _context;
+        private readonly IAuth0Service _auth0Service; 
         private readonly IMapper _mapper;
 
         // Auth0 Management API 
         private readonly string BASE_URL = "https://dev-o072w2hj.eu.auth0.com/api/v2/";
 
-        public AdminController(HttpClient client, MeFitDbContext context, IMapper mapper)
+        public AdminController(IAuth0Service auth0Service, HttpClient client, MeFitDbContext context, IMapper mapper)
         {
+            _auth0Service = auth0Service;
             _client = client;
             _client.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", GetAccessTokenAsync().Result);
+                new AuthenticationHeaderValue("Bearer", auth0Service.GetAccessTokenAsync().Result);
             _context = context;
             _mapper = mapper;
         }
@@ -52,7 +55,7 @@ namespace MeFit_BE.Controllers
         [HttpGet("auth0")]
         public async Task<IActionResult> GetToken()
         {
-            return Ok(await GetAccessTokenAsync());
+            return Ok(await _auth0Service.GetAccessTokenAsync());
         }
 
         /// <summary>
@@ -66,32 +69,7 @@ namespace MeFit_BE.Controllers
         public async Task<IActionResult> PatchUser(string id, string email, string nickname) 
         {
             // /api/v2/tickets/password-change
-            var url = BASE_URL + $"users/{id}";
-
-            var body = new Auth0UserBody
-            {
-                ClientId = "ViXbPTcrznJsmZxaEze6IdPXCZrGB4rp",
-                Connection = "Username-Password-Authentication",
-                Email = email,
-                Name = email,
-                Nickname = nickname
-                //Password = password
-            };
-
-            var json = JsonConvert.SerializeObject(body);
-
-            await _client.PatchAsync(url, new StringContent(json, Encoding.UTF8, "application/json"));
-
-            User user = await _context.Users.FirstOrDefaultAsync(u => u.AuthId == id);
-
-            if (user != null)
-            {
-                // Updates Email of User in DB
-                user.Email = email;
-                _context.Entry(user).State = EntityState.Modified;
-                _context.SaveChanges();
-            }
-
+            await _auth0Service.UpdateUserAsync(id, email, nickname);
             return Ok();
         }
 
@@ -103,19 +81,7 @@ namespace MeFit_BE.Controllers
         [HttpDelete("users/{id}")]
         public async Task<IActionResult> DeleteUser(string id) 
         {
-            var url = BASE_URL + $"users/{id}";
-
-            await _client.DeleteAsync(url);
-
-            User user = await _context.Users.FirstOrDefaultAsync(u => u.AuthId == id);
-
-            if (user != null)
-            {
-                // Remove User in DB
-                _context.Users.Remove(user);
-                await _context.SaveChangesAsync();
-            }
-
+            await _auth0Service.DeleteUserAsync(id);
             return NoContent();
         }
 
@@ -128,24 +94,15 @@ namespace MeFit_BE.Controllers
         [HttpPost("users/{id}/roles")]
         public async Task<IActionResult> UpdateUserRoles(string id, string role)
         {
-            var url = BASE_URL + $"users/{id}/roles";
-
             var body = new Auth0RoleBody(role);
             if (body.Roles == null) return BadRequest();
 
-            // delete Auth0 roles of User before assigning new ones
-            var request = new HttpRequestMessage
-            {
-                Content = new StringContent(GetJsonRoles(), Encoding.UTF8, "application/json"),
-                // Content = new StringContent("{ \"roles\": [ \"rol_faU4A9kaqPd9WNXs\", \"rol_29pfwlGC1UEEYnDZ\", \"rol_zVdwxW5XMstHTCc2\" ] }", Encoding.UTF8, "application/json"),
-                Method = HttpMethod.Delete,
-                RequestUri = new Uri(url)
-            };
-            await _client.SendAsync(request);
 
-            // assign roles to user in Auth0 and update DB
-            var json = JsonConvert.SerializeObject(body);
-            await _client.PostAsync(url, new StringContent(json, Encoding.UTF8, "application/json"));
+            // Todo: 
+            //if (!_auth0Service.UserExists(id))
+            //    return NotFound($"User with Auth0 Id: {id} was not found");
+
+            await _auth0Service.UpdateUserRolesAsync(id, body);
 
             await UpdateDBRolesAsync(id, role);
 
@@ -155,7 +112,7 @@ namespace MeFit_BE.Controllers
         // Methods for contributor requests
 
         /// <summary>
-        /// Get all pending contributor requests.
+        /// Method fetches all pending contributor requests.
         /// </summary>
         /// <returns></returns>
         [HttpGet("contributer-request")]
@@ -165,7 +122,7 @@ namespace MeFit_BE.Controllers
         }
 
         /// <summary>
-        /// Delete a contributor request
+        /// Method deletes a contributor request
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -202,21 +159,21 @@ namespace MeFit_BE.Controllers
             return Ok(response);
         }
 
-        private static async Task<string> GetAccessTokenAsync()
-        {
-            var client = new AuthenticationApiClient(new Uri("https://dev-o072w2hj.eu.auth0.com/"));
+        //private static async Task<string> GetAccessTokenAsync()
+        //{
+        //    var client = new AuthenticationApiClient(new Uri("https://dev-o072w2hj.eu.auth0.com/"));
 
-            var request = new ClientCredentialsTokenRequest
-            {
-                Audience = "https://dev-o072w2hj.eu.auth0.com/api/v2/",
-                ClientId = "4XDd6Abg3AwWP0Zd4coiF2N547u4etgr",
-                ClientSecret = "5urccG3ubdhB3Q7UkMU4A8F5r5cUaeE_3L7re-wVT0Eq1PriylPu5H7mExUQRRAB"
-            };
+        //    var request = new ClientCredentialsTokenRequest
+        //    {
+        //        Audience = "https://dev-o072w2hj.eu.auth0.com/api/v2/",
+        //        ClientId = "4XDd6Abg3AwWP0Zd4coiF2N547u4etgr",
+        //        ClientSecret = "5urccG3ubdhB3Q7UkMU4A8F5r5cUaeE_3L7re-wVT0Eq1PriylPu5H7mExUQRRAB"
+        //    };
 
-            var token = await client.GetTokenAsync(request);
+        //    var token = await client.GetTokenAsync(request);
 
-            return token.AccessToken;
-        }
+        //    return token.AccessToken;
+        //}
 
         private async Task UpdateDBRolesAsync(string id, string role)
         {
