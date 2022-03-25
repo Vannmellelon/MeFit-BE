@@ -4,12 +4,16 @@ using System.Net.Mime;
 using System.Threading.Tasks;
 using AutoMapper;
 using MeFit_BE.Models;
+using MeFit_BE.Models.Domain;
 using MeFit_BE.Models.Domain.GoalDomain;
 using MeFit_BE.Models.Domain.UserDomain;
 using MeFit_BE.Models.Domain.WorkoutDomain;
 using MeFit_BE.Models.DTO;
+using MeFit_BE.Models.DTO.Exercise;
 using MeFit_BE.Models.DTO.Profile;
 using MeFit_BE.Models.DTO.User;
+using MeFit_BE.Models.DTO.Workout;
+using MeFit_BE.Models.DTO.WorkoutProgram;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -18,7 +22,7 @@ namespace MeFit_BE.Controllers
 {
     [Route("api/user")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
     [ApiConventionType(typeof(MeFitConventions))]
@@ -174,11 +178,11 @@ namespace MeFit_BE.Controllers
         public async Task<IActionResult> DeleteUser(int id)
         {
             // Get current user
-            //User user = await Helper.GetCurrentUser(HttpContext, _context);
-            //if (user == null) return BadRequest();
+            User user = await Helper.GetCurrentUser(HttpContext, _context);
+            if (user == null) return BadRequest();
 
             // Ensure current user is admin OR the one being deleted.
-            //if (user.Id != id && !Helper.IsAdmin(HttpContext)) return Forbid();
+            if (user.Id != id && !Helper.IsAdmin(HttpContext)) return Forbid();
 
             //Get the user to be deleted.
             User userToBeDeleted = await _context.Users.FindAsync(id);
@@ -198,7 +202,6 @@ namespace MeFit_BE.Controllers
                 _context.Goals.Remove(goal);
             }
 
-            User user = await _context.Users.FindAsync(1);
             if (user.IsContributor)
             {
                 //Delete goals and sub-goals that rely on objects by the contributor to be deleted.
@@ -291,6 +294,57 @@ namespace MeFit_BE.Controllers
             _context.SaveChanges();
 
             return Ok();
+        }
+        
+        /// <summary>
+        /// Method fetches all workout programs owned by the contributor with the given id.
+        /// </summary>
+        /// <param name="id">Contributor id</param>
+        /// <returns>List of workout programs.</returns>
+        [HttpGet("{id}/workout-programs")]
+        public async Task<ActionResult<List<WorkoutProgramReadDTO>>> GetContributedPrograms(int id)
+        {
+            User user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+            if (user == null) return NotFound($"No user with id {id} exists.");
+            if (user.IsContributor == false) return BadRequest($"User with id {id} is not a contributor.");
+
+            return Ok(_mapper.Map<List<WorkoutProgramReadDTO>>(
+                await _context.WorkoutPrograms.Where(wp => wp.ContributorId == id).ToListAsync())
+                );
+        }
+    
+        /// <summary>
+        /// Method returns all workouts owned by the contributor with the given id.
+        /// </summary>
+        /// <param name="id">Contributor id</param>
+        /// <returns>List of workouts</returns>
+        [HttpGet("{id}/workouts")]
+        public async Task<ActionResult<List<WorkoutReadDTO>>> GetContributedWorkouts(int id)
+        {
+            User user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+            if (user == null) return NotFound($"No user with id {id} exists.");
+            if (user.IsContributor == false) return BadRequest($"User with id {id} is not a contributor.");
+
+            return Ok(_mapper.Map<List<WorkoutReadDTO>>(
+                await _context.Workouts.Include(w => w.Sets).Where(wp => wp.ContributorId == id).ToListAsync())
+                );
+        }
+
+        /// <summary>
+        /// Method returns all exercises owned by the contributor with the given id.
+        /// </summary>
+        /// <param name="id">Contributor id</param>
+        /// <returns>List of exercises.</returns>
+        [HttpGet("{id}/exercises")]
+        public async Task<ActionResult<List<ExerciseReadDTO>>> GetContributedExercises(int id)
+        {
+            User user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+            if (user == null) return NotFound($"No user with id {id} exists.");
+            if (user.IsContributor == false) return BadRequest($"User with id {id} is not a contributor.");
+
+            return Ok(_mapper.Map<List<ExerciseReadDTO>>(
+                await _context.Exercises.Where(e => e.ContributorId == id).ToListAsync())
+                );
         }
 
         /// <summary>
