@@ -176,11 +176,11 @@ namespace MeFit_BE.Controllers
         public async Task<IActionResult> DeleteUser(int id)
         {
             // Get user from database
-            User user = await Helper.GetCurrentUser(HttpContext, _context);
+            User user = await _context.Users.FindAsync(id);
             if (user == null) return BadRequest();
 
             // Ensure current user is admin OR the one being deleted
-            if (user.Id != id || !Helper.IsAdmin(HttpContext)) return Forbid();
+            if (user.Id != id && !Helper.IsAdmin(HttpContext)) return Forbid();
 
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();

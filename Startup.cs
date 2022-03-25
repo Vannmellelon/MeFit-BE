@@ -7,6 +7,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Auth0.AspNetCore.Authentication;
 using AutoMapper;
+using MeFit_BE.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -74,6 +75,7 @@ namespace MeFit_BE
             services.AddAutoMapper(typeof(Startup));
             services.AddDbContext<Models.MeFitDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("AnneConnection"))); // Use AzureConnection when building docker image
+            services.AddScoped<IAuth0Service, Auth0Service>();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo 
