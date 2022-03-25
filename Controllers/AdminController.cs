@@ -4,6 +4,7 @@ using AutoMapper;
 using MeFit_BE.Models;
 using MeFit_BE.Models.Domain.UserDomain;
 using MeFit_BE.Models.DTO.ContributorRequest;
+using MeFit_BE.Models.JSON;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -21,7 +22,7 @@ namespace MeFit_BE.Controllers
 {
     [Route("api/admin")]
     [ApiController]
-    [Authorize(Roles = "Admin")]
+    //[Authorize(Roles = "Admin")]
     public class AdminController : ControllerBase
     {
         private readonly HttpClient _client;
@@ -90,7 +91,7 @@ namespace MeFit_BE.Controllers
             // /api/v2/tickets/password-change
             var url = BASE_URL + $"users/{id}";
 
-            var body = new Auth0UserBody()
+            var body = new Auth0UserBody
             {
                 ClientId = "ViXbPTcrznJsmZxaEze6IdPXCZrGB4rp",
                 Connection = "Username-Password-Authentication",
@@ -239,46 +240,6 @@ namespace MeFit_BE.Controllers
                 _context.SaveChanges();
             }
         }
-
-
-        public class Auth0UserBody
-        {
-            [JsonProperty("client_id")]
-            public string ClientId { get; set; }
-
-            [JsonProperty("connection")]
-            public string Connection { get; set; }
-
-            [JsonProperty("email")]
-            public string Email { get; set; }
-
-            [JsonProperty("name")]
-            public string Name { get; set; }
-
-            [JsonProperty("nickname")]
-            public string Nickname { get; set; } 
-
-            //[JsonProperty("password")]
-            //public string Password { get; set; }
-        }
-
-
-        /*
-        public class AccessTokenRequestBody
-        {
-            [JsonProperty("client_id")]
-            public string ClientId { get; set; }
-
-            [JsonProperty("client_secret")]
-            public string ClientSecret { get; set; }
-
-            [JsonProperty("audience")]
-            public string Audience { get; set; }
-
-            [JsonProperty("grant_type")]
-            public string GrantType { get; } = "client_credentials";
-        }
-        */
 
         [HttpGet("users")]
         private async Task<IActionResult> GetUsers()
