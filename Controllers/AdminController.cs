@@ -24,7 +24,7 @@ namespace MeFit_BE.Controllers
 {
     [Route("api/admin")]
     [ApiController]
-    //[Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
     [ApiConventionType(typeof(MeFitConventions))]
@@ -124,14 +124,7 @@ namespace MeFit_BE.Controllers
             return NoContent();
         }
 
-        [HttpGet("users")]
-        private async Task<IActionResult> GetUsers()
-        {
-            //var response = await _client.GetStringAsync(BASE_URL + "users");
-            var response = await _auth0Service.GetAccessTokenAsync();
-            return Ok(response);
-        }
-
+        /* 
         [HttpGet("users/{id}")]
         private async Task<IActionResult> GetUser(string id)
         {
@@ -149,6 +142,6 @@ namespace MeFit_BE.Controllers
             var response = await _auth0Service.GetAccessTokenAsync();
             return Ok(response);
         }
-
+        */
     }
 }
