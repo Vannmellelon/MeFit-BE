@@ -103,6 +103,11 @@ namespace MeFit_BE.Controllers
         {
             // Validates custom-type parameters
             if (userDTO == null) return BadRequest();
+
+            //Helper.GetExternalUserProviderId(HttpContext);
+            User checkUser = await Helper.GetCurrentUser(HttpContext, _context);
+            if (checkUser != null) return BadRequest("User already exists!"); 
+
             if (!Difficulty.IsValid(userDTO.FitnessLevel)) return BadRequest("Please enter a valid difficulty-category." + userDTO.FitnessLevel + " is not valid.");
             foreach (var res in userDTO.RestrictedCategories.Split(","))
             {
