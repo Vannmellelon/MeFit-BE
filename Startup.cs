@@ -49,7 +49,7 @@ namespace MeFit_BE
                 .AddAuth0WebAppAuthentication(options => {
                     options.Domain = Configuration["Auth0:Domain"];
                     options.ClientId = Configuration["Auth0:ClientId"];
-                    options.ClientSecret = Configuration["Auth0:ClientSecret"];
+                    options.ClientSecret = Configuration["ClientSecret"];
                 });
 
             // Add Authentication Services and validate Access Tokens
