@@ -77,7 +77,6 @@ namespace MeFit_BE.Controllers
             return _mapper.Map<List<UserAdminReadDTO>>(await _context.Users.Include(u => u.Goals).ToListAsync());
         }
 
-
         /// <summary>
         /// Method fetches a specific user form the database.
         /// </summary>
@@ -91,7 +90,6 @@ namespace MeFit_BE.Controllers
 
             return _mapper.Map<UserReadDTO>(user);
         }
-
 
         /// <summary>
         /// Method creates a new user.
@@ -123,7 +121,6 @@ namespace MeFit_BE.Controllers
             return CreatedAtAction(nameof(GetUser), new { Id = user.Id }, _mapper.Map<UserReadDTO>(user));
         }
 
-
         /// <summary>
         /// Allows a user to submit a request to become a contributor.
         /// User must already be registered in the database to submit this request.
@@ -144,7 +141,6 @@ namespace MeFit_BE.Controllers
 
             return Ok();
         }
-
 
         /// <summary>
         /// Method updates a user in the database. 
@@ -174,7 +170,6 @@ namespace MeFit_BE.Controllers
 
             return Ok(_mapper.Map<UserReadDTO>(user));
         }
-
 
         /// <summary>
         /// Method deletes the user with the given id.
