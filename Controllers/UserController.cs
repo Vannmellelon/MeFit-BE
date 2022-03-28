@@ -22,7 +22,7 @@ namespace MeFit_BE.Controllers
 {
     [Route("api/user")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
     [ApiConventionType(typeof(MeFitConventions))]
@@ -51,12 +51,12 @@ namespace MeFit_BE.Controllers
             string host = HttpContext.Request.Host.ToUriComponent();
             string path = HttpContext.Request.Path.ToUriComponent();
 
-            return Redirect($"https://{host}{path}{user.Id}");
+            return Redirect($"https://{host}{path}/{user.Id}");
 
         }
 
         /// <summary>
-        /// Method fetches all users from the database.
+        /// Fetches all users from the database.
         /// </summary>
         /// <returns>List of users</returns>
         [HttpGet("all-users")]
@@ -78,7 +78,7 @@ namespace MeFit_BE.Controllers
 
 
         /// <summary>
-        /// Method fetches a specific user form the database.
+        /// Fetches a specific user from the database.
         /// </summary>
         /// <param name="id">User id</param>
         /// <returns>User</returns>
@@ -93,7 +93,7 @@ namespace MeFit_BE.Controllers
 
 
         /// <summary>
-        /// Method creates a new user.
+        /// Creates a new user.
         /// </summary>
         /// <param name="userDTO">New user</param>
         /// <returns>New user</returns>
@@ -102,7 +102,7 @@ namespace MeFit_BE.Controllers
         {
             // Validates custom-type parameters
             if (userDTO == null) return BadRequest();
-            if (!Difficulty.IsValid(userDTO.FitnessLevel)) return BadRequest("Please enter a valid difficulty-category." + userDTO.FitnessLevel + " is not valid.");
+            if (!Difficulty.IsValid(userDTO.FitnessLevel)) return BadRequest("Please enter a valid difficulty-category. " + userDTO.FitnessLevel + " is not valid.");
             foreach (var res in userDTO.RestrictedCategories.Split(","))
             {
                 // no category should be allowed
@@ -122,11 +122,11 @@ namespace MeFit_BE.Controllers
         /// Allows a user to submit a request to become a contributor.
         /// User must already be registered in the database to submit this request.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Ok</returns>
         [HttpPost("contributer-request")]
         public async Task<ActionResult> PostRequestContributor()
         {
-            // Check if user is in database, submit request for contributor-status.
+            // Check if the user is in the database, submit request for contributor-status.
             User user = await Helper.GetCurrentUser(HttpContext, _context);
             if (user == null) return BadRequest();
 
@@ -141,7 +141,7 @@ namespace MeFit_BE.Controllers
 
 
         /// <summary>
-        /// Method updates a user in the database. 
+        /// Updates a user in the database. 
         /// A user can only de altered by themselves.
         /// </summary>
         /// <param name="id">User id</param>
@@ -169,7 +169,7 @@ namespace MeFit_BE.Controllers
 
 
         /// <summary>
-        /// Method deletes the user with the given id.
+        /// Deletes the user with the given id.
         /// A user can only be deleted by themselves or an administrator.
         /// </summary>
         /// <param name="id">User id</param>
@@ -231,7 +231,7 @@ namespace MeFit_BE.Controllers
         }
 
         /// <summary>
-        /// Method returns the profile belonging to the user with the given id.
+        /// Returns the profile belonging to the user with the given id.
         /// If the user does not have a profile, the method will return not found.
         /// </summary>
         /// <param name="id">User id</param>
@@ -297,10 +297,10 @@ namespace MeFit_BE.Controllers
         }
         
         /// <summary>
-        /// Method fetches all workout programs owned by the contributor with the given id.
+        /// Fetches all workout programs owned by the contributor with the given id.
         /// </summary>
         /// <param name="id">Contributor id</param>
-        /// <returns>List of workout programs.</returns>
+        /// <returns>List of workout programs</returns>
         [HttpGet("{id}/workout-programs")]
         public async Task<ActionResult<List<WorkoutProgramReadDTO>>> GetContributedPrograms(int id)
         {
@@ -314,7 +314,7 @@ namespace MeFit_BE.Controllers
         }
     
         /// <summary>
-        /// Method returns all workouts owned by the contributor with the given id.
+        /// Returns all workouts owned by the contributor with the given id.
         /// </summary>
         /// <param name="id">Contributor id</param>
         /// <returns>List of workouts</returns>
@@ -331,10 +331,10 @@ namespace MeFit_BE.Controllers
         }
 
         /// <summary>
-        /// Method returns all exercises owned by the contributor with the given id.
+        /// Returns all exercises owned by the contributor with the given id.
         /// </summary>
         /// <param name="id">Contributor id</param>
-        /// <returns>List of exercises.</returns>
+        /// <returns>List of exercises</returns>
         [HttpGet("{id}/exercises")]
         public async Task<ActionResult<List<ExerciseReadDTO>>> GetContributedExercises(int id)
         {
