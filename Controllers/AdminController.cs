@@ -86,7 +86,7 @@ namespace MeFit_BE.Controllers
         /// <param name="role"></param>
         /// <returns></returns>
         [HttpPost("users/{id}/roles")]
-        public async Task<IActionResult> UpdateUserRoles(string id, string role)
+        public async Task<IActionResult> PostUserRoles(string id, string role)
         {
             var body = new Auth0RoleBody(role);
             if (body.Roles == null) return BadRequest();
