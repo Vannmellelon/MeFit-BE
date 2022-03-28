@@ -579,7 +579,7 @@ namespace MeFit_BE.Models
             modelBuilder.Entity<SubGoal>().HasData(subGoal4);
         }
 
-        
+        /*
         // Reguired when having more than one migration.
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -588,7 +588,7 @@ namespace MeFit_BE.Models
                     "Data source=ND-5CG9030MCG\\SQLEXPRESS; Initial Catalog=MeFitDB; Integrated Security=True;" // Miriam
 
                 );
-        }
+        }*/
         
     }
 }
