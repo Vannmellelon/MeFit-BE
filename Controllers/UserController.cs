@@ -257,57 +257,6 @@ namespace MeFit_BE.Controllers
 
             return Ok(_mapper.Map<ProfileReadDTO>(profile));
         }
-
-
-        // TODO:
-        // Add request to auth0 managementAPI, to sync user-info
-
-        /// <summary>
-        /// Method makes the user with the given id into an administrator.
-        /// Only administrators can make a user an administrator.
-        /// </summary>
-        /// <param name="id">User id</param>
-        /// <returns>Action result</returns>
-        [HttpPatch("{id}/admin")]
-        public async Task<IActionResult> MakeAdmin(int id)
-        {
-            if (!Helper.IsAdmin(HttpContext)) return Forbid();
-
-            //Get user from database.
-            User user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
-            if (user == null) return NotFound();
-
-            //Make user an administrator.
-            user.IsAdmin = true;
-            _context.Entry(user).State = EntityState.Modified;
-            _context.SaveChanges();
-
-            return Ok();
-        }
-
-        /// <summary>
-        /// Method makes the user with the given id into a contributor.
-        /// Only administrators can make a user a contributor.
-        /// </summary>
-        /// <param name="id">User id</param>
-        /// <returns>Action result</returns>
-        [HttpPatch("{id}/contributor")]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> MakeContributor(int id)
-        {
-            if (!Helper.IsAdmin(HttpContext)) return Forbid();
-
-            //Get user from database.
-            User user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
-            if (user == null) return NotFound();
-
-            //Make user a contributor.
-            user.IsContributor = true;
-            _context.Entry(user).State = EntityState.Modified;
-            _context.SaveChanges();
-
-            return Ok();
-        }
         
         /// <summary>
         /// Method fetches all workout programs owned by the contributor with the given id.
