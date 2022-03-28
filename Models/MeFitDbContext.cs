@@ -579,7 +579,7 @@ namespace MeFit_BE.Models
             modelBuilder.Entity<SubGoal>().HasData(subGoal4);
         }
 
-        /*
+        
         // Reguired when having more than one migration.
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -589,6 +589,6 @@ namespace MeFit_BE.Models
 
                 );
         }
-        */
+        
     }
 }

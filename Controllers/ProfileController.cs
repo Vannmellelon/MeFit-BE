@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using MeFit_BE.Models;
+using MeFit_BE.Models.Domain.UserDomain;
 using MeFit_BE.Models.DTO.Profile;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -57,7 +58,17 @@ namespace MeFit_BE.Controllers
         [HttpPost]
         public async Task<ActionResult<ProfileReadDTO>> PostProfile([FromBody] ProfileWriteDTO profileDTO)
         {
+            //Find current user.
+            User user = await Helper.GetCurrentUser(HttpContext, _context);
+            if (user == null) return BadRequest();
+
+            //Check that the user does not already have a profile.
+            if (await _context.Profiles.AnyAsync(p => p.UserId == user.Id))
+                return BadRequest($"The current user already has a profile.");
+
+            //Create profile.
             Models.Domain.UserDomain.Profile profile = _mapper.Map<Models.Domain.UserDomain.Profile>(profileDTO);
+            profile.UserId = user.Id;
             _context.Profiles.Add(profile);
             await _context.SaveChangesAsync();
 
