@@ -128,7 +128,7 @@ namespace MeFit_BE.Controllers
         /// User must already be registered in the database to submit this request.
         /// </summary>
         /// <returns>Ok</returns>
-        [HttpPost("contributer-request")]
+        [HttpPost("contributor-request")]
         public async Task<ActionResult> PostRequestContributor()
         {
             // Check if the user is in the database, submit request for contributor-status.

@@ -30,7 +30,6 @@ namespace MeFit_BE.Controllers
     [ApiConventionType(typeof(MeFitConventions))]
     public class AdminController : ControllerBase
     {
-        //private readonly HttpClient _client;
         private readonly MeFitDbContext _context;
         private readonly IAuth0Service _auth0Service; 
         private readonly IMapper _mapper;
@@ -90,7 +89,6 @@ namespace MeFit_BE.Controllers
         {
             var body = new Auth0RoleBody(role);
             if (body.Roles == null) return BadRequest();
-            // Todo: if (!_auth0Service.UserExists(id)) return NotFound($"User with Auth0 Id: {id} was not found");
 
             await _auth0Service.UpdateUserRolesAsync(id, role, body);
 
@@ -103,7 +101,7 @@ namespace MeFit_BE.Controllers
         /// Method fetches all pending contributor requests.
         /// </summary>
         /// <returns></returns>
-        [HttpGet("contributer-request")]
+        [HttpGet("contributor-request")]
         public async Task<IEnumerable<ContributorRequestReadDTO>> GetPendingContributorRequests()
         {
             return _mapper.Map<List<ContributorRequestReadDTO>>(await _context.ContributorRequests.ToListAsync());
@@ -114,7 +112,7 @@ namespace MeFit_BE.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        [HttpDelete("contributer-request/{id}")]
+        [HttpDelete("contributor-request/{id}")]
         public async Task<ActionResult> DeleteContributorRequest(int id)
         {
             ContributorRequest cr = await _context.ContributorRequests.FirstOrDefaultAsync(x => x.Id == id);
