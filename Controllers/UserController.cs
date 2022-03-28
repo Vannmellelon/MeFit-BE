@@ -14,6 +14,7 @@ using MeFit_BE.Models.DTO.Profile;
 using MeFit_BE.Models.DTO.User;
 using MeFit_BE.Models.DTO.Workout;
 using MeFit_BE.Models.DTO.WorkoutProgram;
+using MeFit_BE.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -28,13 +29,14 @@ namespace MeFit_BE.Controllers
     [ApiConventionType(typeof(MeFitConventions))]
     public class UserController : Controller
     {
-
         private readonly MeFitDbContext _context;
+        private readonly IAuth0Service _auth0Service;
         private readonly IMapper _mapper;
 
-        public UserController(MeFitDbContext context, IMapper mapper)
+        public UserController(MeFitDbContext context, IAuth0Service auth0Service, IMapper mapper)
         {
             _context = context;
+            _auth0Service = auth0Service;
             _mapper = mapper;
         }
 
@@ -164,6 +166,8 @@ namespace MeFit_BE.Controllers
             _context.Entry(user).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
+            await _auth0Service.UpdateUserAsync(user.AuthId, userDTO.Email, user.FirstName);
+
             return Ok(_mapper.Map<UserReadDTO>(user));
         }
 
@@ -227,6 +231,11 @@ namespace MeFit_BE.Controllers
 
             _context.Users.Remove(userToBeDeleted);
             await _context.SaveChangesAsync();
+
+            // Deletes user from Auth0
+            if (user.AuthId != null) 
+                await _auth0Service.DeleteUserAsync(user.AuthId);
+
             return NoContent();
         }
 
