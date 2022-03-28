@@ -53,8 +53,7 @@ namespace MeFit_BE.Controllers
             string host = HttpContext.Request.Host.ToUriComponent();
             string path = HttpContext.Request.Path.ToUriComponent();
 
-            return Redirect($"https://{host}{path}{user.Id}");
-
+            return Redirect($"https://{host}{path}/{user.Id}");
         }
 
         /// <summary>
