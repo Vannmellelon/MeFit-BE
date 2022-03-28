@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace MeFit_BE.Models.DTO.User
+﻿namespace MeFit_BE.Models.DTO.User
 {
     public class UserEditDTO
     {

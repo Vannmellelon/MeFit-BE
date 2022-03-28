@@ -22,7 +22,7 @@ namespace MeFit_BE.Controllers
 {
     [Route("api/user")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
     [ApiConventionType(typeof(MeFitConventions))]
@@ -100,13 +100,15 @@ namespace MeFit_BE.Controllers
         [HttpPost]
         public async Task<ActionResult<UserReadDTO>> PostUser([FromBody] UserWriteDTO userDTO)
         {
-            // Validates custom-type parameters
+            // Validate custom-type parameters
             if (userDTO == null) return BadRequest();
             if (!Difficulty.IsValid(userDTO.FitnessLevel)) return BadRequest("Please enter a valid difficulty-category. " + userDTO.FitnessLevel + " is not valid.");
-            foreach (var res in userDTO.RestrictedCategories.Split(","))
+            if (userDTO.RestrictedCategories != null)
             {
-                // no category should be allowed
-                if (!Category.IsValid(res)) return BadRequest("Please enter a valid exercise-category. " + res + " is not valid.");
+               foreach (var res in userDTO.RestrictedCategories.Split(","))
+               {
+                   if (!Category.IsValid(res)) return BadRequest("Please enter a valid exercise-category. " + res + " is not valid.");
+               }
             }
 
             User user = _mapper.Map<User>(userDTO);
@@ -160,6 +162,21 @@ namespace MeFit_BE.Controllers
             // Update user
             if (userDTO.FirstName != null) user.FirstName = userDTO.FirstName;
             if (userDTO.LastName != null) user.LastName = userDTO.LastName;
+            if (userDTO.FitnessLevel != null)
+            {
+                if (Difficulty.IsValid(userDTO.FitnessLevel)) user.FitnessLevel = userDTO.FitnessLevel;
+                else return BadRequest($"Please enter a valid difficulty-category. " + userDTO.FitnessLevel + " is not valid.");
+            }
+            if (userDTO.RestrictedCategories == null) user.RestrictedCategories = null;
+            else
+            {
+                foreach (var res in userDTO.RestrictedCategories.Split(","))
+                {
+                     if (!Category.IsValid(res)) 
+                        return BadRequest("Please enter a valid exercise-category. " + res + " is not valid.");
+                }
+                user.RestrictedCategories = userDTO.RestrictedCategories;
+            }
 
             _context.Entry(user).State = EntityState.Modified;
             await _context.SaveChangesAsync();

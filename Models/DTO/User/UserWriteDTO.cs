@@ -12,6 +12,6 @@ namespace MeFit_BE.Models.DTO.User
 
         public string FitnessLevel { get; set; }
 
-        public string RestrictedCategories { get; set; }
+        public string? RestrictedCategories { get; set; }
     }
 }
