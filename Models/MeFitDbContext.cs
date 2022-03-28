@@ -588,7 +588,7 @@ namespace MeFit_BE.Models
                     "Data source=ND-5CG9030MCG\\SQLEXPRESS; Initial Catalog=MeFitDB; Integrated Security=True;" // Miriam
 
                 );
-        }
-        */
+        }*/
+        
     }
 }
