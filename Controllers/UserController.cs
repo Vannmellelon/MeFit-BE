@@ -14,6 +14,7 @@ using MeFit_BE.Models.DTO.Profile;
 using MeFit_BE.Models.DTO.User;
 using MeFit_BE.Models.DTO.Workout;
 using MeFit_BE.Models.DTO.WorkoutProgram;
+using MeFit_BE.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -22,19 +23,20 @@ namespace MeFit_BE.Controllers
 {
     [Route("api/user")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
     [ApiConventionType(typeof(MeFitConventions))]
     public class UserController : Controller
     {
-
         private readonly MeFitDbContext _context;
+        private readonly IAuth0Service _auth0Service;
         private readonly IMapper _mapper;
 
-        public UserController(MeFitDbContext context, IMapper mapper)
+        public UserController(MeFitDbContext context, IAuth0Service auth0Service, IMapper mapper)
         {
             _context = context;
+            _auth0Service = auth0Service;
             _mapper = mapper;
         }
 
@@ -52,7 +54,6 @@ namespace MeFit_BE.Controllers
             string path = HttpContext.Request.Path.ToUriComponent();
 
             return Redirect($"https://{host}{path}/{user.Id}");
-
         }
 
         /// <summary>
@@ -76,7 +77,6 @@ namespace MeFit_BE.Controllers
             return _mapper.Map<List<UserAdminReadDTO>>(await _context.Users.Include(u => u.Goals).ToListAsync());
         }
 
-
         /// <summary>
         /// Fetches a specific user from the database.
         /// </summary>
@@ -91,7 +91,6 @@ namespace MeFit_BE.Controllers
             return _mapper.Map<UserReadDTO>(user);
         }
 
-
         /// <summary>
         /// Creates a new user.
         /// </summary>
@@ -102,6 +101,11 @@ namespace MeFit_BE.Controllers
         {
             // Validate custom-type parameters
             if (userDTO == null) return BadRequest();
+
+            //Helper.GetExternalUserProviderId(HttpContext);
+            User checkUser = await Helper.GetCurrentUser(HttpContext, _context);
+            if (checkUser != null) return BadRequest("User already exists!"); 
+
             if (!Difficulty.IsValid(userDTO.FitnessLevel)) return BadRequest("Please enter a valid difficulty-category. " + userDTO.FitnessLevel + " is not valid.");
             if (userDTO.RestrictedCategories != null)
             {
@@ -118,7 +122,6 @@ namespace MeFit_BE.Controllers
 
             return CreatedAtAction(nameof(GetUser), new { Id = user.Id }, _mapper.Map<UserReadDTO>(user));
         }
-
 
         /// <summary>
         /// Allows a user to submit a request to become a contributor.
@@ -140,7 +143,6 @@ namespace MeFit_BE.Controllers
 
             return Ok();
         }
-
 
         /// <summary>
         /// Updates a user in the database. 
@@ -181,9 +183,10 @@ namespace MeFit_BE.Controllers
             _context.Entry(user).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
+            await _auth0Service.UpdateUserAsync(user.AuthId, userDTO.Email, user.FirstName);
+
             return Ok(_mapper.Map<UserReadDTO>(user));
         }
-
 
         /// <summary>
         /// Deletes the user with the given id.
@@ -244,6 +247,11 @@ namespace MeFit_BE.Controllers
 
             _context.Users.Remove(userToBeDeleted);
             await _context.SaveChangesAsync();
+
+            // Deletes user from Auth0
+            if (user.AuthId != null) 
+                await _auth0Service.DeleteUserAsync(user.AuthId);
+
             return NoContent();
         }
 
@@ -260,57 +268,6 @@ namespace MeFit_BE.Controllers
             if (profile == null) return NotFound();
 
             return Ok(_mapper.Map<ProfileReadDTO>(profile));
-        }
-
-
-        // TODO:
-        // Add request to auth0 managementAPI, to sync user-info
-
-        /// <summary>
-        /// Method makes the user with the given id into an administrator.
-        /// Only administrators can make a user an administrator.
-        /// </summary>
-        /// <param name="id">User id</param>
-        /// <returns>Action result</returns>
-        [HttpPatch("{id}/admin")]
-        public async Task<IActionResult> MakeAdmin(int id)
-        {
-            if (!Helper.IsAdmin(HttpContext)) return Forbid();
-
-            //Get user from database.
-            User user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
-            if (user == null) return NotFound();
-
-            //Make user an administrator.
-            user.IsAdmin = true;
-            _context.Entry(user).State = EntityState.Modified;
-            _context.SaveChanges();
-
-            return Ok();
-        }
-
-        /// <summary>
-        /// Method makes the user with the given id into a contributor.
-        /// Only administrators can make a user a contributor.
-        /// </summary>
-        /// <param name="id">User id</param>
-        /// <returns>Action result</returns>
-        [HttpPatch("{id}/contributor")]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> MakeContributor(int id)
-        {
-            if (!Helper.IsAdmin(HttpContext)) return Forbid();
-
-            //Get user from database.
-            User user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
-            if (user == null) return NotFound();
-
-            //Make user a contributor.
-            user.IsContributor = true;
-            _context.Entry(user).State = EntityState.Modified;
-            _context.SaveChanges();
-
-            return Ok();
         }
         
         /// <summary>
