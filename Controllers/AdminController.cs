@@ -59,10 +59,13 @@ namespace MeFit_BE.Controllers
         /// <param name="nickname"></param>
         /// <returns></returns>
         [HttpPatch("users/{id}")]
-        public async Task<IActionResult> PatchUser(string id, string email, string nickname) 
+        public async Task<IActionResult> PatchUser(int id, string email, string nickname) 
         {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+            if (user.AuthId == null) return NotFound();
+
             // /api/v2/tickets/password-change
-            await _auth0Service.UpdateUserAsync(id, email, nickname);
+            await _auth0Service.UpdateUserAsync(user.AuthId, email, nickname);
             return Ok();
         }
 
@@ -72,9 +75,12 @@ namespace MeFit_BE.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpDelete("users/{id}")]
-        public async Task<IActionResult> DeleteUser(string id) 
+        public async Task<IActionResult> DeleteUser(int id) 
         {
-            await _auth0Service.DeleteUserAsync(id);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+            if (user.AuthId == null) return NotFound();
+
+            await _auth0Service.DeleteUserAsync(user.AuthId);
             return NoContent();
         }
 
@@ -84,13 +90,16 @@ namespace MeFit_BE.Controllers
         /// <param name="id"></param>
         /// <param name="role"></param>
         /// <returns></returns>
-        [HttpPost("users/{id}/roles")]
-        public async Task<IActionResult> PostUserRoles(string id, string role)
+        [HttpPost("users/{id}/{role}")]
+        public async Task<IActionResult> PostUserRoles(int id, string role)
         {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+            if (user.AuthId == null) return NotFound();
+
             var body = new Auth0RoleBody(role);
             if (body.Roles == null) return BadRequest();
 
-            await _auth0Service.UpdateUserRolesAsync(id, role, body);
+            await _auth0Service.UpdateUserRolesAsync(user.AuthId, role, body);
 
             return Ok();
         }
