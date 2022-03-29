@@ -65,9 +65,7 @@ namespace MeFit_BE.Controllers
             if (!Helper.IsContributor(HttpContext)) { return Forbid(); }
 
             User user = await Helper.GetCurrentUser(HttpContext, _context);
-            //User user = await _context.Users.FindAsync(1);
             if (user == null) return BadRequest();
-
 
             if (!Category.IsValid(exerciseDTO.Category)) 
                 return BadRequest($"Category {exerciseDTO.Category} is not valid.");
@@ -81,7 +79,8 @@ namespace MeFit_BE.Controllers
         }
 
         /// <summary>
-        /// Method updates an exercise in the database by id
+        /// Method updates an exercise in the database by id. Can only be updated by the
+        /// contributor that owns the exercise.
         /// </summary>
         /// <param name="id">Exercise id</param>
         /// <param name="exerciseDTO">Exercise with new values</param>
@@ -90,11 +89,11 @@ namespace MeFit_BE.Controllers
         [Authorize(Roles = "Contributor")]
         public async Task<IActionResult> PatchExercise(int id, [FromBody] ExerciseEditDTO exerciseDTO)
         {
-            if (!Helper.IsContributor(HttpContext)) { return Forbid(); }
+            if (!Helper.IsContributor(HttpContext)) { return Forbid("The current user is not a contributor."); }
 
             // Get user and exercise
             User user = await Helper.GetCurrentUser(HttpContext, _context);
-            if (user == null) return NotFound($"Could not find a current user.");
+            if (user == null) return BadRequest();
             Exercise exercise = await GetExerciseAsync(id);
             if (exercise == null) return NotFound($"Exercise with Id: {id} was not found");
 
@@ -111,7 +110,7 @@ namespace MeFit_BE.Controllers
             if (exerciseDTO.Name != null) exercise.Name = exerciseDTO.Name;
             if (exerciseDTO.Description != null) exercise.Description = exerciseDTO.Description;
             if (exerciseDTO.Image != null) exercise.Image = exerciseDTO.Image;
-            if (exerciseDTO.Name != null) exercise.Video = exerciseDTO.Video;
+            if (exerciseDTO.Video != null) exercise.Video = exerciseDTO.Video;
 
             _context.Exercises.Update(exercise);
             await _context.SaveChangesAsync();
@@ -120,7 +119,8 @@ namespace MeFit_BE.Controllers
         }
 
         /// <summary>
-        /// Method deletes an exercise in the database by id.
+        /// Method deletes an exercise in the database by id. Can only be deleted by the 
+        /// contributor who owns the exercise.
         /// </summary>
         /// <param name="id">Exercise id</param>
         /// <returns>No content</returns>
@@ -132,15 +132,21 @@ namespace MeFit_BE.Controllers
 
             //Get user and exercise from database.
             User user = await Helper.GetCurrentUser(HttpContext, _context);
-            if (user == null) { return NotFound("No current user could be found."); }
+            if (user == null) { return BadRequest(); }
             if (!ExerciseExists(id))
                 return NotFound($"Exercise with Id: {id} was not found");
             Exercise exercise = await GetExerciseAsync(id);
-
+            
             //Check that the current user owns the exercise.
             if (exercise.Id != user.Id)
                 return Forbid("Tried to change an exercise not owned by the current user.");
 
+            //Delete the sets that belong to the exercise before deleting the exercise.
+            List<Set> sets = exercise.Sets.ToList();
+            foreach (Set set in sets)
+            {
+                _context.Sets.Remove(set);
+            }
             _context.Exercises.Remove(exercise);
             await _context.SaveChangesAsync();
 
@@ -155,7 +161,7 @@ namespace MeFit_BE.Controllers
         /// <returns>Exercise</returns>
         private async Task<Exercise> GetExerciseAsync(int exerciseId) 
         {
-            return await _context.Exercises
+            return await _context.Exercises.Include(e => e.Sets)
                 .SingleOrDefaultAsync(e => e.Id == exerciseId);
         }
 

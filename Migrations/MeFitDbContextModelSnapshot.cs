@@ -29,13 +29,13 @@ namespace MeFit_BE.Migrations
                     b.Property<bool>("Achieved")
                         .HasColumnType("bit");
 
-                    b.Property<DateTime>("EndData")
+                    b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
-                    b.Property<int>("WorkoutProgramId")
+                    b.Property<int?>("WorkoutProgramId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -51,7 +51,7 @@ namespace MeFit_BE.Migrations
                         {
                             Id = 1,
                             Achieved = false,
-                            EndData = new DateTime(2022, 9, 12, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            EndDate = new DateTime(2022, 9, 12, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             UserId = 1,
                             WorkoutProgramId = 1
                         },
@@ -59,7 +59,7 @@ namespace MeFit_BE.Migrations
                         {
                             Id = 2,
                             Achieved = true,
-                            EndData = new DateTime(2022, 12, 24, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            EndDate = new DateTime(2022, 12, 24, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             UserId = 2,
                             WorkoutProgramId = 2
                         },
@@ -67,7 +67,7 @@ namespace MeFit_BE.Migrations
                         {
                             Id = 3,
                             Achieved = true,
-                            EndData = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            EndDate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             UserId = 3,
                             WorkoutProgramId = 3
                         });
@@ -86,7 +86,7 @@ namespace MeFit_BE.Migrations
                     b.Property<int>("GoalId")
                         .HasColumnType("int");
 
-                    b.Property<int>("WorkoutId")
+                    b.Property<int?>("WorkoutId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -136,17 +136,20 @@ namespace MeFit_BE.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Country")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("PostalCode")
                         .HasMaxLength(4)
                         .HasColumnType("int");
 
                     b.Property<string>("PostalPlace")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
 
                     b.Property<string>("Street")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
 
@@ -177,6 +180,23 @@ namespace MeFit_BE.Migrations
                             PostalPlace = "Kautokeino",
                             Street = "Storeveien"
                         });
+                });
+
+            modelBuilder.Entity("MeFit_BE.Models.Domain.UserDomain.ContributorRequest", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int?>("RequestingUserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RequestingUserId");
+
+                    b.ToTable("ContributorRequests");
                 });
 
             modelBuilder.Entity("MeFit_BE.Models.Domain.UserDomain.Profile", b =>
@@ -251,10 +271,16 @@ namespace MeFit_BE.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("FirstName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("FitnessLevel")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<bool>("IsAdmin")
                         .HasColumnType("bit");
@@ -263,6 +289,10 @@ namespace MeFit_BE.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("LastName")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("RestrictedCategories")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -296,6 +326,15 @@ namespace MeFit_BE.Migrations
                             IsAdmin = false,
                             IsContributor = false,
                             LastName = "Berg"
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Email = "anneelarsen98@gmail.com",
+                            FirstName = "Anne E.",
+                            IsAdmin = false,
+                            IsContributor = true,
+                            LastName = "Larsen"
                         });
                 });
 
@@ -306,8 +345,9 @@ namespace MeFit_BE.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int?>("ContributedById")
-                        .HasColumnType("int");
+                    b.Property<string>("Category")
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
 
                     b.Property<int>("ContributorId")
                         .HasColumnType("int");
@@ -319,17 +359,15 @@ namespace MeFit_BE.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TargetMuscleGroup")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Video")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ContributedById");
+                    b.HasIndex("ContributorId");
 
                     b.ToTable("Exercise");
 
@@ -337,34 +375,101 @@ namespace MeFit_BE.Migrations
                         new
                         {
                             Id = 1,
-                            ContributorId = 0,
+                            Category = "Core",
+                            ContributorId = 1,
                             Description = "Lay on your back with your hands behind your head, and move your upper body up and down.",
-                            Name = "Crunch",
-                            TargetMuscleGroup = "Stomach"
+                            Image = "https://us.123rf.com/450wm/lioputra/lioputra2011/lioputra201100006/158485483-man-doing-sit-ups-exercise-abdominals-exercise-flat-vector-illustration-isolated-on-white-background.jpg?ver=6",
+                            Name = "Crunch"
                         },
                         new
                         {
                             Id = 2,
-                            ContributorId = 0,
+                            Category = "Arms",
+                            ContributorId = 1,
                             Description = "Hands on the floor. Straighten out your body and lift yourself down to the floor and back up by bending you arms.",
                             Name = "Push-up",
-                            TargetMuscleGroup = "Arms"
+                            Video = "https://youtu.be/uCNgB_rU3IQ?t=5"
                         },
                         new
                         {
                             Id = 3,
-                            ContributorId = 0,
+                            Category = "Full body",
+                            ContributorId = 2,
                             Description = "Lay down on the floor. Then lift and hold yourself up on your elbows and toes. Hold and breath.",
                             Name = "Plank",
-                            TargetMuscleGroup = "All"
+                            Video = "https://youtu.be/HW4yjoCkbm0?t=5"
                         },
                         new
                         {
                             Id = 4,
-                            ContributorId = 0,
+                            Category = "Stamina",
+                            ContributorId = 2,
                             Description = "Jump up and down while opening and closing your legs and lifting your arms over your head.",
-                            Name = "Jumping Jacks",
-                            TargetMuscleGroup = "Stamina"
+                            Name = "Jumping Jacks"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Category = "Arms",
+                            ContributorId = 9,
+                            Description = "Adjust seat and weights to an approperiate level. Grab handles, your elbows should be parallell to the floor. Push handles away from your chest by extending your elbows all the way. Make sure your back remains in contact with the backrest throughout. Pull your arms back towards you with controll. Repeat.",
+                            Name = "Chest-press Machine",
+                            Video = "https://youtu.be/IbeA5ypeMns?t=5"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Category = "Arms",
+                            ContributorId = 9,
+                            Description = "Row, row, row your boat.",
+                            Name = "Rowing Machine",
+                            Video = "https://youtu.be/g2Q-etHs9LI?t=4"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Category = "Arms",
+                            ContributorId = 9,
+                            Description = "Adjust seat and weights to an approperiate level. Grab handles, your elbows should point to the floor. Lift the handles by extending your elbows all the way. Make sure your lower back remains in contact with the backrest throughout. Lower arms with controll. Repeat.",
+                            Name = "Seated Shoulder-press Machine",
+                            Video = "https://youtu.be/OD5pz7-703U"
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Category = "Arms",
+                            ContributorId = 9,
+                            Description = "Lie down on your back on the bench. Your feet should rest flat on the ground. Grasp the bar, positioning your hands slightly wider than your shoulders. Lift the bar and hold it over your chest. Slowly lower the bar towards your chest. Push the bar away from your chest, until your arms are fully extended. Repeat",
+                            Image = "https://image.shutterstock.com/image-illustration/closegrip-barbell-bench-press-3d-260nw-430936051.jpg",
+                            Name = "Bench Press"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Category = "Legs",
+                            ContributorId = 9,
+                            Description = "Stand with your feet shoulder-width apart. Grasp the bar with your hands just outside your legs. Lift the bar by driving your hips forward, keeping a flat back. Lower the bar with controll. Repeat.",
+                            Image = "https://cdn.mos.cms.futurecdn.net/pcDfKtAmMLgLLbXc8sSAkF-970-80.jpg.webp",
+                            Name = "Deadlift",
+                            Video = "https://youtu.be/ABga0-lEY58?t=5"
+                        },
+                        new
+                        {
+                            Id = 11,
+                            Category = "Arms",
+                            ContributorId = 9,
+                            Description = "Grasp the two bars. Extend your arms so that they support your full weight, your legs should be hanging. Lower your body down by bending your elbows. Throughout the exercise, your elbows should be in line with your wrists. Your shoulders should be almost parallell with your elbows before pushing your body up again. Repeat.",
+                            Image = "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Dipexercise.svg/300px-Dipexercise.svg.png",
+                            Name = "Dips"
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Category = "Arms",
+                            ContributorId = 9,
+                            Description = "Grab onto the bar and hang with your arms fully extended. Pull yourself up, with controll, untill your chin is above the bar. Try to keep the rest of your body still, be mindfull not to bend your hips or knees. Slowly lower yourself down into the starting position, with controll. Repeat.",
+                            Image = "https://evofitness.no/wp-content/uploads/2019/12/pullupfront.png__666x666_q85_subsampling-2.jpeg",
+                            Name = "Pull Up"
                         });
                 });
 
@@ -375,13 +480,13 @@ namespace MeFit_BE.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("ExerciseId")
+                    b.Property<int?>("ExerciseId")
                         .HasColumnType("int");
 
                     b.Property<int>("ExerciseRepetitions")
                         .HasColumnType("int");
 
-                    b.Property<int>("WorkoutId")
+                    b.Property<int?>("WorkoutId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -420,6 +525,55 @@ namespace MeFit_BE.Migrations
                             ExerciseId = 4,
                             ExerciseRepetitions = 30,
                             WorkoutId = 2
+                        },
+                        new
+                        {
+                            Id = 5,
+                            ExerciseId = 5,
+                            ExerciseRepetitions = 15,
+                            WorkoutId = 4
+                        },
+                        new
+                        {
+                            Id = 6,
+                            ExerciseId = 6,
+                            ExerciseRepetitions = 15,
+                            WorkoutId = 4
+                        },
+                        new
+                        {
+                            Id = 7,
+                            ExerciseId = 7,
+                            ExerciseRepetitions = 15,
+                            WorkoutId = 4
+                        },
+                        new
+                        {
+                            Id = 8,
+                            ExerciseId = 8,
+                            ExerciseRepetitions = 12,
+                            WorkoutId = 5
+                        },
+                        new
+                        {
+                            Id = 9,
+                            ExerciseId = 9,
+                            ExerciseRepetitions = 12,
+                            WorkoutId = 5
+                        },
+                        new
+                        {
+                            Id = 10,
+                            ExerciseId = 10,
+                            ExerciseRepetitions = 12,
+                            WorkoutId = 6
+                        },
+                        new
+                        {
+                            Id = 11,
+                            ExerciseId = 11,
+                            ExerciseRepetitions = 12,
+                            WorkoutId = 6
                         });
                 });
 
@@ -430,21 +584,24 @@ namespace MeFit_BE.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int?>("ContributedById")
-                        .HasColumnType("int");
+                    b.Property<string>("Category")
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
 
                     b.Property<int>("ContributorId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("Difficulty")
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
 
-                    b.Property<string>("Type")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("Name")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ContributedById");
+                    b.HasIndex("ContributorId");
 
                     b.ToTable("Workout");
 
@@ -452,23 +609,50 @@ namespace MeFit_BE.Migrations
                         new
                         {
                             Id = 1,
-                            ContributorId = 0,
-                            Name = "Strengthify",
-                            Type = "Strength"
+                            Category = "Core",
+                            ContributorId = 1,
+                            Difficulty = "Beginner",
+                            Name = "Strengthify"
                         },
                         new
                         {
                             Id = 2,
-                            ContributorId = 0,
-                            Name = "Stamina Builder",
-                            Type = "Stamina"
+                            Category = "Stamina",
+                            ContributorId = 1,
+                            Difficulty = "Expert",
+                            Name = "Stamina Builder"
                         },
                         new
                         {
                             Id = 3,
-                            ContributorId = 0,
-                            Name = "Fitness",
-                            Type = "Fitness"
+                            Category = "Full body",
+                            ContributorId = 2,
+                            Difficulty = "Intermediate",
+                            Name = "Fitness"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Category = "Arms",
+                            ContributorId = 9,
+                            Difficulty = "Beginner",
+                            Name = "Machine Trio"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Category = "Full body",
+                            ContributorId = 9,
+                            Difficulty = "Intermediate",
+                            Name = "The Compound Collection 1"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Category = "Arms",
+                            ContributorId = 9,
+                            Difficulty = "Intermediate",
+                            Name = "The Compound Collection 2"
                         });
                 });
 
@@ -480,20 +664,23 @@ namespace MeFit_BE.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Category")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
 
-                    b.Property<int?>("ContributedById")
+                    b.Property<int?>("ContributorId")
                         .HasColumnType("int");
 
-                    b.Property<int>("ContributorId")
-                        .HasColumnType("int");
+                    b.Property<string>("Difficulty")
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
 
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ContributedById");
+                    b.HasIndex("ContributorId");
 
                     b.ToTable("WorkoutProgram");
 
@@ -501,23 +688,42 @@ namespace MeFit_BE.Migrations
                         new
                         {
                             Id = 1,
-                            Category = "Upper-body Strength",
-                            ContributorId = 0,
+                            Category = "Full body",
+                            ContributorId = 1,
+                            Difficulty = "Beginner",
                             Name = "Hot and Heavy"
                         },
                         new
                         {
                             Id = 2,
-                            Category = "Fitness",
-                            ContributorId = 0,
+                            Category = "Flexibility",
+                            ContributorId = 1,
+                            Difficulty = "Intermediate",
                             Name = "The Wellness Yourney"
                         },
                         new
                         {
                             Id = 3,
                             Category = "Stamina",
-                            ContributorId = 0,
+                            ContributorId = 2,
+                            Difficulty = "Expert",
                             Name = "The Runner"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Category = "Full body",
+                            ContributorId = 9,
+                            Difficulty = "Beginner",
+                            Name = "Nice and Easy"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Category = "Full body",
+                            ContributorId = 9,
+                            Difficulty = "Intermediate",
+                            Name = "The Compound Collection"
                         });
                 });
 
@@ -546,9 +752,7 @@ namespace MeFit_BE.Migrations
 
                     b.HasOne("MeFit_BE.Models.Domain.WorkoutDomain.WorkoutProgram", "WorkoutProgram")
                         .WithMany()
-                        .HasForeignKey("WorkoutProgramId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("WorkoutProgramId");
 
                     b.Navigation("User");
 
@@ -565,13 +769,20 @@ namespace MeFit_BE.Migrations
 
                     b.HasOne("MeFit_BE.Models.Domain.WorkoutDomain.Workout", "Workout")
                         .WithMany()
-                        .HasForeignKey("WorkoutId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("WorkoutId");
 
                     b.Navigation("Goal");
 
                     b.Navigation("Workout");
+                });
+
+            modelBuilder.Entity("MeFit_BE.Models.Domain.UserDomain.ContributorRequest", b =>
+                {
+                    b.HasOne("MeFit_BE.Models.Domain.UserDomain.User", "RequestingUser")
+                        .WithMany()
+                        .HasForeignKey("RequestingUserId");
+
+                    b.Navigation("RequestingUser");
                 });
 
             modelBuilder.Entity("MeFit_BE.Models.Domain.UserDomain.Profile", b =>
@@ -593,11 +804,13 @@ namespace MeFit_BE.Migrations
 
             modelBuilder.Entity("MeFit_BE.Models.Domain.WorkoutDomain.Exercise", b =>
                 {
-                    b.HasOne("MeFit_BE.Models.Domain.UserDomain.User", "ContributedBy")
+                    b.HasOne("MeFit_BE.Models.Domain.UserDomain.User", "Contributor")
                         .WithMany()
-                        .HasForeignKey("ContributedById");
+                        .HasForeignKey("ContributorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Navigation("ContributedBy");
+                    b.Navigation("Contributor");
                 });
 
             modelBuilder.Entity("MeFit_BE.Models.Domain.WorkoutDomain.Set", b =>
@@ -605,14 +818,12 @@ namespace MeFit_BE.Migrations
                     b.HasOne("MeFit_BE.Models.Domain.WorkoutDomain.Exercise", "Exercise")
                         .WithMany("Sets")
                         .HasForeignKey("ExerciseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("MeFit_BE.Models.Domain.WorkoutDomain.Workout", "Workout")
                         .WithMany("Sets")
                         .HasForeignKey("WorkoutId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("Exercise");
 
@@ -621,20 +832,22 @@ namespace MeFit_BE.Migrations
 
             modelBuilder.Entity("MeFit_BE.Models.Domain.WorkoutDomain.Workout", b =>
                 {
-                    b.HasOne("MeFit_BE.Models.Domain.UserDomain.User", "ContributedBy")
+                    b.HasOne("MeFit_BE.Models.Domain.UserDomain.User", "Contributor")
                         .WithMany()
-                        .HasForeignKey("ContributedById");
+                        .HasForeignKey("ContributorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Navigation("ContributedBy");
+                    b.Navigation("Contributor");
                 });
 
             modelBuilder.Entity("MeFit_BE.Models.Domain.WorkoutDomain.WorkoutProgram", b =>
                 {
-                    b.HasOne("MeFit_BE.Models.Domain.UserDomain.User", "ContributedBy")
+                    b.HasOne("MeFit_BE.Models.Domain.UserDomain.User", "Contributor")
                         .WithMany()
-                        .HasForeignKey("ContributedById");
+                        .HasForeignKey("ContributorId");
 
-                    b.Navigation("ContributedBy");
+                    b.Navigation("Contributor");
                 });
 
             modelBuilder.Entity("WorkoutWorkoutProgram", b =>
