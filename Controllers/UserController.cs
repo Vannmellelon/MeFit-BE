@@ -23,7 +23,7 @@ namespace MeFit_BE.Controllers
 {
     [Route("api/user")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
     [ApiConventionType(typeof(MeFitConventions))]
@@ -264,14 +264,15 @@ namespace MeFit_BE.Controllers
         /// If the user does not have a profile, the method will return not found.
         /// </summary>
         /// <returns>Profile</returns>
-        [HttpGet("/profile")]
+        [HttpGet("profile")]
         public async Task<ActionResult<ProfileReadDTO>> GetUserProfile()
         {
             User user = await Helper.GetCurrentUser(HttpContext, _context);
             if (user == null) return BadRequest();
 
             Models.Domain.UserDomain.Profile profile = await _context.Profiles.FirstOrDefaultAsync(p => p.UserId == user.Id);
-            if (profile == null) return NotFound();
+            if (profile == null) 
+                return NotFound("The current user does not have a profile.");
 
             return Ok(_mapper.Map<ProfileReadDTO>(profile));
         }
