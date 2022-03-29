@@ -1,23 +1,14 @@
-﻿using Auth0.AuthenticationApi;
-using Auth0.AuthenticationApi.Models;
-using AutoMapper;
+﻿using AutoMapper;
 using MeFit_BE.Models;
 using MeFit_BE.Models.Domain.UserDomain;
 using MeFit_BE.Models.DTO.ContributorRequest;
 using MeFit_BE.Models.JSON;
 using MeFit_BE.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Net.Mime;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace MeFit_BE.Controllers
@@ -44,7 +35,7 @@ namespace MeFit_BE.Controllers
         /// <summary>
         /// Method fetches Access Token for Management API
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Auth0 access token</returns>
         [HttpGet("auth0")]
         public async Task<IActionResult> GetToken()
         {
@@ -54,10 +45,10 @@ namespace MeFit_BE.Controllers
         /// <summary>
         /// Method Updates User using Auth0 Manegement API and updates User in DB
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="email"></param>
-        /// <param name="nickname"></param>
-        /// <returns></returns>
+        /// <param name="id">User id</param>
+        /// <param name="email">User email</param>
+        /// <param name="nickname">User nickname</param>
+        /// <returns>Ok</returns>
         [HttpPatch("users/{id}")]
         public async Task<IActionResult> PatchUser(int id, string email, string nickname) 
         {
@@ -72,8 +63,8 @@ namespace MeFit_BE.Controllers
         /// <summary>
         /// Method Deletes User from Auth0 and DB using Auth0 Manegement API and MeFit DB Context
         /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
+        /// <param name="id">User id</param>
+        /// <returns>No content</returns>
         [HttpDelete("users/{id}")]
         public async Task<IActionResult> DeleteUser(int id) 
         {
@@ -87,9 +78,9 @@ namespace MeFit_BE.Controllers
         /// <summary>
         /// Method assigns roles to User using Auth0 Manegement API and updates User in DB 
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="role"></param>
-        /// <returns></returns>
+        /// <param name="id">User id</param>
+        /// <param name="role">User role</param>
+        /// <returns>Ok</returns>
         [HttpPost("users/{id}/{role}")]
         public async Task<IActionResult> PostUserRoles(int id, string role)
         {
@@ -109,7 +100,7 @@ namespace MeFit_BE.Controllers
         /// <summary>
         /// Method fetches all pending contributor requests.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>List of contributor requests</returns>
         [HttpGet("contributor-request")]
         public async Task<IEnumerable<ContributorRequestReadDTO>> GetPendingContributorRequests()
         {
@@ -119,8 +110,8 @@ namespace MeFit_BE.Controllers
         /// <summary>
         /// Method deletes a contributor request
         /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
+        /// <param name="id">Contributor request id</param>
+        /// <returns>No content</returns>
         [HttpDelete("contributor-request/{id}")]
         public async Task<ActionResult> DeleteContributorRequest(int id)
         {
@@ -130,25 +121,5 @@ namespace MeFit_BE.Controllers
 
             return NoContent();
         }
-
-        /* 
-        [HttpGet("users/{id}")]
-        private async Task<IActionResult> GetUser(string id)
-        {
-            //var url = BASE_URL + $"users/{id}";
-            //var response = await _client.GetStringAsync(url);
-            var response = await _auth0Service.GetAccessTokenAsync();
-            return Ok(response);
-        }
-
-        [HttpGet("users/{id}/roles")]
-        private async Task<IActionResult> GetUserRoles(string id)
-        {
-            //var url = BASE_URL + $"users/{id}/roles";
-            //var response = await _client.GetStringAsync(url);
-            var response = await _auth0Service.GetAccessTokenAsync();
-            return Ok(response);
-        }
-        */
     }
 }
