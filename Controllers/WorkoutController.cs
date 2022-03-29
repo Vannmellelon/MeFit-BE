@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MeFit_BE.Models.Domain;
+using MeFit_BE.Models.Domain.GoalDomain;
 
 namespace MeFit_BE.Controllers
 {
@@ -115,11 +116,11 @@ namespace MeFit_BE.Controllers
             { return NotFound($"Cannot find workout with id: {id}"); }
             Workout _domainWorkout = await _context.Workouts.FindAsync(id);
 
+            //Ensure that current user is the contributor of the workout.
             User user = await Helper.GetCurrentUser(HttpContext, _context);
             if (user == null) { return BadRequest(); }
-
-            //Ensure that current user is the contributor of the workout.
-            if (_domainWorkout.ContributorId != user.Id) return Forbid();
+            if (_domainWorkout.ContributorId != user.Id) 
+                return Forbid($"Tried to change a workout {id}, which is not owned by the current user.");
 
             //Update workout
             if (updatedWorkout.Category != null)
@@ -158,12 +159,26 @@ namespace MeFit_BE.Controllers
             {
                 return NotFound($"Can not find workout with id: {id}");
             }
-            Workout _domainWorkout = await _context.Workouts.FindAsync(id);
+            Workout _domainWorkout = await _context.Workouts.Include(w => w.Sets).FirstOrDefaultAsync(w => w.Id == id);
             User user = await Helper.GetCurrentUser(HttpContext, _context);
             if (user == null) return BadRequest();
 
             //Ensure current contributor owns the workout.
-            if (_domainWorkout.ContributorId != user.Id) return Forbid();
+            if (_domainWorkout.ContributorId != user.Id) 
+                return Forbid($"Tried to delete workout {id}, which is not owned by the current user.");
+
+            //Remove all sub-goals that rely on the workout.
+            List<SubGoal> subGoals = await _context.SubGoals.Where(s => s.WorkoutId == id).ToListAsync();
+            foreach (SubGoal subGoal in subGoals)
+            {
+                _context.SubGoals.Remove(subGoal);
+            }
+
+            //Remove all sets related to the workout.
+            foreach (Set set in _domainWorkout.Sets)
+            {
+                _domainWorkout.Sets.Remove(set);
+            }
 
             _context.Remove(_domainWorkout);
             await _context.SaveChangesAsync();

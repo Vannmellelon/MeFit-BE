@@ -1,11 +1,11 @@
 ﻿using AutoMapper;
 using MeFit_BE.Models;
 using MeFit_BE.Models.Domain.GoalDomain;
+using MeFit_BE.Models.Domain.UserDomain;
 using MeFit_BE.Models.DTO.SubGoal;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mime;
@@ -63,7 +63,7 @@ namespace MeFit_BE.Controllers
         [HttpPost]
         public async Task<ActionResult<SubGoalReadDTO>> PostSubGoal(SubGoalWriteDTO subGoalDTO) 
         {
-            var domainSubGoal = _mapper.Map<SubGoal>(subGoalDTO);
+            SubGoal domainSubGoal = _mapper.Map<SubGoal>(subGoalDTO);
             _context.SubGoals.Add(domainSubGoal);
             await _context.SaveChangesAsync();
 
@@ -72,7 +72,8 @@ namespace MeFit_BE.Controllers
 
 
         /// <summary>
-        /// Method updates a SubGoal in the database by id
+        /// Method updates a SubGoal in the database by id. A sub-goal can only be changed 
+        /// by the person who owns the goal the sub-goal is part of.
         /// </summary>
         /// <param name="id">SubGoal id</param>
         /// <param name="subGoalDTO">SubGoal with new values</param>
@@ -80,9 +81,15 @@ namespace MeFit_BE.Controllers
         [HttpPatch("{id}")]
         public async Task<IActionResult> PatchSubGoal(int id, [FromBody] SubGoalEditDTO subGoalDTO)
         {
-            // Get Excerise
-            var subGoal = await GetSubGoalAsync(id);
-            if (subGoal == null) return NotFound();
+            // Get sub-goal
+            SubGoal subGoal = await GetSubGoalAsync(id);
+            if (subGoal == null) return NotFound($"Could not find sub-goal with id {id}.");
+
+            //Ensure current user owns the sub-goal.
+            Goal goal = await _context.Goals.FindAsync(subGoal.GoalId);
+            User user = await Helper.GetCurrentUser(HttpContext, _context);
+            if (user == null) return BadRequest();
+            if (goal.UserId != user.Id) return Forbid($"The current user does not own the sub-goal with id {id}.");
 
             // Update SubGoal
             subGoal.Achieved = subGoalDTO.Achieved;
@@ -95,7 +102,8 @@ namespace MeFit_BE.Controllers
 
 
         /// <summary>
-        /// Method deletes a SubGoal in the database by id.
+        /// Method deletes a SubGoal in the database by id. A sub-goal can only be 
+        /// deleted by its owner.
         /// </summary>
         /// <param name="id">SubGoal id</param>
         /// <returns>No content</returns>
@@ -103,9 +111,14 @@ namespace MeFit_BE.Controllers
         public async Task<ActionResult> DeleteSubGoal(int id)
         {
             if (!SubGoalExists(id))
-                return NotFound();
+                return NotFound($"Could not find sub-goal with id {id}");
+            SubGoal subGoal = await GetSubGoalAsync(id);
 
-            var subGoal = await GetSubGoalAsync(id);
+            //Ensure the current user owns the sub-goal.
+            Goal goal = await _context.Goals.FindAsync(subGoal.GoalId);
+            User user = await Helper.GetCurrentUser(HttpContext, _context);
+            if (user == null) return BadRequest();
+            if (goal.UserId != user.Id) return Forbid($"The current user does not own the sub-goal with id {id}.");
 
             _context.SubGoals.Remove(subGoal);
             await _context.SaveChangesAsync();

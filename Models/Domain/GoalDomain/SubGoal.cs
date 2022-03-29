@@ -12,12 +12,14 @@ namespace MeFit_BE.Models.Domain.GoalDomain
         [DefaultValue(false)]
         public bool Achieved { get; set; }
 
+        [ForeignKey("GoalId")]
         public Goal Goal { get; set; }
 
         public int GoalId { get; set; }
 
+        [ForeignKey("WorkoutId")]
         public Workout Workout { get; set; }
 
-        public int WorkoutId { get; set; }
+        public int? WorkoutId { get; set; }
     }
 }
