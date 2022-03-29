@@ -121,7 +121,7 @@ namespace MeFit_BE.Controllers
                 return Forbid($"Current user does not own the goal with id {goal.Id}.");
 
             // Update goal
-            goal.EndData = goalDTO.EndData;
+            goal.EndDate = goalDTO.EndDate;
             goal.Achieved = goalDTO.Achieved;
             _context.Goals.Update(goal);
             await _context.SaveChangesAsync();

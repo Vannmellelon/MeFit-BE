@@ -170,14 +170,14 @@ namespace MeFit_BE.Models
             Goal goal1 = new Goal()
             {
                 Id = 1,
-                EndData = new DateTime(2022, 9, 12),
+                EndDate = new DateTime(2022, 9, 12),
                 UserId = user1.Id,
                 WorkoutProgramId = workoutProgram1.Id
             };
             Goal goal2 = new Goal()
             {
                 Id = 2,
-                EndData = new DateTime(2022, 12, 24),
+                EndDate = new DateTime(2022, 12, 24),
                 Achieved = true,
                 UserId = user2.Id,
                 WorkoutProgramId = workoutProgram2.Id
@@ -185,7 +185,7 @@ namespace MeFit_BE.Models
             Goal goal3 = new Goal()
             {
                 Id = 3,
-                EndData = new DateTime(2025, 1, 1),
+                EndDate = new DateTime(2025, 1, 1),
                 UserId = user3.Id,
                 Achieved = true,
                 WorkoutProgramId = workoutProgram3.Id
