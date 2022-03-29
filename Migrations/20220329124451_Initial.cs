@@ -191,7 +191,7 @@ namespace MeFit_BE.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    EndData = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Achieved = table.Column<bool>(type: "bit", nullable: false),
                     UserId = table.Column<int>(type: "int", nullable: false),
                     WorkoutProgramId = table.Column<int>(type: "int", nullable: true)
@@ -340,7 +340,7 @@ namespace MeFit_BE.Migrations
 
             migrationBuilder.InsertData(
                 table: "Goal",
-                columns: new[] { "Id", "Achieved", "EndData", "UserId", "WorkoutProgramId" },
+                columns: new[] { "Id", "Achieved", "EndDate", "UserId", "WorkoutProgramId" },
                 values: new object[,]
                 {
                     { 1, false, new DateTime(2022, 9, 12, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, 1 },

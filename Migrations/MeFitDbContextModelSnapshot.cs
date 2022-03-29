@@ -29,7 +29,7 @@ namespace MeFit_BE.Migrations
                     b.Property<bool>("Achieved")
                         .HasColumnType("bit");
 
-                    b.Property<DateTime>("EndData")
+                    b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("UserId")
@@ -51,7 +51,7 @@ namespace MeFit_BE.Migrations
                         {
                             Id = 1,
                             Achieved = false,
-                            EndData = new DateTime(2022, 9, 12, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            EndDate = new DateTime(2022, 9, 12, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             UserId = 1,
                             WorkoutProgramId = 1
                         },
@@ -59,7 +59,7 @@ namespace MeFit_BE.Migrations
                         {
                             Id = 2,
                             Achieved = true,
-                            EndData = new DateTime(2022, 12, 24, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            EndDate = new DateTime(2022, 12, 24, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             UserId = 2,
                             WorkoutProgramId = 2
                         },
@@ -67,7 +67,7 @@ namespace MeFit_BE.Migrations
                         {
                             Id = 3,
                             Achieved = true,
-                            EndData = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            EndDate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             UserId = 3,
                             WorkoutProgramId = 3
                         });
