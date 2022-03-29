@@ -161,7 +161,7 @@ namespace MeFit_BE.Controllers
         /// <param name="goalId">Goal id</param>
         /// <param name="workoutId">Workout id</param>
         /// <returns>Goal</returns>
-        [HttpPatch("{id}/workouts/{workoutId}")]
+        [HttpPatch("{goalId}/workouts/{workoutId}")]
         public async Task<ActionResult<GoalReadDTO>> PatchWorkoutToGoal(int goalId, int workoutId)
         {
             Goal goal = await GetGoalAsync(goalId); 

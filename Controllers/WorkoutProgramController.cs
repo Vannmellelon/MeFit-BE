@@ -181,7 +181,7 @@ namespace MeFit_BE.Controllers
         /// <param name="programId">WorkoutProgram id</param>
         /// <param name="workoutId">Workout id</param>
         /// <returns>WorkoutProgram</returns>
-        [HttpPatch("{id}/workouts/{workoutId}")]
+        [HttpPatch("{programId}/workouts/{workoutId}")]
         public async Task<IActionResult> PatchAddWorkoutToProgram(int programId, int workoutId)
         {
             if (!Helper.IsContributor(HttpContext)) 
