@@ -7,6 +7,5 @@ namespace MeFit_BE.Models.DTO.Goal
         public DateTime EndDate { get; set; }
 
         public int WorkoutProgramId { get; set; }
-
     }
 }
