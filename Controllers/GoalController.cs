@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using MeFit_BE.Models;
 using MeFit_BE.Models.Domain.GoalDomain;
+using MeFit_BE.Models.Domain.UserDomain;
 using MeFit_BE.Models.Domain.WorkoutDomain;
 using MeFit_BE.Models.DTO.Goal;
 using MeFit_BE.Models.DTO.WorkoutProgram;
@@ -66,24 +67,31 @@ namespace MeFit_BE.Controllers
         [HttpPost]
         public async Task<ActionResult<GoalReadDTO>> PostGoal(GoalWriteDTO newGoal)
         {
-            // Adding goal to the database
+            User user = await Helper.GetCurrentUser(HttpContext, _context);
+            if (user == null) return BadRequest();
+
+            // Find goal
             Goal domainGoal = _mapper.Map<Goal>(newGoal);
+            domainGoal.UserId = user.Id;
+
+            //Find workout program
+            WorkoutProgram program = await _context.WorkoutPrograms.Include(wp => wp.Workouts).FirstOrDefaultAsync(wp => wp.Id == newGoal.WorkoutProgramId);
+            if (program == null) return BadRequest("Cannot find workout-program with id: " + newGoal.WorkoutProgramId);
+            WorkoutProgramReadDTO wpRdto = _mapper.Map<WorkoutProgramReadDTO>(program);
+
+            //Save goal to database
             _context.Goals.Add(domainGoal);
             await _context.SaveChangesAsync();
 
-            // Find program, make subgoals for workouts
-            WorkoutProgram program = await _context.WorkoutPrograms.Include(wp => wp.Workouts).FirstOrDefaultAsync(wp => wp.Id == newGoal.WorkoutProgramId);
-            if (program == null) return BadRequest("Cannot find workout-program with id: "+newGoal.WorkoutProgramId);
-            WorkoutProgramReadDTO wpRdto = _mapper.Map<WorkoutProgramReadDTO>(program);
-
+            // Make subgoals for workouts within workout program.
             foreach (int wid in wpRdto.Workouts)
             {
-                SubGoal _subGoal = new SubGoal();
+                SubGoal _subGoal = new SubGoal()
+                {
+                    WorkoutId = wid,
+                    GoalId = domainGoal.Id
+                };
                 _context.SubGoals.Add(_subGoal);
-
-                _subGoal.WorkoutId = wid;
-                _subGoal.GoalId = domainGoal.Id;
-
                 await _context.SaveChangesAsync();
             }
 
@@ -93,22 +101,28 @@ namespace MeFit_BE.Controllers
 
         /// <summary>
         /// Method updates a goal in the database by id;
-        /// must pass in an updated goal object
+        /// must pass in an updated goal object. Goal can only be updated by the
+        /// user that owns it.
         /// </summary>
         /// <param name="id">Goal id</param>
         /// <param name="goalDTO">New goal properties</param>
         /// <returns>Updated goal</returns>
         [HttpPatch("{id}")]
-        public async Task<IActionResult> Patch(int id, GoalEditDTO goalDTO)
+        public async Task<ActionResult> Patch(int id, GoalEditDTO goalDTO)
         {
-            // Find goal in database.
+            // Find goal and current user.
             Goal goal = await GetGoalAsync(id);
             if (goal == null) return NotFound();
+            User user = await Helper.GetCurrentUser(HttpContext, _context);
+            if (user == null) return BadRequest();
+
+            //Ensure the current user owns the goal.
+            if (goal.UserId != user.Id) 
+                return Forbid($"Current user does not own the goal with id {goal.Id}.");
 
             // Update goal
-            goal.EndData = goalDTO.EndData;
+            goal.EndDate = goalDTO.EndDate;
             goal.Achieved = goalDTO.Achieved;
-
             _context.Goals.Update(goal);
             await _context.SaveChangesAsync();
 
@@ -117,7 +131,8 @@ namespace MeFit_BE.Controllers
 
 
         /// <summary>
-        /// Method deletes a goal in the database by id.
+        /// Method deletes a goal in the database by id. 
+        /// Only the user that owns the goal can delete it.
         /// </summary>
         /// <param name="id">Goal id</param>
         /// <returns>No content</returns>
@@ -126,27 +141,38 @@ namespace MeFit_BE.Controllers
         {
             if (!GoalExists(id))
                 return NotFound($"Goal with Id: {id} was not found");
-
             Goal domainGoal = await GetGoalAsync(id);
+
+            //Ensure the current user owns the goal.
+            User user = await Helper.GetCurrentUser(HttpContext, _context);
+            if (user == null) return BadRequest();
+            if (user.Id != domainGoal.Id) 
+                return Forbid($"The current user does not own the goal with id {domainGoal.Id}.");
 
             _context.Goals.Remove(domainGoal);
             await _context.SaveChangesAsync();
-
             return NoContent();
         }
 
         /// <summary>
         /// Method adds a workout to a goal by adding it as one of the
-        /// goal's sub-goal.
+        /// goal's sub-goal. A goal can only be altered by its owner.
         /// </summary>
-        /// <param name="id">Goal id</param>
+        /// <param name="goalId">Goal id</param>
         /// <param name="workoutId">Workout id</param>
         /// <returns>Goal</returns>
         [HttpPatch("{id}/workouts/{workoutId}")]
-        public async Task<ActionResult<GoalReadDTO>> PatchWorkoutToGoal(int id, int workoutId)
+        public async Task<ActionResult<GoalReadDTO>> PatchWorkoutToGoal(int goalId, int workoutId)
         {
-            Goal goal = await GetGoalAsync(id); 
-            if (goal == null) return NotFound($"Could not find goal with id {id}.");
+            Goal goal = await GetGoalAsync(goalId); 
+            if (goal == null) return NotFound($"Could not find goal with id {goalId}.");
+
+            //Ensure the current user owns the goal.
+            User user = await Helper.GetCurrentUser(HttpContext, _context);
+            if (user == null) return BadRequest();
+            if (user.Id != goal.Id)
+                return Forbid($"The current user does not own the goal with id {goalId}.");
+
             SubGoal subGoal = new SubGoal()
             {
                 WorkoutId = workoutId,

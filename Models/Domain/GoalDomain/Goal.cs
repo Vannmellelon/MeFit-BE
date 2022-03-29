@@ -12,7 +12,7 @@ namespace MeFit_BE.Models.Domain.GoalDomain
     {
         public int Id { get; set; }
 
-        public DateTime EndData { get; set; }
+        public DateTime EndDate { get; set; }
 
         [DefaultValue(false)]
         public bool Achieved { get; set; }

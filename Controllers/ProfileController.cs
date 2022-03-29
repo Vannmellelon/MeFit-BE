@@ -77,7 +77,8 @@ namespace MeFit_BE.Controllers
 
 
         /// <summary>
-        /// Method updates a profile in the database.
+        /// Method updates a profile in the database. A profile can only be updated
+        /// by its owner.
         /// </summary>
         /// <param name="id">Profile id</param>
         /// <param name="profileDTO">Profile with updated values</param>
@@ -88,6 +89,11 @@ namespace MeFit_BE.Controllers
             //Get profile.
             Models.Domain.UserDomain.Profile profile = await _context.Profiles.FindAsync(id);
             if (profile == null) return NotFound();
+
+            //Ensure the current user owns the profile.
+            User user = await Helper.GetCurrentUser(HttpContext, _context);
+            if (user.Id != profile.UserId) 
+                return Forbid($"The user with id {user.Id} does not own profile {profile.Id}.");
 
             //Update profile.
             if (profileDTO.Disabilities != null) profile.Disabilities = profileDTO.Disabilities;
@@ -103,7 +109,8 @@ namespace MeFit_BE.Controllers
 
 
         /// <summary>
-        /// Method deletes the profile with the given id.
+        /// Method deletes the profile with the given id. 
+        /// A profile can only be deleted by its owner.
         /// </summary>
         /// <param name="id">Profile id</param>
         /// <returns>No content</returns>
@@ -112,6 +119,11 @@ namespace MeFit_BE.Controllers
         {
             Models.Domain.UserDomain.Profile profile = await _context.Profiles.FindAsync(id);
             if (profile == null) return NotFound();
+
+            //Ensure the profile is owned by the current user.
+            User user = await Helper.GetCurrentUser(HttpContext, _context);
+            if (user.Id != profile.UserId) return Forbid($"The current user does not own profile {id}.");
+
             _context.Profiles.Remove(profile);
             await _context.SaveChangesAsync();
 

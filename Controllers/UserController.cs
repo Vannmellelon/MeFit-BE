@@ -48,7 +48,7 @@ namespace MeFit_BE.Controllers
         public async Task<ActionResult<UserReadDTO>> RedirectUser()
         {
             User user = await Helper.GetCurrentUser(HttpContext, _context);
-            if (user == null) return BadRequest();
+            if (user == null) return BadRequest("There is no currently logged in user.");
 
             string host = HttpContext.Request.Host.ToUriComponent();
             string path = HttpContext.Request.Path.ToUriComponent();
@@ -86,7 +86,7 @@ namespace MeFit_BE.Controllers
         public async Task<ActionResult<UserReadDTO>> GetUser(int id)
         {
             User user = await _context.Users.Include(u => u.Goals).FirstOrDefaultAsync(u => u.Id == id);
-            if (user == null) return BadRequest();
+            if (user == null) return NotFound($"The user with id {id} does not exist.");
 
             return _mapper.Map<UserReadDTO>(user);
         }
@@ -99,19 +99,17 @@ namespace MeFit_BE.Controllers
         [HttpPost]
         public async Task<ActionResult<UserReadDTO>> PostUser([FromBody] UserWriteDTO userDTO)
         {
-            // Validate custom-type parameters
-            if (userDTO == null) return BadRequest();
-
-            //Helper.GetExternalUserProviderId(HttpContext);
             User checkUser = await Helper.GetCurrentUser(HttpContext, _context);
             if (checkUser != null) return BadRequest("User already exists!"); 
 
-            if (!Difficulty.IsValid(userDTO.FitnessLevel)) return BadRequest("Please enter a valid difficulty-category. " + userDTO.FitnessLevel + " is not valid.");
+            if (!Difficulty.IsValid(userDTO.FitnessLevel)) 
+                return BadRequest("Please enter a valid difficulty-category. " + userDTO.FitnessLevel + " is not valid.");
             if (userDTO.RestrictedCategories != null)
             {
                foreach (var res in userDTO.RestrictedCategories.Split(","))
                {
-                   if (!Category.IsValid(res)) return BadRequest("Please enter a valid exercise-category. " + res + " is not valid.");
+                   if (!Category.IsValid(res)) 
+                        return BadRequest("Please enter a valid exercise-category. " + res + " is not valid.");
                }
             }
 
@@ -146,7 +144,7 @@ namespace MeFit_BE.Controllers
 
         /// <summary>
         /// Updates a user in the database. 
-        /// A user can only de altered by themselves.
+        /// A user can only de altered by themselves or an administrator.
         /// </summary>
         /// <param name="id">User id</param>
         /// <param name="userDTO">User with updated values</param>
@@ -154,12 +152,17 @@ namespace MeFit_BE.Controllers
         [HttpPatch("{id}")]
         public async Task<IActionResult> PatchUser(int id, [FromBody] UserEditDTO userDTO)
         {
-            // Get user from database
-            User user = await Helper.GetCurrentUser(HttpContext, _context);
-            if (user == null) return BadRequest();
+            //Get current user
+            User current = await Helper.GetCurrentUser(HttpContext, _context);
+            if (current == null) return BadRequest();
+            
+            // Get user to be changed
+            User user = await _context.Users.FindAsync(id);
+            if (user == null) return NotFound($"Could not find a user with id {id}.");
 
-            // Ensure current user is the user being changed
-            if (user.Id != id) return Forbid();
+            // Ensure current user is an admin or the user being changed
+            if (!Helper.IsAdmin(HttpContext) && current.Id != user.Id) 
+                return Forbid("Tried to change another user than the current, and is not an administrator.");
 
             // Update user
             if (userDTO.FirstName != null) user.FirstName = userDTO.FirstName;
@@ -197,16 +200,17 @@ namespace MeFit_BE.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
-            // Get current user
-            User user = await Helper.GetCurrentUser(HttpContext, _context);
-            if (user == null) return BadRequest();
+            //Get current user
+            User current = await Helper.GetCurrentUser(HttpContext, _context);
+            if (current == null) return BadRequest();
+
+            // Get user to be deleted.
+            User userToBeDeleted = await _context.Users.FindAsync(id);
+            if (userToBeDeleted == null) return NotFound($"Could not find user with id {id}.");
 
             // Ensure current user is admin OR the one being deleted.
-            if (user.Id != id && !Helper.IsAdmin(HttpContext)) return Forbid();
-
-            //Get the user to be deleted.
-            User userToBeDeleted = await _context.Users.FindAsync(id);
-            if (userToBeDeleted == null) return NotFound();
+            if (!Helper.IsAdmin(HttpContext) && current.Id != userToBeDeleted.Id)
+                return Forbid("Tried to delete another user than current, and is not an administrator.");
 
             //Delete the user's goals and sub-goals.
             List<Goal> goals = await _context.Goals.Include(g => g.SubGoals)
@@ -222,7 +226,7 @@ namespace MeFit_BE.Controllers
                 _context.Goals.Remove(goal);
             }
 
-            if (user.IsContributor)
+            if (userToBeDeleted.IsContributor)
             {
                 //Delete goals and sub-goals that rely on objects by the contributor to be deleted.
                 DeleteGoalsRelatedToContributor(id);
@@ -249,22 +253,24 @@ namespace MeFit_BE.Controllers
             await _context.SaveChangesAsync();
 
             // Deletes user from Auth0
-            if (user.AuthId != null) 
-                await _auth0Service.DeleteUserAsync(user.AuthId);
+            if (userToBeDeleted.AuthId != null) 
+                await _auth0Service.DeleteUserAsync(userToBeDeleted.AuthId);
 
             return NoContent();
         }
 
         /// <summary>
-        /// Returns the profile belonging to the user with the given id.
+        /// Returns the profile belonging to the current user.
         /// If the user does not have a profile, the method will return not found.
         /// </summary>
-        /// <param name="id">User id</param>
         /// <returns>Profile</returns>
-        [HttpGet("{id}/profile")]
-        public async Task<ActionResult<ProfileReadDTO>> GetUserProfile(int id)
+        [HttpGet("/profile")]
+        public async Task<ActionResult<ProfileReadDTO>> GetUserProfile()
         {
-            Models.Domain.UserDomain.Profile profile = await _context.Profiles.FirstOrDefaultAsync(p => p.UserId == id);
+            User user = await Helper.GetCurrentUser(HttpContext, _context);
+            if (user == null) return BadRequest();
+
+            Models.Domain.UserDomain.Profile profile = await _context.Profiles.FirstOrDefaultAsync(p => p.UserId == user.Id);
             if (profile == null) return NotFound();
 
             return Ok(_mapper.Map<ProfileReadDTO>(profile));
