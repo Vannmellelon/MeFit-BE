@@ -54,7 +54,7 @@ namespace MeFit_BE.Controllers
         public async Task<ActionResult<WorkoutProgramReadDTO>> GetWorkoutProgram(int id)
         {
             WorkoutProgram workoutProgram = await _context.WorkoutPrograms.Include(wp => wp.Workouts).FirstOrDefaultAsync(wp => wp.Id == id);
-            if (workoutProgram == null) return NotFound();
+            if (workoutProgram == null) return NotFound($"Could not find workout program with id {id}.");
             return _mapper.Map<WorkoutProgramReadDTO>(workoutProgram);
         }
 
@@ -68,11 +68,12 @@ namespace MeFit_BE.Controllers
         [Authorize(Roles ="Contributor")]
         public async Task<ActionResult<WorkoutProgramReadDTO>> PostWorkoutProgram(WorkoutProgramWriteDTO programDTO)  
         {
-            if (!Helper.IsContributor(HttpContext)) return Forbid();
+            if (!Helper.IsContributor(HttpContext)) 
+                return Forbid($"Only contributors can create new workout programs.");
 
             //Find current user in the database.
             User user = await Helper.GetCurrentUser(HttpContext, _context);
-            if (user == null) return NotFound();
+            if (user == null) return BadRequest();
 
             //Check input validity.
             if (!Category.IsValid(programDTO.Category)) 
@@ -93,7 +94,7 @@ namespace MeFit_BE.Controllers
         /// <summary>
         /// Method updates a workout program in the database by id;
         /// must pass in an updated workout program object. Only the contributor of the 
-        /// workout program can delete it.
+        /// workout program can change it.
         /// </summary>
         /// <param name="id">Workout program id</param>
         /// <param name="programDTO">Workout program with new values</param>
@@ -102,15 +103,18 @@ namespace MeFit_BE.Controllers
         [Authorize(Roles = "Contributor")]
         public async Task<IActionResult> PatchWorkoutProgram(int id, [FromBody] WorkoutProgramEditDTO programDTO)
         {
-            if (!Helper.IsContributor(HttpContext)) return Forbid();
+            if (!Helper.IsContributor(HttpContext)) 
+                return Forbid("Only contributors can edit workout programs.");
 
             // Get workout program and current user from database.
             WorkoutProgram program = await GetProgramAsync(id);
+            if (program == null) return NotFound($"Could not find workout program with id {id}.");
             User user = await Helper.GetCurrentUser(HttpContext, _context);
-            if (user == null || program == null) return NotFound();
+            if (user == null) return BadRequest();
 
             //Ensure current contributor owns the workout program.            
-            if (program.ContributorId != user.Id) return Forbid();
+            if (program.ContributorId != user.Id) 
+                return Forbid($"Tried to change workout program {id}, which is not owned by the current user.");
 
             // Update WorkoutProgram
             if (programDTO.Category != null)
@@ -143,7 +147,8 @@ namespace MeFit_BE.Controllers
         [Authorize(Roles = "Contributor")]
         public async Task<ActionResult<WorkoutProgram>> DeleteWorkoutProgram(int id)
         {
-            if (!Helper.IsContributor(HttpContext)) return Forbid();
+            if (!Helper.IsContributor(HttpContext)) 
+                return Forbid("Only contributors can delete workout programs.");
 
             //Get workout program and current user form database.
             if (!ProgramExists(id))
@@ -153,7 +158,8 @@ namespace MeFit_BE.Controllers
             if (user == null) return BadRequest();
 
             //Ensure current contributor owns the workout program.
-            if (program.Id != user.Id) return Forbid();
+            if (program.Id != user.Id) 
+                return Forbid($"Tried to delete workout program {id}, which is not owned by the current user.");
 
             //Remove goals that rely on the workout program before deleting the program.
             List<Goal> goals = await _context.Goals.Where(g => g.WorkoutProgramId == id).ToListAsync();
@@ -170,17 +176,22 @@ namespace MeFit_BE.Controllers
 
         /// <summary>
         /// Method adds the workout with the given id to the given workout program.
+        /// Only contributors can add a workout to a workout program.
         /// </summary>
-        /// <param name="id">WorkoutProgram id</param>
+        /// <param name="programId">WorkoutProgram id</param>
         /// <param name="workoutId">Workout id</param>
-        /// <returns></returns>
+        /// <returns>WorkoutProgram</returns>
         [HttpPatch("{id}/workouts/{workoutId}")]
-        public async Task<IActionResult> PatchAddWorkoutToProgram(int id, int workoutId)
+        public async Task<IActionResult> PatchAddWorkoutToProgram(int programId, int workoutId)
         {
+            if (!Helper.IsContributor(HttpContext)) 
+                return Forbid("Only contributors can add workouts to workout programs.");
+
             WorkoutProgram workoutPogram = await _context.WorkoutPrograms
-                .Include(wp => wp.Workouts).SingleOrDefaultAsync(wp => wp.Id == id);
+                .Include(wp => wp.Workouts).SingleOrDefaultAsync(wp => wp.Id == programId);
+            if (workoutPogram == null) return NotFound($"Could not find workout program with id {programId}.");
             Workout workout = await _context.Workouts.FindAsync(workoutId);
-            if (workout == null || workoutPogram == null) return NotFound();
+            if (workout == null) return NotFound($"Could not find workout with id {workoutId}.");
 
             workoutPogram.Workouts.Add(workout);
             _context.SaveChanges();
