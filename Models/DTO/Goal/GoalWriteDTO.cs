@@ -6,10 +6,6 @@ namespace MeFit_BE.Models.DTO.Goal
     {
         public DateTime EndData { get; set; }
 
-        public bool Achieved { get; set; }
-
-        public int UserId { get; set; }
-
         public int WorkoutProgramId { get; set; }
 
     }
